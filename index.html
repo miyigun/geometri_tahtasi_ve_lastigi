@@ -167,22 +167,13 @@
         #threeCanvas{width:100%;height:100%;display:block;cursor:grab;}
         #threeCanvas:active{cursor:grabbing;}
 
-        /* 2D / 3D geçiş butonları */
-        .view-toggle-bar{
-            position:absolute;top:10px;left:50%;transform:translateX(-50%);
-            display:flex;gap:6px;z-index:30;background:var(--toolbar-bg);
-            border:1.5px solid var(--border-color);border-radius:12px;
-            padding:5px 10px;backdrop-filter:blur(10px);
-            box-shadow:0 2px 12px var(--border-glow);
+        /* 3D fallback uyarı notu */
+        #fallbackNotice{
+            display:none;position:absolute;top:8px;left:50%;transform:translateX(-50%);
+            background:rgba(200,100,0,.85);color:#fff;font-size:11px;
+            padding:5px 14px;border-radius:20px;pointer-events:none;
+            white-space:nowrap;z-index:40;backdrop-filter:blur(4px);
         }
-        .view-toggle-btn{
-            padding:5px 14px;border-radius:8px;background:transparent;
-            border:1.5px solid transparent;color:var(--text-primary);
-            cursor:pointer;font-size:12px;font-weight:600;transition:all .2s;
-        }
-        .view-toggle-btn:hover{background:var(--button-bg);border-color:var(--border-color);}
-        .view-toggle-btn.active{background:var(--button-hover);border-color:var(--border-color);
-            box-shadow:0 0 8px var(--border-glow);}
 
         
 
@@ -336,22 +327,11 @@
 
         <!-- SAĞ PANEL -->
         <div class="right-panel">
-            <!-- Görünüm geçiş butonları + Yüz seçici -->
-            <div class="view-toggle-bar">
-                <button class="view-toggle-btn active" id="btn2D">📐 2D Tahta</button>
-                <button class="view-toggle-btn" id="btn3D">🧊 3D Model</button>
-            </div>
+            <!-- 3D fallback uyarı notu -->
+            <div id="fallbackNotice">⚠️ 3D görünüm yüklenemedi, 2D mod aktif</div>
 
-            <!-- 2D yüz seçici — sadece 2D modda görünür -->
-            <div id="face2DSelectorBar" style="
-                position:absolute;top:48px;left:50%;transform:translateX(-50%);
-                display:flex;gap:6px;z-index:30;">
-                <button class="face-btn active" id="face2DFrontBtn">⬛ Ön Yüz (36 Pin)</button>
-                <button class="face-btn" id="face2DBackBtn">⭕ Arka Yüz (Çemberler)</button>
-            </div>
-
-            <!-- 2D SVG tahta -->
-            <div id="geoBoard" style="flex:1;position:relative;overflow:hidden;">
+            <!-- 2D SVG tahta (fallback) -->
+            <div id="geoBoard" style="flex:1;position:relative;overflow:hidden;display:none;">
                 <div class="board-svg-wrap" id="boardSvgWrap"></div>
                 <div id="boardHint">📌 Pinlere tıklayarak şekil oluşturun</div>
                 <div id="measurePanel">
@@ -364,7 +344,7 @@
                 </div>
             </div>
 
-            <!-- 2D Arka Yüz (çemberler) -->
+            <!-- 2D Arka Yüz (çemberler — fallback) -->
             <div id="geoBoardBack" style="flex:1;width:100%;height:100%;display:none;position:relative;
                 background:var(--bg-tertiary);overflow:hidden;align-items:center;justify-content:center;">
                 <div class="board-svg-wrap" id="boardBackSvgWrap"></div>
@@ -376,11 +356,12 @@
             </div>
 
             <!-- 3D Three.js canvas -->
-            <div id="threeContainer" style="flex:1;width:100%;height:100%;display:none;position:relative;">
+            <div id="threeContainer" style="flex:1;width:100%;height:100%;display:flex;position:relative;">
                 <canvas id="threeCanvas"></canvas>
                 <div class="three-hint" id="threeHint">
                     🖱 Sol tık: döndür &nbsp;|&nbsp; Sağ tık / iki parmak: kaydır<br>
-                    🖱 Tekerlek / iki parmak yakınlaştır: zoom
+                    🖱 Tekerlek / iki parmak yakınlaştır: zoom<br>
+                    🔄 Arka yüzü görmek için tahtayı döndürün
                 </div>
             </div>
         </div>
@@ -999,23 +980,6 @@ function renderBackElastics(){
     }
 }
 
-// 2D yüz geçiş butonları
-$('#face2DFrontBtn').on('click',function(){
-    if(current2DFace==='front') return;
-    current2DFace='front';
-    $(this).addClass('active'); $('#face2DBackBtn').removeClass('active');
-    $('#geoBoard').css('display','flex');
-    $('#geoBoardBack').css('display','none');
-});
-$('#face2DBackBtn').on('click',function(){
-    if(current2DFace==='back') return;
-    current2DFace='back';
-    $(this).addClass('active'); $('#face2DFrontBtn').removeClass('active');
-    $('#geoBoard').css('display','none');
-    $('#geoBoardBack').css({display:'flex',flex:'1',position:'relative',overflow:'hidden',
-        userSelect:'none',minHeight:'0',alignItems:'center',justifyContent:'center'});
-    rebuildBackBoard();
-});
 
 /* Zoom */
 $('#zoomInBtn').on('click',()=>{ boardZoom=Math.min(2.5,boardZoom+0.15); $('#boardSVG').css('transform',`scale(${boardZoom})`); });
@@ -2175,6 +2139,10 @@ $('#introDialog').show();
 $('#introContinueBtn').on('click',function(){
     $('#introDialog').hide();
     loadTab('intro');
+    setTimeout(()=>{
+        initThreeJS();
+        showRightPanel();
+    }, 80);
 });
 
 /* ══ MOBİL TOOLBAR TOGGLE ════════════════════════════════════ */
@@ -2219,6 +2187,28 @@ function getThemeColors(){
     };
 }
 
+/* ── WebGL desteği kontrolü ── */
+function isWebGLAvailable(){
+    try {
+        const canvas = document.createElement('canvas');
+        return !!(window.WebGLRenderingContext &&
+            (canvas.getContext('webgl') || canvas.getContext('experimental-webgl')));
+    } catch(e){ return false; }
+}
+
+/* ── Sağ panel görünüm yönetimi ── */
+function showRightPanel(){
+    $('#geoBoardBack').hide();
+    if(threeRenderer){
+        $('#threeContainer').css('display','flex');
+        $('#geoBoard').hide();
+    } else {
+        $('#geoBoard').css('display','flex');
+        $('#threeContainer').hide();
+        $('#fallbackNotice').show();
+    }
+}
+
 /* ── Three.js başlatma ── */
 /* ══ THREE.JS — 3D GEOMETRİ TAHTASI ════════════════════════════ */
 let threeRenderer = null, threeScene = null, threeCamera = null, threeControls = null;
@@ -2239,12 +2229,20 @@ const BOARD3D_THICK = 0.18;
 function initThreeJS(){
     if(threeRenderer) return; // Zaten başlatıldı
 
+    // THREE.js veya WebGL yoksa fallback
+    if(typeof THREE === 'undefined' || !isWebGLAvailable()){
+        showRightPanel();
+        return;
+    }
+
+    try {
+
     const container = document.getElementById('threeContainer');
     const canvas = document.getElementById('threeCanvas');
 
     // Renderer
     threeRenderer = new THREE.WebGLRenderer({canvas: canvas, antialias: true, alpha: true});
-    threeRenderer.setPixelRatio(window.devicePixelRatio);
+    threeRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     threeRenderer.setSize(container.clientWidth, container.clientHeight);
     threeRenderer.shadowMap.enabled = true;
 
@@ -2311,6 +2309,12 @@ function initThreeJS(){
     canvas.addEventListener('pointerup', (e)=>{
         if(!dragStarted) onThreePinClick(e);
     });
+
+    } catch(e){
+        // Three.js başlatma hatası — 2D fallback'e geç
+        threeRenderer = null;
+        showRightPanel();
+    }
 }
 
 function autoDetectFace(){
@@ -2543,29 +2547,6 @@ function animatePinSelect(pinMesh){
         if(t >= 1){ clearInterval(anim); pinMesh.scale.setScalar(1.0); }
     }, 16);
 }
-
-/* 2D / 3D geçiş */
-$('#btn2D').on('click', function(){
-    $(this).addClass('active'); $('#btn3D').removeClass('active');
-    $('#geoBoard').css('display','flex');
-    $('#threeContainer').hide();
-    if(threeAnimId){ cancelAnimationFrame(threeAnimId); threeAnimId = null; }
-});
-
-$('#btn3D').on('click', function(){
-    $(this).addClass('active'); $('#btn2D').removeClass('active');
-    $('#geoBoard').css('display','none');
-    $('#threeContainer').css('display','flex').css('flex','1');
-
-    // Kısa gecikme ile başlat (container boyutu hazır olsun)
-    setTimeout(()=>{
-        initThreeJS();
-        // Elastikleri 3D'ye yansıt
-        if(frontGroup) updateElastics3D();
-        // Temayı güncelle
-        if(threeScene) threeScene.background = new THREE.Color(currentTheme === 'dark' ? 0x0a0e27 : 0xf0f4f8);
-    }, 80);
-});
 
 /* Tema değişince 3D'yi yeniden oluştur */
 const _origThemeClick = $('#themeToggle').off('click');
@@ -3044,38 +3025,6 @@ function animateElasticSnap(){
     }
     requestAnimationFrame(anim);
 }
-
-/* ── 2D / 3D geçiş ── */
-$('#btn2D').on('click', function(){
-    $(this).addClass('active'); $('#btn3D').removeClass('active');
-    $('#geoBoard').show(); $('#threeContainer').hide();
-    $('#boardHint').show();
-    if(threeAnimId){ cancelAnimationFrame(threeAnimId); threeAnimId=null; }
-    // 3D'de yapılan seçimleri temizle
-    selected3DPins=[];
-    if(previewLine3D&&boardGroup){ boardGroup.remove(previewLine3D); previewLine3D=null; }
-});
-
-$('#btn3D').on('click', function(){
-    $(this).addClass('active'); $('#btn2D').removeClass('active');
-    $('#geoBoard').hide(); $('#threeContainer').show();
-
-    if(!threeRenderer){
-        initThreeJS();
-    } else {
-        if(boardGroup){
-            build3DBoard(); // temadan ve elastiklerden güncelle
-        }
-        if(!threeAnimId){
-            (function loop(){
-                threeAnimId=requestAnimationFrame(loop);
-                threeControls.update();
-                threeRenderer.render(threeScene,threeCamera);
-            })();
-        }
-    }
-    setTimeout(onThreeResize, 50);
-});
 
 /* Tema değiştiğinde */
 $('#themeToggle').off('click').on('click', function(){
