@@ -963,7 +963,7 @@ $(document).ready(function () {
             /* Adım 4: Alan hesabı — sol panel girişleri */
             case 4:
                 html += `<div class="instruction-box">
-            <p>Oluşturduğunuz şekilde <strong>2 birimlik kenar a</strong>, <strong>1 birimlik kenar b</strong>'dir.</p>
+            <p>Oluşturduğunuz şekilde <strong>büyük karenin kenar uzunluğu a = 2 birim</strong>, <strong>sonradan eklenen genişletme kenarı b = 1 birim</strong>'dir.</p>
             <p style="margin-top:8px;">Sağ taraftaki tahtada dört renkli bölgenin alanını <strong>a</strong> ve <strong>b</strong> cinsinden yazınız:</p>
             <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px;">
                 <div>
@@ -1073,7 +1073,7 @@ $(document).ready(function () {
                 </div>
             </div>
             <div style="margin-top:10px;" class="explain-box">
-                <p>🎉 Geometri tahtasında bizzat keşfettiğiniz bu eşitlik <strong>tamkare özdeşliği</strong>dir!</p>
+                <p>Geometri tahtasında bizzat keşfettiğiniz bu eşitlik <strong>tamkare özdeşliği</strong>dir!</p>
             </div>
         </div>
         <div style="text-align:center;display:none;" id="app1s5NextArea"><button class="action-button" id="app1s5Btn">Devam Et</button></div>`;
@@ -1242,7 +1242,7 @@ $(document).ready(function () {
                 break;
             case 4:
                 let activeAreaInput = null;
-                const areaLabels = { area1: '2×2 Kare (a²)', area2: '1×2 Dikdörtgen (ab)', area3: '2×1 Dikdörtgen (ab)', area4: '1×1 Kare (b²)' };
+                const areaLabels = { area1: '2×2 Kare', area2: '1×2 Dikdörtgen', area3: '2×1 Dikdörtgen', area4: '1×1 Kare' };
                 const areaBorderColors = { area1: '#ef4444', area2: '#eab308', area3: '#22c55e', area4: '#3b82f6' };
                 $(document).on('click.sqkey', 'button.sq-key', function () {
                     if (!activeAreaInput) return;
@@ -1703,7 +1703,7 @@ $(document).ready(function () {
 
             case 5:
                 html += `<div class="success-message" style="padding:16px;text-align:center;">
-            🎉 Uygulama 2 Tamamlandı!
+            Uygulama 2 Tamamlandı!
         </div>
         <div class="instruction-box" style="margin-top:10px;">
             <h3>🎯 Bu Uygulamada Neler Öğrendik?</h3>
@@ -2062,7 +2062,7 @@ $(document).ready(function () {
                 break;
 
             case 6:
-                html += `<div class="success-message" style="padding:18px;font-size:1.05em;">🎉 Tebrikler! Uygulama 3 tamamlandı!</div>
+                html += `<div class="success-message" style="padding:18px;font-size:1.05em;">Tebrikler! Uygulama 3 tamamlandı!</div>
         <div class="instruction-box">
             <h3>Öğrendikleriniz</h3>
             <ul>
@@ -2309,7 +2309,7 @@ $(document).ready(function () {
         </div>
         <div id="deepFeedback" style="margin-top:8px;"></div>
         <div style="display:none;text-align:center;" id="deepFinishArea">
-            <div class="success-message" style="margin-top:12px;">🎉 Tüm etkinlikler tamamlandı!</div>
+            <div class="success-message" style="margin-top:12px;">Tüm etkinlikler tamamlandı!</div>
             <button class="action-button" id="deepFinishBtn" style="margin-top:10px;">Başa Dön</button>
         </div>`;
                 if (window.MathJax) setTimeout(() => MathJax.typesetPromise(), 200);
