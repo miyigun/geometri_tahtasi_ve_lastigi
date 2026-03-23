@@ -3425,6 +3425,9 @@ $(document).ready(function () {
     function on3DMouseMove(e) {
         const dx = e.clientX - mouseDownPos3D.x, dy = e.clientY - mouseDownPos3D.y;
         if (Math.sqrt(dx * dx + dy * dy) > 4) isDragging3D = true;
+        // Pin üzerine gelindiğinde cursor'ı pointer yap
+        const pin = getPinUnderMouse(e.target, e);
+        e.target.style.cursor = pin ? 'pointer' : (isDragging3D ? 'grabbing' : 'grab');
     }
     function on3DMouseUp(e) {
         if (isDragging3D) { isDragging3D = false; return; }
