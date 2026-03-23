@@ -44,7 +44,9 @@ The left panel contains a structured learning flow:
 
 ## Project Structure
 
-- `index.html` — the full application (HTML/CSS/JS in one file)
+- `index.html` — the main HTML structure and page layout
+- `styles.css` — all application styles and theme variables
+- `script.js` — all application logic (3D board, elastic drawing, guided activities)
 - External libraries are loaded via CDN:
   - jQuery
   - MathJax
