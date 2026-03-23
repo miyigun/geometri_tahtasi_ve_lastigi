@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Geometri Tahtası ve Lastiği Materyali</title>
+    <title>Geometri Tahtası ve Lastiği</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -301,6 +301,17 @@
         }
         .MathJax{color:var(--text-primary)!important;}
         mjx-container{color:var(--text-primary)!important;}
+
+        /* ══ LİMİT UYARI TOAST ══════════════════════════════════════ */
+        #limitToast{
+            position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);
+            background:rgba(239,68,68,.92);color:#fff;font-size:13px;font-weight:600;
+            padding:10px 20px;border-radius:12px;z-index:2000;
+            pointer-events:none;opacity:0;transition:opacity .25s,transform .25s;
+            white-space:nowrap;box-shadow:0 4px 18px rgba(0,0,0,.4);
+            backdrop-filter:blur(8px);border:1.5px solid rgba(255,255,255,.25);
+        }
+        #limitToast.show{opacity:1;transform:translateX(-50%) translateY(0);}
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -336,51 +347,12 @@
 
         <!-- SAĞ PANEL -->
         <div class="right-panel">
-            <!-- Görünüm geçiş butonları + Yüz seçici -->
-            <div class="view-toggle-bar">
-                <button class="view-toggle-btn active" id="btn2D">📐 2D Tahta</button>
-                <button class="view-toggle-btn" id="btn3D">🧊 3D Model</button>
-            </div>
-
-            <!-- 2D yüz seçici — sadece 2D modda görünür -->
-            <div id="face2DSelectorBar" style="
-                position:absolute;top:48px;left:50%;transform:translateX(-50%);
-                display:flex;gap:6px;z-index:30;">
-                <button class="face-btn active" id="face2DFrontBtn">⬛ Ön Yüz (36 Pin)</button>
-                <button class="face-btn" id="face2DBackBtn">⭕ Arka Yüz (Çemberler)</button>
-            </div>
-
-            <!-- 2D SVG tahta -->
-            <div id="geoBoard" style="flex:1;position:relative;overflow:hidden;">
-                <div class="board-svg-wrap" id="boardSvgWrap"></div>
-                <div id="boardHint">📌 Pinlere tıklayarak şekil oluşturun</div>
-                <div id="measurePanel">
-                    <div class="mp-title">📏 Ölçüm</div>
-                    <div id="measureRows"></div>
-                </div>
-                <div id="angleOverlay">
-                    <div class="mp-title">📐 Açı</div>
-                    <div id="angleRows"></div>
-                </div>
-            </div>
-
-            <!-- 2D Arka Yüz (çemberler) -->
-            <div id="geoBoardBack" style="flex:1;width:100%;height:100%;display:none;position:relative;
-                background:var(--bg-tertiary);overflow:hidden;align-items:center;justify-content:center;">
-                <div class="board-svg-wrap" id="boardBackSvgWrap"></div>
-                <div id="boardBackHint" style="position:absolute;bottom:12px;left:50%;transform:translateX(-50%);
-                    background:rgba(0,0,0,.55);color:#fff;font-size:11px;padding:5px 12px;border-radius:20px;
-                    pointer-events:none;white-space:nowrap;z-index:10;backdrop-filter:blur(4px);">
-                    ⭕ Arka yüzde 12 ve 24 pinli çemberler bulunmaktadır
-                </div>
-            </div>
-
-            <!-- 3D Three.js canvas -->
-            <div id="threeContainer" style="flex:1;width:100%;height:100%;display:none;position:relative;">
+            <!-- 3D Three.js canvas — tek görünüm -->
+            <div id="threeContainer" style="flex:1;width:100%;height:100%;display:flex;position:relative;">
                 <canvas id="threeCanvas"></canvas>
                 <div class="three-hint" id="threeHint">
                     🖱 Sol tık: döndür &nbsp;|&nbsp; Sağ tık / iki parmak: kaydır<br>
-                    🖱 Tekerlek / iki parmak yakınlaştır: zoom
+                    🖱 Tekerlek / iki parmak yakınlaştır: zoom &nbsp;|&nbsp; 📌 Pine tıkla → seç
                 </div>
             </div>
         </div>
@@ -391,6 +363,9 @@
 <button id="tbToggleBtn" style="display:none;" aria-label="Araç çubuğu">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
 </button>
+
+<!-- Lastik limit uyarısı -->
+<div id="limitToast">⚠️ Bu renk için lastik limiti doldu! (Max 7)</div>
 
 <!-- TOOLBAR -->
 <div class="side-toolbar" id="sideToolbar">
@@ -408,7 +383,7 @@
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/><circle cx="8.5" cy="14.5" r="1.5" fill="currentColor"/><circle cx="6" cy="10" r="1.5" fill="currentColor"/><circle cx="10" cy="7" r="1.5" fill="currentColor"/><circle cx="15" cy="7" r="1.5" fill="currentColor"/></svg>
     </button>
     <div class="tb-divider"></div>
-    <button class="tb-btn" id="clearBoardBtn" data-tip="Tahtayı Temizle" style="font-size:16px;">🗑</button>
+    <button class="tb-btn" id="clearBoardBtn" data-tip="Tahtayı Temizle" style="font-size:20px;">🗑</button>
     <button class="tb-btn" id="undoBtn" data-tip="Geri Al">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>
     </button>
@@ -426,32 +401,22 @@
         <p>Bu materyalde <strong>Geometri Tahtası ve Lastiği</strong> kullanarak matematik kavramlarını keşfedeceksiniz.</p>
         <h3>3D Model Görünümü</h3>
         <ul>
-            <li>Sağ panelin üst kısmındaki <strong>"3D Model"</strong> butonuna tıklayarak tahtanın üç boyutlu görünümüne geçebilirsiniz.</li>
             <li><strong>Ön yüz:</strong> 6×6 = 36 pinli tahta</li>
-            <li><strong>Arka yüz:</strong> 12 ve 24 pinli iç içe çemberler</li>
+            <li><strong>Arka yüz:</strong> 12 ve 24 pinli iç içe çemberler. Tahtayı döndürerek görebilirsiniz.</li>
             <li>🖱 <strong>Sol tık sürükle</strong> → döndür, &nbsp;&nbsp; <strong>Tekerlek</strong> → zoom</li>
             <li>📱 <strong>Mobil:</strong> tek parmak sürükle → döndür, &nbsp;&nbsp; iki parmak → zoom</li>
+            <li>📌 <strong>Pine tıkla</strong> → Seç. İki pin seçince aralarına lastik geçer.</li>
         </ul>
         <h3>Uygulamalar</h3>
         <ul>
-            <li><strong>1. Uygulama:</strong> Tam Kare İfade Elde Edelim!</li>
+            <li><strong>1. Uygulama:</strong> Tamkare İfade Elde Edelim!</li>
             <li><strong>2. Uygulama:</strong> π'yi Görelim</li>
             <li><strong>3. Uygulama:</strong> Konveks Çokgenlerde Açıların Gizemi</li>
         </ul>
         <h3>Derinleştirme</h3>
         <p>Öğrencilerin öğrenmiş oldukları kazanımları kullanarak alt kazanımlar elde etmeleri, kavramsal anlama yeteneklerini geliştirmeleri ve pekiştirmeleri hedeflenir.</p>
-        <h3>⚠️ Her uygulamada:</h3>
-        <ul>
-            <li>Süre</li>
-            <li>Hedeflenen Beceriler</li>
-            <li>Hedefler</li>
-            <li>Uygulama Aşaması ve Kullanım Amacı</li>
-            <li>Dikkat Çekme</li>
-            <li>İşleniş</li>
-            <li>Ölçme ve Değerlendirme</li>
-        </ul>
         <div class="dialog-btn-row">
-            <button class="action-button" id="introContinueBtn">Başlat →</button>
+            <button class="action-button" id="introContinueBtn">Başlat</button>
         </div>
     </div>
 </div>
@@ -462,30 +427,51 @@ $(document).ready(function(){
 /* ══ TEMA ══════════════════════════════════════════════════════ */
 let currentTheme = 'dark';
 $('html').attr('data-theme', currentTheme);
-$('#themeToggle').on('click', function(){
-    currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    $('html').attr('data-theme', currentTheme);
-    $('#themeIcon').text(currentTheme === 'dark' ? '☀' : '🌙');
-    rebuildBoard();
-});
 
 /* ══ RENK PALETİ ═══════════════════════════════════════════════ */
 const ELASTIC_COLORS = [
     {name:'Kırmızı', hex:'#ef4444'},
     {name:'Yeşil',   hex:'#22c55e'},
     {name:'Sarı',    hex:'#eab308'},
-    {name:'Mavi',    hex:'#3b82f6'},
-    {name:'Mor',     hex:'#a855f7'},
-    {name:'Turuncu', hex:'#f97316'},
-    {name:'Pembe',   hex:'#ec4899'},
-    {name:'Cyan',    hex:'#06b6d4'},
 ];
+// Her renk için kullanım sayacı (max 7)
+const ELASTIC_MAX_USE = 7;
+let elasticUseCounts = {
+    '#ef4444': 0,
+    '#22c55e': 0,
+    '#eab308': 0,
+};
+function getElasticUseCount(hex){ return elasticUseCounts[hex] || 0; }
+function incrementElasticUse(hex){ if(elasticUseCounts[hex] !== undefined) elasticUseCounts[hex]++; }
+function resetElasticUseCounts(){ elasticUseCounts = {'#ef4444':0,'#22c55e':0,'#eab308':0}; }
+function updateSwatchBadges(){
+    Object.keys(elasticUseCounts).forEach(hex => {
+        const used = elasticUseCounts[hex];
+        const remaining = ELASTIC_MAX_USE - used;
+        const swatch = document.querySelector(`.tb-color-swatch[data-hex="${hex}"]`);
+        if(swatch){
+            swatch.title = `${ELASTIC_COLORS.find(c=>c.hex===hex).name} (${remaining} kaldı)`;
+            swatch.style.opacity = remaining <= 0 ? '0.35' : '1';
+            swatch.style.cursor = remaining <= 0 ? 'not-allowed' : 'pointer';
+        }
+    });
+}
+
+let _limitToastTimer = null;
+function showLimitToast(colorName){
+    const toast = document.getElementById('limitToast');
+    if(!toast) return;
+    toast.textContent = `⚠️ ${colorName || 'Bu renk'} lastik bitti! En fazla 7 adet kullanılabilir.`;
+    toast.classList.add('show');
+    clearTimeout(_limitToastTimer);
+    _limitToastTimer = setTimeout(()=>{ toast.classList.remove('show'); }, 2200);
+}
 let selectedColorIdx = 0;
 let paletteOpen = false;
 
 const $popup = $('#palettePopup');
 ELASTIC_COLORS.forEach((c, i) => {
-    $popup.append($(`<div class="tb-color-swatch ${i===0?'selected':''}" title="${c.name}" data-idx="${i}" style="background:${c.hex};"></div>`));
+    $popup.append($(`<div class="tb-color-swatch ${i===0?'selected':''}" title="${c.name} 7 adet kaldı." data-idx="${i}" data-hex="${c.hex}" style="background:${c.hex};"></div>`));
 });
 
 function positionPalette(){
@@ -512,10 +498,16 @@ $(document).on('click', function(e){
     }
 });
 $(document).on('click', '.tb-color-swatch', function(){
-    selectedColorIdx = parseInt($(this).data('idx'));
+    const idx = parseInt($(this).data('idx'));
+    const hex = ELASTIC_COLORS[idx].hex;
+    if(getElasticUseCount(hex) >= ELASTIC_MAX_USE){
+        // Limit dolmuş, seçime izin verme
+        return;
+    }
+    selectedColorIdx = idx;
     $('.tb-color-swatch').removeClass('selected');
     $(this).addClass('selected');
-    currentElasticColor = ELASTIC_COLORS[selectedColorIdx].hex;
+    currentElasticColor = hex;
 });
 
 /* ══ GEOMETRİ TAHTASI DURUMU ═══════════════════════════════════ */
@@ -579,11 +571,11 @@ function buildBoardSVG(){
         }
     }
 
-    // Elastikler
+    // Elastikler (sadece tamamlanmış lastikler — pinlerin altında)
     const elasticGroup = document.createElementNS(ns,'g');
     elasticGroup.setAttribute('id','elasticGroup');
     svg.appendChild(elasticGroup);
-    renderElastics(elasticGroup);
+    renderElastics(elasticGroup, false); // false = preview çizme
 
     // Angle measure lines
     const angleLinesGroup = document.createElementNS(ns,'g');
@@ -619,32 +611,53 @@ function buildBoardSVG(){
         if(el){ el.setAttribute('fill','#f97316'); el.setAttribute('r', PIN_R_SEL); }
     });
 
+    // Preview (kesikli çizgi) — pinlerin ÜSTÜNDE görünmesi için en sona eklenir
+    const previewGroup = document.createElementNS(ns,'g');
+    previewGroup.setAttribute('id','previewGroup');
+    svg.appendChild(previewGroup);
+    renderPreview(previewGroup);
+
     return svg;
 }
 
-function renderElastics(group){
+function renderGuideElastic(svgEl, pins, color){
+    const ns = 'http://www.w3.org/2000/svg';
+    const old = svgEl.getElementById('guideElasticGroup');
+    if(old) old.parentNode.removeChild(old);
+    const g = document.createElementNS(ns,'g');
+    g.setAttribute('id','guideElasticGroup');
+    if(pins && pins.length >= 2){
+        const allPins = [...pins, pins[0]]; // kapat
+        const pts = allPins.map(p=>`${pinX(p.c)},${pinY(p.r)}`).join(' ');
+        const poly = document.createElementNS(ns,'polyline');
+        poly.setAttribute('points', pts);
+        poly.setAttribute('stroke', color || '#ffd700');
+        poly.setAttribute('stroke-width','3');
+        poly.setAttribute('stroke-dasharray','10,6');
+        poly.setAttribute('stroke-linecap','round');
+        poly.setAttribute('fill','none');
+        poly.setAttribute('opacity','0.7');
+        g.appendChild(poly);
+        // Köşe pinlerini vurgula
+        pins.forEach(p=>{
+            const c = document.createElementNS(ns,'circle');
+            c.setAttribute('cx', pinX(p.c));
+            c.setAttribute('cy', pinY(p.r));
+            c.setAttribute('r','10');
+            c.setAttribute('fill','none');
+            c.setAttribute('stroke', color || '#ffd700');
+            c.setAttribute('stroke-width','2.5');
+            c.setAttribute('opacity','0.85');
+            g.appendChild(c);
+        });
+    }
+    svgEl.appendChild(g);
+}
+
+function renderPreview(group){
     while(group.firstChild) group.removeChild(group.firstChild);
     const ns = 'http://www.w3.org/2000/svg';
-    elastics.forEach(el => {
-        if(el.pins.length < 2) return;
-        const pts = el.pins.map(p => `${pinX(p.c)},${pinY(p.r)}`).join(' ');
-        const poly = document.createElementNS(ns, el.closed && el.pins.length>=3 ? 'polygon' : 'polyline');
-        poly.setAttribute('points', pts);
-        poly.setAttribute('stroke', el.color);
-        poly.setAttribute('stroke-width','4');
-        poly.setAttribute('stroke-linecap','round');
-        poly.setAttribute('stroke-linejoin','round');
-        poly.setAttribute('fill', el.closed ? el.color.replace(')',',0.15)').replace('rgb','rgba').replace(/^#/, '') : 'none');
-        if(el.closed){
-            // Hex → rgba dönüşümü
-            const r = parseInt(el.color.slice(1,3),16);
-            const g = parseInt(el.color.slice(3,5),16);
-            const b = parseInt(el.color.slice(5,7),16);
-            poly.setAttribute('fill',`rgba(${r},${g},${b},0.18)`);
-        }
-        group.appendChild(poly);
-    });
-    // Preview: seçili pinler + imleç
+    // Preview: seçili pinler — pinlerin ÜSTÜNDE gösterilir
     if(selectedPins.length > 0){
         const pts = selectedPins.map(p => `${pinX(p.c)},${pinY(p.r)}`).join(' ');
         const preview = document.createElementNS(ns,'polyline');
@@ -654,18 +667,14 @@ function renderElastics(group){
         preview.setAttribute('stroke-dasharray','6,4');
         preview.setAttribute('stroke-linecap','round');
         preview.setAttribute('fill','none');
-        preview.setAttribute('opacity','0.7');
+        preview.setAttribute('opacity','0.85');
         group.appendChild(preview);
     }
 }
 
 function rebuildBoard(){
-    const wrap = document.getElementById('boardSvgWrap');
-    if(!wrap) return;
-    wrap.innerHTML = '';
-    const svg = buildBoardSVG();
-    wrap.appendChild(svg);
-    bindPinEvents();
+    if(frontGroup) updateElastics3D();
+    if(typeof window._app2RebuildHook === 'function') window._app2RebuildHook();
 }
 
 function bindPinEvents(){
@@ -686,10 +695,17 @@ function handlePinClick(r, c){
         return;
     }
     // Draw mode
+    // Limit kontrolü: seçili rengin limiti dolmuşsa yeni pin seçimine izin verme
+    if(getElasticUseCount(currentElasticColor) >= ELASTIC_MAX_USE && selectedPins.length === 0){
+        const colorName = ELASTIC_COLORS.find(c=>c.hex===currentElasticColor)?.name;
+        showLimitToast(colorName);
+        return; // Yeni lastik başlatma
+    }
     const idx = selectedPins.findIndex(p => p.r===r && p.c===c);
     if(idx >= 0){
         // Pin zaten seçili → elastiği kapat
         if(idx === 0 && selectedPins.length >= 3){
+            if(getElasticUseCount(currentElasticColor) >= ELASTIC_MAX_USE){ selectedPins=[]; rebuildBoard(); return; }
             elastics.push({pins:[...selectedPins], color: currentElasticColor, closed: true});
             selectedPins = [];
             rebuildBoard();
@@ -747,11 +763,27 @@ function handleAnglePinClick(r, c){
 
 /* Dışarıdan hook edilebilen olaylar */
 function onPinSelected(r, c){ $(document).trigger('pinSelected', {r,c,count:selectedPins.length}); }
-function onElasticAdded(){ $(document).trigger('elasticAdded', {count:elastics.length}); }
+function onElasticAdded(){
+    incrementElasticUse(currentElasticColor);
+    updateSwatchBadges();
+    // Eğer seçili rengin limiti doluysa otomatik başka renge geç
+    if(getElasticUseCount(currentElasticColor) >= ELASTIC_MAX_USE){
+        const next = ELASTIC_COLORS.find(c => getElasticUseCount(c.hex) < ELASTIC_MAX_USE);
+        if(next){
+            currentElasticColor = next.hex;
+            const idx = ELASTIC_COLORS.indexOf(next);
+            selectedColorIdx = idx;
+            $('.tb-color-swatch').removeClass('selected');
+            $(`.tb-color-swatch[data-hex="${next.hex}"]`).addClass('selected');
+        }
+    }
+    $(document).trigger('elasticAdded', {count:elastics.length});
+}
 
 /* Elastik ekleme ve kontrol */
 function addElasticFromSelected(close){
     if(selectedPins.length < 2) return false;
+    if(getElasticUseCount(currentElasticColor) >= ELASTIC_MAX_USE) return false;
     elastics.push({pins:[...selectedPins], color:currentElasticColor, closed: !!close});
     selectedPins = [];
     rebuildBoard();
@@ -764,9 +796,18 @@ function clearBoard(){
     elastics = [];
     anglePoints = [];
     measurePins = [];
-    $('#measurePanel').removeClass('visible'); $('#measureRows').empty();
-    $('#angleOverlay').removeClass('visible'); $('#angleRows').empty();
-    rebuildBoard();
+    backSelectedPins = [];
+    backElastics = [];
+    selected3DPinsAll = [];
+    resetElasticUseCounts();
+    updateSwatchBadges();
+    // 3D elastikleri temizle
+    if(frontGroup){ frontGroup.children.filter(c=>c.userData&&c.userData.isElastic).forEach(c=>frontGroup.remove(c)); elasticMeshes=[]; }
+    if(backGroup){  backGroup.children.filter(c=>c.userData&&c.userData.isElastic).forEach(c=>backGroup.remove(c)); }
+    if(previewLine3D&&frontGroup){ frontGroup.remove(previewLine3D); previewLine3D=null; }
+    // 3D seçim önizleme çizgisini de temizle
+    if(typeof updatePreview3D==='function') updatePreview3D();
+    if(typeof updatePinSelectionColors==='function') updatePinSelectionColors();
 }
 
 /* ══ ÇEMBER ÇİZME YARDIMCısı (App2 için) ═══════════════════════ */
@@ -815,10 +856,8 @@ function drawCircleOnBoard(which){
         circlePins.forEach(p=>{ if(!unique.find(u=>u.r===p.r&&u.c===p.c)) unique.push(p); });
         if(unique.length>=3) elastics.push({pins:unique,color:'#a855f7',closed:true});
     }
-    rebuildBoard();
+    if(frontGroup) updateElastics3D();
 }
-
-/* ══ 2D YÜZ YÖNETİMİ ══════════════════════════════════════════ */
 let current2DFace = 'front'; // 'front' | 'back'
 
 function buildBackFaceSVG(){
@@ -1017,21 +1056,39 @@ $('#face2DBackBtn').on('click',function(){
     rebuildBackBoard();
 });
 
-/* Zoom */
-$('#zoomInBtn').on('click',()=>{ boardZoom=Math.min(2.5,boardZoom+0.15); $('#boardSVG').css('transform',`scale(${boardZoom})`); });
-$('#zoomOutBtn').on('click',()=>{ boardZoom=Math.max(0.4,boardZoom-0.15); $('#boardSVG').css('transform',`scale(${boardZoom})`); });
-$('#resetBoardBtn').on('click',()=>{ boardZoom=1.0; clearBoard(); });
-$('#clearBoardBtn').on('click',()=>{ clearBoard(); });
+/* Zoom / Reset / Undo — 3D */
+function clear3DElastics(){
+    if(frontGroup){ frontGroup.children.filter(c=>c.userData.isElastic).forEach(c=>frontGroup.remove(c)); }
+    if(backGroup){  backGroup.children.filter(c=>c.userData.isElastic).forEach(c=>backGroup.remove(c)); }
+    elastics = []; elasticMeshes = [];
+    selected3DPinsAll = [];
+    updatePinSelectionColors();
+}
+$('#zoomInBtn').on('click',()=>{ if(threeCamera){ threeCamera.position.multiplyScalar(0.85); } });
+$('#zoomOutBtn').on('click',()=>{ if(threeCamera){ threeCamera.position.multiplyScalar(1.18); } });
+$('#resetBoardBtn').on('click',()=>{ clear3DElastics(); if(threeCamera){ threeCamera.position.set(0,0,9); threeControls&&threeControls.reset(); } });
+$('#clearBoardBtn').on('click',()=>{
+    // 2D seçili pin önizlemesini, 3D seçili pinleri ve tüm elastikleri temizle
+    selectedPins = [];
+    backSelectedPins = [];
+    clearBoard();
+    // Arka yüz SVG'sini de yenile
+    if(current2DFace === 'back') rebuildBackBoard();
+});
 $('#undoBtn').on('click',()=>{
-    if(selectedPins.length > 0){ selectedPins.pop(); rebuildBoard(); }
-    else if(elastics.length > 0){ elastics.pop(); rebuildBoard(); }
+    if(selected3DPinsAll.length > 0){ selected3DPinsAll.pop(); updatePinSelectionColors(); return; }
+    // Son elastiği kaldır
+    const frontEls = frontGroup ? frontGroup.children.filter(c=>c.userData.isElastic) : [];
+    const backEls  = backGroup  ? backGroup.children.filter(c=>c.userData.isElastic)  : [];
+    if(backEls.length  > 0){ backGroup.remove(backEls[backEls.length-1]); }
+    else if(frontEls.length > 0){ frontGroup.remove(frontEls[frontEls.length-1]); elastics.pop(); }
 });
 
 /* ══ ÖZEL ŞEKIL ÇIZME YARDIMCıLARı ════════════════════════════ */
 function drawSquare(r0, c0, size, color){
     const pins = [{r:r0,c:c0},{r:r0,c:c0+size},{r:r0+size,c:c0+size},{r:r0+size,c:c0}];
     elastics.push({pins, color: color||currentElasticColor, closed:true});
-    rebuildBoard();
+    if(frontGroup) updateElastics3D();
 }
 
 function highlightPins(pinList){
@@ -1048,7 +1105,95 @@ function isValidSquare(pins){
     const minR=Math.min(...rs),maxR=Math.max(...rs);
     const minC=Math.min(...cs),maxC=Math.max(...cs);
     const h = maxR-minR, w = maxC-minC;
-    return h===w && h>0;
+    return h===w && h===2;
+}
+
+/* ── Adım 4 tahta-üzeri overlay input kutuları ─────────────────── */
+function _buildAreaOverlay(){
+    const container = document.getElementById('threeContainer');
+    if(!container || !threeCamera || !threeRenderer) return;
+    _removeAreaOverlay();
+
+    // elastics dizisindeki pinlerin 3D konumlarını hesapla
+    const step = BOARD_SIZE_3D / (PIN_COLS - 1);
+    const half = BOARD_SIZE_3D / 2;
+    const zF   = 0.08; // ön yüz z offset
+
+    function pinTo3D(r, c){
+        return new THREE.Vector3(
+            -half + c * step,
+             half - r * step,
+             zF
+        );
+    }
+
+    // Her elastiğin merkez noktasını bul ve ekrana yansıt
+    function projectToScreen(v3){
+        const canvas  = threeRenderer.domElement;
+        const rect    = container.getBoundingClientRect();
+        const canRect = canvas.getBoundingClientRect();
+        const clone   = v3.clone();
+        clone.project(threeCamera);
+        // NDC → canvas piksel
+        const px = (clone.x  * 0.5 + 0.5) * canRect.width  + (canRect.left - rect.left);
+        const py = (-clone.y * 0.5 + 0.5) * canRect.height + (canRect.top  - rect.top);
+        return { x: px, y: py };
+    }
+
+    // Bölge renkleri (lastik ekleme sırasına göre: [0]=2x2, [1]=lastik2, [2]=lastik3)
+    // 4 bölge: a² (elastics[0] merkezi), ab (sağ üst), ab (sol alt), b² (köşe)
+    // Tüm elastiklerin merkezlerini bul
+    const regions = [];
+    elastics.forEach((el, i) => {
+        if(!el.pins || el.pins.length < 2) return;
+        const xs = el.pins.map(p => p.c);
+        const ys = el.pins.map(p => p.r);
+        const midC = (Math.min(...xs) + Math.max(...xs)) / 2;
+        const midR = (Math.min(...ys) + Math.max(...ys)) / 2;
+        const center3D = pinTo3D(midR, midC);
+        const screen   = projectToScreen(center3D);
+        const colors   = ['#ef4444','#eab308','#3b82f6','#22c55e'];
+        const ids      = ['area1','area2','area3','area4'];
+        if(i < 4){
+            regions.push({ id: ids[i], color: colors[i], x: screen.x, y: screen.y });
+        }
+    });
+
+    // Eğer 3'ten az elastik varsa (henüz tamamlanmamış), konumları tahmini koy
+    // (bu durum normalde olmamalı — adım 4'e gelindiğinde 3 elastik mevcut)
+
+    const wrap = document.createElement('div');
+    wrap.id = 'areaOverlayWrap';
+    wrap.style.cssText = 'position:absolute;inset:0;pointer-events:none;z-index:20;';
+
+    regions.forEach(r => {
+        const inp = document.createElement('input');
+        inp.type = 'text';
+        inp.id = r.id;
+        inp.className = 'overlay-area-input';
+        inp.readOnly = true;
+        inp.placeholder = '?';
+        inp.style.cssText = `
+            position:absolute;
+            left:${r.x}px; top:${r.y}px;
+            transform:translate(-50%,-50%);
+            width:68px;height:34px;text-align:center;font-size:1.05em;font-weight:700;
+            background:rgba(0,0,0,.72);backdrop-filter:blur(4px);
+            border:2px solid ${r.color};border-radius:9px;color:#fff;
+            cursor:pointer;pointer-events:all;outline:none;
+            transition:border-color .2s, box-shadow .2s;
+        `;
+        inp.addEventListener('focus', () => {
+            inp.style.boxShadow = `0 0 0 3px ${r.color}55`;
+        });
+        inp.addEventListener('blur', () => { inp.style.boxShadow = ''; });
+        wrap.appendChild(inp);
+    });
+    container.appendChild(wrap);
+}
+function _removeAreaOverlay(){
+    const el = document.getElementById('areaOverlayWrap');
+    if(el) el.remove();
 }
 
 /* ══ İÇERİK ALANI ══════════════════════════════════════════════ */
@@ -1078,7 +1223,7 @@ function loadIntro(){
 function renderIntroStep(step){
     clearBoard();
     boardMode = 'draw';
-    const totalSteps = 4;
+    const totalSteps = 3;
     const pct = Math.round(((step+1)/totalSteps)*100);
     let html = `<div class="progress-container">
         <div class="progress-label"><span>Tanıtım</span><span>${step+1}/${totalSteps}</span></div>
@@ -1092,16 +1237,16 @@ function renderIntroStep(step){
             <p>Plastikten yapılan materyal, <strong>mavi renktedir</strong> ve <strong>kare şeklindedir</strong>.</p>
             <p>Bir yüzünde <strong>36 pin</strong> vardır. Diğer yüzünde ise merkezleri aynı olan, 12 ve 24 pinden oluşan <strong>iki çember</strong> yer almaktadır.</p>
             <p>Materyalin bu yüzünün her köşesinde birer pin vardır.</p>
+            <p style="margin-top:4px;font-size:.92em;">Materyal içerisinde aşağıda belirtilen sayıda lastik bulunmaktadır:</p>
             <ul>
                 <li>7 yeşil renkli lastik</li>
                 <li>7 kırmızı renkli lastik</li>
                 <li>7 sarı renkli lastik</li>
             </ul>
+            <p style="margin-top:4px;font-size:.92em;">Bunlara araçlar çubuğu üzerindeki <strong>Palet</strong> aracı ile ulaşabilirsiniz.</p>
             <p style="margin-top:8px;font-size:.85em;color:var(--text-secondary);">Sağ paneldeki geometri tahtasını inceleyebilirsiniz.</p>
         </div>
-        <div style="text-align:center;"><button class="action-button" id="introStep0Btn">Devam Et →</button></div>`;
-        // Sağ panelde boş tahta göster
-        $('#boardHint').text('📌 Geometri tahtasını inceleyin');
+        <div style="text-align:center;"><button class="action-button" id="introStep0Btn">Devam Et</button></div>`;
         break;
     case 1:
         html += `<div class="instruction-box">
@@ -1110,56 +1255,23 @@ function renderIntroStep(step){
             <h4>🎯 Kazanımlar</h4>
             <ul>
                 <li>Geometri tahtası üzerinde oluşturulabilecek çokgenlerin ve çemberlerin özelliklerini keşfeder.</li>
-                <li>Tam kare bir ifadeyi modeller.</li>
+                <li>Tamkare bir ifadeyi modeller.</li>
                 <li>İrrasyonel bir sayının geometrik yorumunu yapar.</li>
             </ul>
         </div>
-        <div style="text-align:center;"><button class="action-button" id="introStep1Btn">Devam Et →</button></div>`;
-        // Sağ panelde üçgen göster
-        setTimeout(()=>{
-            drawSquare(1,1,3,'#22c55e');
-            drawSquare(2,3,1,'#ef4444');
-        },300);
-        $('#boardHint').text('🔺 Tahtada farklı şekiller oluşturulabilir');
+        <div style="text-align:center;"><button class="action-button" id="introStep1Btn">Devam Et</button></div>`;
         break;
     case 2:
-        html += `<div class="instruction-box">
-            <h3>⚠️ Dikkat Unsurları</h3>
-            <p>Çokgenlerin, dairenin ve çemberin özellikleri hakkında <strong>ön bilgi gereklidir</strong>.</p>
-            <span class="info-badge">[!] Materyalin boyutu, farklı ölçümler yapılmasını sınırlayabilir.</span>
-            <h4 style="margin-top:12px;">🛡️ Güvenlik</h4>
-            <p>Lastiğin kopması veya pinlerden fırlaması halinde materyal <strong>zarar verici olabilir</strong>. Dikkatli kullanınız.</p>
-        </div>
-        <div style="text-align:center;"><button class="action-button" id="introStep2Btn">Devam Et →</button></div>`;
-        clearBoard();
-        setTimeout(()=>{
-            // Çember göster (mevcut çizgilerle)
-            const circlePins = [];
-            const cx=2,cy=2,cr=2;
-            for(let i=0;i<8;i++){
-                const angle=i*Math.PI/4;
-                const r=Math.round(cy+cr*Math.sin(angle));
-                const c=Math.round(cx+cr*Math.cos(angle));
-                if(r>=0&&r<GRID_N&&c>=0&&c<GRID_N) circlePins.push({r,c});
-            }
-            if(circlePins.length>=3) elastics.push({pins:circlePins,color:'#ef4444',closed:true});
-            rebuildBoard();
-        },300);
-        $('#boardHint').text('🔴 Çember oluşturulmuş tahta görünümü');
-        break;
-    case 3:
         html += `<div class="success-message" style="padding:18px;">
             ✓ Tanıtım tamamlandı!<br>
             <span style="font-size:.9em;">Uygulamalara geçmeye hazırsınız.</span>
         </div>
         <div class="instruction-box">
             <h3>🚀 Başlamaya Hazır mısınız?</h3>
-            <p>Uygulama 1'de <strong>Tam Kare İfade</strong> elde etmeyi öğreneceksiniz.</p>
-            <p>Sağ paneldeki geometri tahtasında 2×2 kare oluşturmayı deneyin!</p>
+            <p>Uygulama 1'de <strong>Tamkare İfade</strong> elde etmeyi öğreneceksiniz.</p>
+            <p>Geometri tahtasında 2×2 kare oluşturmayı deneyebilirsiniz.</p>
         </div>
-        <div style="text-align:center;"><button class="action-button" id="introFinishBtn">Uygulama 1'e Geç →</button></div>`;
-        clearBoard();
-        $('#boardHint').text('📌 Pinlere tıklayarak şekil oluşturabilirsiniz');
+        <div style="text-align:center;"><button class="action-button" id="introFinishBtn">Uygulama 1'e Geç</button></div>`;
         $('[data-tab="app1"]').prop('disabled',false);
         break;
     }
@@ -1170,20 +1282,21 @@ function renderIntroStep(step){
     switch(step){
     case 0: $('#introStep0Btn').on('click',()=>renderIntroStep(1)); break;
     case 1: $('#introStep1Btn').on('click',()=>renderIntroStep(2)); break;
-    case 2: $('#introStep2Btn').on('click',()=>renderIntroStep(3)); break;
-    case 3: $('#introFinishBtn').on('click',()=>$('[data-tab="app1"]').prop('disabled',false).click()); break;
+    case 2: $('#introFinishBtn').on('click',()=>$('[data-tab="app1"]').prop('disabled',false).click()); break;
     }
 }
 
-/* ══ UYGULAMA 1: Tam Kare İfade Elde Edelim! ═══════════════════ */
+/* ══ UYGULAMA 1: Tamkare İfade Elde Edelim! ═══════════════════ */
 function loadApp1(){
     clearBoard();
+    if(frontGroup) updateElastics3D();
     boardMode = 'draw';
     renderApp1Step(0);
 }
 
 function renderApp1Step(step){
-    clearBoard();
+    // Adım 3 ve sonrasında tahta korunur (kullanıcının çizimleri silinmez)
+    if(step < 3) clearBoard();
     boardMode = 'draw';
     const totalSteps = 8;
     const pct = Math.round(((step+1)/totalSteps)*100);
@@ -1196,8 +1309,7 @@ function renderApp1Step(step){
     /* Adım 0: Bilgilendirme */
     case 0:
         html += `<div class="instruction-box">
-            <h3>🟦 Tam Kare İfade Elde Edelim!</h3>
-            <p><strong>Süre:</strong> 40 dakika</p>
+            <h3>🟦 Tamkare İfade Elde Edelim!</h3>
             <h4>Hedeflenen Beceriler</h4>
             <ul>
                 <li>İlişkilendirme</li>
@@ -1206,48 +1318,51 @@ function renderApp1Step(step){
                 <li>Matematiksel Modelleme</li>
             </ul>
             <h4>Hedefler</h4>
-            <p>Öğrencilerin bütünü oluşturan parçaları bulabilmesi, <strong>tam kare ifade elde edebilmesi</strong> hedeflenir.</p>
+            <p>Öğrencilerin bütünü oluşturan parçaları bulabilmesi, <strong>tamkare ifade elde edebilmesi</strong> hedeflenir.</p>
             <h4>Uygulama Aşaması</h4>
-            <p>Tam kare özdeşliğini elde etmek amacıyla kavramsal bilgiyi sorgulama, işlemsel bilgiyi inceleme ve derinleştirme sürecinde kullanılabilir.</p>
+            <p>Tamkare özdeşliğini elde etmek amacıyla kavramsal bilgiyi sorgulama, işlemsel bilgiyi inceleme ve derinleştirme sürecinde kullanılabilir.</p>
         </div>
-        <div style="text-align:center;"><button class="action-button" id="app1s0Btn">Başla →</button></div>`;
+        <div style="text-align:center;"><button class="action-button" id="app1s0Btn">Başla</button></div>`;
         $('#boardHint').text('🟦 Geometri tahtasını hazırlayın');
         break;
 
-    /* Adım 1: Dikkat çekme — tam kare sayılar */
+    /* Adım 1: Dikkat çekme — tamkare sayılar */
     case 1:
         html += `<div class="instruction-box">
             <h3>🎯 Dikkat Çekme</h3>
-            <p>"1'den 10'a kadar olan tam sayıların karekökökleri alındığında hangileri <strong>bir tam sayıya karşılık gelir</strong>? Neden?"</p>
-            <p style="margin-top:10px;font-size:.9em;color:var(--text-secondary);">Aşağıdaki sayılardan <strong>tam kare olanları</strong> seçiniz:</p>
+            <p>"1'den 10'a kadar olan tam sayıların karekökleri alındığında hangileri <strong>bir tam sayıya karşılık gelir</strong>? Neden?"</p>
+            <p style="margin-top:10px;font-size:.9em;color:var(--text-secondary);">Aşağıdaki sayılardan <strong>tamkare olanları</strong> seçiniz:</p>
             <div class="num-grid" id="numGrid">
                 ${[1,2,3,4,5,6,7,8,9,10].map(n=>`<button class="num-btn" data-num="${n}">${n}</button>`).join('')}
             </div>
             <div id="numFeedback" style="margin-top:8px;font-size:.9em;color:var(--text-secondary);">0 doğru seçim</div>
         </div>
-        <div style="text-align:center;"><button class="action-button" id="app1s1Btn" disabled>Devam Et →</button></div>`;
-        $('#boardHint').text('🔢 Tam kare sayıları seçin: 1, 4, 9');
-        // Sağ panelde sayıları görsel olarak göster
-        setTimeout(()=>{
-            const colors=['#22c55e','#ef4444','#3b82f6'];
-            let ci=0;
-            [[0,0,1],[0,2,2],[0,5,3]].forEach(([r,c,sz])=>{
-                drawSquare(r,c,sz, colors[ci++]);
-            });
-        },400);
+        <div style="text-align:center;"><button class="action-button" id="app1s1Btn" disabled>Devam Et</button></div>`;
+        $('#boardHint').text('🔢 Tamkare sayıları seçin: 1, 4, 9');
         break;
 
     /* Adım 2: 2×2 Kare oluşturma */
     case 2:
+        clearBoard();
+        if(frontGroup) updateElastics3D();
         html += `<div class="instruction-box">
             <h3>🔲 İşleniş — Adım 1</h3>
-            <p>Geometri tahtası üzerinde <strong>tek bir lastikle 2×2'lik bir kare oluşturun</strong>.</p>
-            <p style="margin-top:8px;font-size:.9em;color:var(--text-secondary);">Tahtada <strong>4 pine tıklayıp</strong> ilk pine geri dönerek kareyi kapatın.</p>
+            <p>Geometri tahtası üzerinde <strong>tek bir lastikle 2×2'lik bir kare oluşturunuz.</strong></p>
+            <p style="margin-top:8px;font-size:.9em;color:var(--text-secondary);">Tahtada <strong>4 pine sırasıyla tıklayınız</strong> ve başlangıç noktasına dönerek kareyi tamamlayınız.</p>
             <div id="squareStatus" style="margin-top:10px;padding:8px;background:var(--bg-tertiary);border-radius:7px;font-size:.88em;color:var(--text-secondary);">
                 ⬡ Henüz kare oluşturulmadı
             </div>
         </div>
-        <div style="text-align:center;"><button class="action-button" id="app1s2Btn" disabled>Devam Et →</button></div>`;
+        <div id="edgeQuestion" style="display:none;" class="instruction-box">
+            <p>Bu karenin <strong>kenar uzunluğu</strong> kaç birimdir?</p>
+            <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;">
+                <button class="option-button" id="edgeAns1" data-ans="wrong">1 birim</button>
+                <button class="option-button" id="edgeAns2" data-ans="right">2 birim</button>
+                <button class="option-button" id="edgeAns3" data-ans="wrong">3 birim</button>
+            </div>
+            <div id="edgeFeedback" style="margin-top:8px;font-size:.88em;"></div>
+        </div>
+        <div style="text-align:center;"><button class="action-button" id="app1s2Btn" disabled>Devam Et</button></div>`;
         $('#boardHint').text('📌 4 pin seçip ilk pine dönerek kareyi kapatın');
         break;
 
@@ -1255,138 +1370,177 @@ function renderApp1Step(step){
     case 3:
         html += `<div class="instruction-box">
             <h3>🔳 İşleniş — Adım 2</h3>
-            <p>Bu kareye <strong>farklı renkte 2 yeni lastik</strong> ekleyerek şekli <strong>3×3'lük bir kareye</strong> tamamlayın.</p>
-            <p style="margin-top:8px;">Oluşan şekilde:</p>
-            <ul>
-                <li>1 birimlik kısım → <strong>a birimi</strong></li>
-                <li>2 birimlik kısım → <strong>b birimi</strong></li>
-            </ul>
-            <p style="margin-top:8px;font-size:.88em;color:var(--text-secondary);">Sağ paneldeki renkli bölmeleri inceleyin.</p>
+            <p>Karenin kenarını <strong>a</strong> olarak adlandırdık. Şimdi kareyi <strong>sağa ve aşağıya 1 birim</strong> genişleterek yeni bir kare elde ediniz.</p>
+            <p style="margin-top:8px;font-size:.9em;color:var(--text-secondary);">💡 Bundan sonra bu <strong>1 birimlik kenarı b olarak adlandıracağız</strong>.</p>
+            <p style="margin-top:8px;font-size:.9em;color:var(--text-secondary);">Yeni kenar uzunluğu <strong>a + b</strong> olacaktır. Bunu oluşturmak için <strong>farklı renkte 2 yeni lastik</strong> ekleyiniz.</p>
+            <div id="completeStatus" style="margin-top:10px;padding:8px;background:var(--bg-tertiary);border-radius:7px;font-size:.88em;color:var(--text-secondary);">
+                ⬡ Henüz (a+b)∙(a+b) kare tamamlanmadı
+            </div>
         </div>
-        <div style="text-align:center;"><button class="action-button" id="app1s3Btn">Devam Et →</button></div>`;
-        // 3×3 renkli gösterim
-        setTimeout(()=>{
-            elastics = [];
-            // Sol üst: a×a kırmızı
-            drawSquare(0,0,1,'#ef4444');
-            // Sağ üst: a×b açık sarı
-            elastics.push({pins:[{r:0,c:1},{r:0,c:3},{r:1,c:3},{r:1,c:1}],color:'#eab308',closed:true});
-            // Sol alt: b×a açık mavi
-            elastics.push({pins:[{r:1,c:0},{r:1,c:1},{r:3,c:1},{r:3,c:0}],color:'#3b82f6',closed:true});
-            // Sağ alt: b×b yeşil
-            elastics.push({pins:[{r:1,c:1},{r:1,c:3},{r:3,c:3},{r:3,c:1}],color:'#22c55e',closed:true});
-            rebuildBoard();
-        },300);
-        $('#boardHint').text('🎨 a²  ab  ab  b² bölgelerini inceleyin');
+        <div id="abEdgeReveal" style="display:none;" class="instruction-box">
+            <p>Oluşan büyük karenin kenar uzunluğu <strong>a + b</strong>'dir.</p>
+            <p style="margin-top:6px;">Peki bu karenin alanı nedir?</p>
+        </div>
+        <div style="text-align:center;"><button class="action-button" id="app1s3Btn" disabled>Devam Et</button></div>`;
+        $('#boardHint').text('🔳 2 yeni farklı renkli lastik ekleyerek 3×3 kareyi tamamlayın');
         break;
 
-    /* Adım 4: Alan hesabı */
+    /* Adım 4: Alan hesabı — sol panel girişleri */
     case 4:
         html += `<div class="instruction-box">
             <h3>📐 İşleniş — Adım 3</h3>
-            <p>Oluşan şekildeki <strong>alanları a ve b'ye bağlı</strong> olarak hesaplayın.</p>
-            <div class="area-grid">
-                <div class="area-cell">
-                    <label>Sol üst kare (a×a)</label>
-                    <input type="text" id="area1" class="area-input" placeholder="?">
+            <p>Oluşturduğunuz şekilde <strong>2 birimlik kenar a</strong>, <strong>1 birimlik kenar b</strong>'dir.</p>
+            <p style="margin-top:8px;">Sağ taraftaki tahtada dört renkli bölgenin alanını <strong>a</strong> ve <strong>b</strong> cinsinden yazınız:</p>
+            <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px;">
+                <div>
+                    <label style="font-size:.85em;color:var(--text-secondary);display:block;margin-bottom:3px;">① 2×2 Karenin Alanı:</label>
+                    <input type="text" id="area1" class="area-panel-input" placeholder="?" readonly
+                        style="width:100%;padding:8px 12px;background:var(--input-bg);border:2px solid #ef4444;border-radius:8px;color:var(--text-primary);font-size:1em;font-weight:700;cursor:pointer;outline:none;">
                 </div>
-                <div class="area-cell">
-                    <label>Sağ üst dikdörtgen (a×b)</label>
-                    <input type="text" id="area2" class="area-input" placeholder="?">
+                <div>
+                    <label style="font-size:.85em;color:var(--text-secondary);display:block;margin-bottom:3px;">② 1×2 Dikdörtgenin Alanı:</label>
+                    <input type="text" id="area2" class="area-panel-input" placeholder="?" readonly
+                        style="width:100%;padding:8px 12px;background:var(--input-bg);border:2px solid #eab308;border-radius:8px;color:var(--text-primary);font-size:1em;font-weight:700;cursor:pointer;outline:none;">
                 </div>
-                <div class="area-cell">
-                    <label>Sol alt dikdörtgen (b×a)</label>
-                    <input type="text" id="area3" class="area-input" placeholder="?">
+                <div>
+                    <label style="font-size:.85em;color:var(--text-secondary);display:block;margin-bottom:3px;">③ 2×1 Dikdörtgenin Alanı:</label>
+                    <input type="text" id="area3" class="area-panel-input" placeholder="?" readonly
+                        style="width:100%;padding:8px 12px;background:var(--input-bg);border:2px solid #22c55e;border-radius:8px;color:var(--text-primary);font-size:1em;font-weight:700;cursor:pointer;outline:none;">
                 </div>
-                <div class="area-cell">
-                    <label>Sağ alt kare (b×b)</label>
-                    <input type="text" id="area4" class="area-input" placeholder="?">
-                </div>
-                <div class="area-cell area-total">
-                    <label>Toplam Alan</label>
-                    <input type="text" id="area5" class="area-input" placeholder="?">
+                <div>
+                    <label style="font-size:.85em;color:var(--text-secondary);display:block;margin-bottom:3px;">④ 1×1 Karenin Alanı:</label>
+                    <input type="text" id="area4" class="area-panel-input" placeholder="?" readonly
+                        style="width:100%;padding:8px 12px;background:var(--input-bg);border:2px solid #3b82f6;border-radius:8px;color:var(--text-primary);font-size:1em;font-weight:700;cursor:pointer;outline:none;">
                 </div>
             </div>
+            <div id="areaFeedback" style="margin-top:8px;"></div>
         </div>
-        <div id="areaFeedback" style="margin-top:8px;"></div>
-        <div style="text-align:center;"><button class="action-button" id="app1s4CheckBtn">Kontrol Et</button></div>
-        <div style="text-align:center;display:none;" id="app1s4NextArea"><button class="action-button" id="app1s4Btn">Devam Et →</button></div>`;
-        // Renkli bölüm tekrar göster
-        setTimeout(()=>{
-            elastics = [];
-            drawSquare(0,0,1,'#ef4444');
-            elastics.push({pins:[{r:0,c:1},{r:0,c:3},{r:1,c:3},{r:1,c:1}],color:'#eab308',closed:true});
-            elastics.push({pins:[{r:1,c:0},{r:1,c:1},{r:3,c:1},{r:3,c:0}],color:'#3b82f6',closed:true});
-            elastics.push({pins:[{r:1,c:1},{r:1,c:3},{r:3,c:3},{r:3,c:1}],color:'#22c55e',closed:true});
-            rebuildBoard();
-        },300);
-        $('#boardHint').text('📐 Her bölgenin alanını a ve b ile ifade edin');
+        <div id="panelKeyboard" style="display:none;margin-top:8px;padding:10px;background:var(--bg-tertiary);border-radius:9px;border:1px solid var(--border-color);">
+            <div style="font-size:.8em;color:var(--text-secondary);margin-bottom:6px;">Seçili alan: <span id="activeAreaLabel" style="color:var(--text-accent);font-weight:700;"></span></div>
+            <div style="display:flex;flex-wrap:wrap;gap:5px;">
+                ${['a','b','2','²','+','×','(',')'].map(k=>`<button class="sq-key" data-val="${k}" style="padding:6px 12px;border-radius:6px;background:var(--button-bg);border:1.5px solid var(--border-color);color:var(--button-text);cursor:pointer;font-size:1em;font-weight:600;">${k}</button>`).join('')}
+                <button class="sq-key" data-val="⌫" style="padding:6px 12px;border-radius:6px;background:rgba(239,68,68,.2);border:1.5px solid #ef4444;color:#ef4444;cursor:pointer;font-size:1em;">⌫</button>
+            </div>
+        </div>
+        <div style="text-align:center;"><button class="action-button" id="app1s4CheckBtn" style="margin-top:8px;">Kontrol Et</button></div>
+        <div style="text-align:center;display:none;" id="app1s4NextArea"><button class="action-button" id="app1s4Btn">Devam Et</button></div>`;
+        $('#boardHint').text('📐 Sol paneldeki kutulara bölge alanlarını yazın');
         break;
 
-    /* Adım 5: Özdeşlik */
+    /* Adım 5: Adım adım sadeleştirme + Özdeşlik */
     case 5:
         html += `<div class="instruction-box">
             <h3>✏️ İşleniş — Adım 4</h3>
-            <p>Oluşan şekiller ile alanlar arasındaki <strong>ilişkiyi</strong> yazın.</p>
-            <div class="formula-card">
-                <p style="color:var(--text-secondary);font-size:.9em;">Toplam alan = a² + ab + ba + b² = a² + 2ab + b²</p>
-                <div class="formula-text">$(a + b)^2$ = ?</div>
+            <p>Bulduğunuz dört bölge alanını sırasıyla toplayınız:</p>
+            <div id="sumSteps" style="margin-top:12px;">
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:1em;line-height:2.4em;">
+                    <span style="color:var(--text-secondary);">Toplam =</span>
+                    <span id="ss1" style="padding:4px 13px;border-radius:8px;background:var(--bg-tertiary);border:1.5px dashed var(--border-color);color:var(--text-secondary);font-weight:700;">a²</span>
+                    <span style="color:var(--text-secondary);">+</span>
+                    <span id="ss2" style="padding:4px 13px;border-radius:8px;background:var(--bg-tertiary);border:1.5px dashed var(--border-color);color:var(--text-secondary);font-weight:700;">ab</span>
+                    <span style="color:var(--text-secondary);">+</span>
+                    <span id="ss3" style="padding:4px 13px;border-radius:8px;background:var(--bg-tertiary);border:1.5px dashed var(--border-color);color:var(--text-secondary);font-weight:700;">ab</span>
+                    <span style="color:var(--text-secondary);">+</span>
+                    <span id="ss4" style="padding:4px 13px;border-radius:8px;background:var(--bg-tertiary);border:1.5px dashed var(--border-color);color:var(--text-secondary);font-weight:700;">b²</span>
+                </div>
+                <div id="simplLine" style="display:none;margin-top:8px;padding:8px 14px;border-radius:8px;background:rgba(0,212,255,.08);border:1.5px solid var(--border-color);">
+                    <span style="color:var(--text-secondary);">⟹</span>
+                    <span style="margin-left:8px;font-size:1.1em;font-weight:700;color:var(--text-accent);">a² + 2ab + b²</span>
+                </div>
             </div>
-            <p style="margin-top:8px;">Doğru seçeneği seçiniz:</p>
+            <div style="margin-top:14px;">
+                <p style="font-size:.9em;color:var(--text-secondary);">Benzer terimleri sadeleştirince ne elde edersiniz?</p>
+                <div style="margin-top:10px;background:var(--bg-tertiary);border:2px solid var(--border-color);border-radius:12px;padding:14px;text-align:center;">
+                    <input type="text" id="sumInput" readonly placeholder="Buraya yazın"
+                        style="width:100%;background:transparent;border:none;outline:none;font-size:1.4em;font-weight:700;color:var(--text-accent);text-align:center;cursor:pointer;">
+                </div>
+                <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;justify-content:center;" id="sumKeyboard">
+                    ${['a','b','2','²','+'].map(k=>`<button class="sq-key2" data-val="${k}" style="padding:8px 14px;border-radius:8px;background:var(--button-bg);border:1.5px solid var(--border-color);color:var(--button-text);cursor:pointer;font-size:1.05em;font-weight:700;">${k}</button>`).join('')}
+                    <button class="sq-key2" data-val="⌫" style="padding:8px 14px;border-radius:8px;background:rgba(239,68,68,.2);border:1.5px solid #ef4444;color:#ef4444;cursor:pointer;font-size:1.05em;font-weight:700;">⌫</button>
+                </div>
+                <div style="text-align:center;margin-top:10px;">
+                    <button class="action-button" id="sumCheckBtn">Kontrol Et</button>
+                </div>
+                <div id="sumFeedback" style="margin-top:8px;"></div>
+            </div>
         </div>
-        <div id="identityChoices" style="margin-top:8px;">
-            <button class="option-button" data-choice="1">$a^2 + b^2$</button>
-            <button class="option-button" data-choice="2">$a^2 + 2ab + b^2$</button>
-            <button class="option-button" data-choice="3">$a^2 - 2ab + b^2$</button>
-            <button class="option-button" data-choice="4">$2a^2 + 2b^2$</button>
+
+        <div id="formulaReveal" style="display:none;" class="instruction-box">
+            <p style="font-size:.95em;">Geometri tahtasındaki büyük karenin <strong>kenar uzunluğunun a + b</strong> olduğunu gördünüz.</p>
+            <p style="margin-top:6px;font-size:.95em;">O zaman bu büyük karenin <strong>alanı</strong> nasıl yazılır?</p>
+            <div style="margin-top:8px;padding:10px 14px;background:rgba(0,212,255,.07);border-radius:8px;border:1px solid var(--border-color);text-align:center;font-size:.95em;color:var(--text-secondary);">
+                Alan = kenar × kenar = <strong style="color:var(--text-accent);">(a + b) ∙ (a + b)</strong> = ?
+            </div>
+            <div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:6px;justify-content:center;" id="squareKeyboard">
+                ${['(','a','+','b',')','²'].map(k=>`<button class="sq-key3" data-val="${k}" style="padding:8px 14px;border-radius:8px;background:var(--button-bg);border:1.5px solid var(--border-color);color:var(--button-text);cursor:pointer;font-size:1.05em;font-weight:700;">${k}</button>`).join('')}
+                <button class="sq-key3" data-val="⌫" style="padding:8px 14px;border-radius:8px;background:rgba(239,68,68,.2);border:1.5px solid #ef4444;color:#ef4444;cursor:pointer;font-size:1.05em;font-weight:700;">⌫</button>
+            </div>
+            <div style="margin-top:10px;background:var(--bg-tertiary);border:2px solid var(--border-color);border-radius:12px;padding:14px;text-align:center;">
+                <input type="text" id="squareInput" readonly placeholder="Alanı yazın"
+                    style="width:100%;background:transparent;border:none;outline:none;font-size:1.4em;font-weight:700;color:var(--text-accent);text-align:center;cursor:pointer;">
+            </div>
+            <div style="text-align:center;margin-top:10px;">
+                <button class="action-button" id="squareCheckBtn">Kontrol Et</button>
+            </div>
+            <div id="squareFeedback" style="margin-top:8px;"></div>
         </div>
-        <div id="identityFeedback" style="margin-top:8px;"></div>
-        <div style="text-align:center;display:none;" id="app1s5NextArea"><button class="action-button" id="app1s5Btn">Devam Et →</button></div>`;
+
+        <div id="identityReveal" style="display:none;" class="instruction-box">
+            <p style="font-size:.95em;font-weight:600;">Büyük karenin alanını iki farklı yoldan buldunuz:</p>
+            <div style="margin-top:10px;padding:16px;background:rgba(0,212,255,.07);border:2px solid var(--border-color);border-radius:12px;">
+                <div style="font-size:.9em;color:var(--text-secondary);text-align:center;">
+                    Parçalar: <span style="color:#f97316;font-weight:700;">a²</span> + <span style="color:#eab308;font-weight:700;">ab</span> + <span style="color:#22c55e;font-weight:700;">ab</span> + <span style="color:#3b82f6;font-weight:700;">b²</span> = <span style="color:var(--text-accent);font-weight:700;">a² + 2ab + b²</span>
+                </div>
+                <div style="text-align:center;font-size:1.4em;color:var(--text-secondary);margin:2px 0;">=</div>
+                <div style="font-size:.9em;color:var(--text-secondary);text-align:center;">
+                    Büyük kare: <span style="color:var(--text-accent);font-weight:700;">(a + b)²</span>
+                </div>
+                <div style="margin-top:12px;padding-top:10px;border-top:1.5px solid var(--border-color);text-align:center;">
+                    <span style="font-size:1.25em;font-weight:800;color:var(--text-accent);">(a + b)² = a² + 2ab + b²</span>
+                </div>
+            </div>
+            <div style="margin-top:10px;" class="explain-box">
+                <p>🎉 Geometri tahtasında bizzat keşfettiğiniz bu eşitlik <strong>tamkare özdeşliği</strong>dir!</p>
+            </div>
+        </div>
+        <div style="text-align:center;display:none;" id="app1s5NextArea"><button class="action-button" id="app1s5Btn">Devam Et</button></div>`;
+        $('#boardHint').text('✏️ Dört bölgenin alanlarını toplayarak sadeleştirin');
+        // Bölge renklerini animasyonlu vurgula
         setTimeout(()=>{
-            elastics = [];
-            drawSquare(0,0,1,'#ef4444');
-            elastics.push({pins:[{r:0,c:1},{r:0,c:3},{r:1,c:3},{r:1,c:1}],color:'#eab308',closed:true});
-            elastics.push({pins:[{r:1,c:0},{r:1,c:1},{r:3,c:1},{r:3,c:0}],color:'#3b82f6',closed:true});
-            elastics.push({pins:[{r:1,c:1},{r:1,c:3},{r:3,c:3},{r:3,c:1}],color:'#22c55e',closed:true});
-            rebuildBoard();
-        },300);
-        $('#boardHint').text('$(a+b)^2 = a^2 + 2ab + b^2$');
+            const colors = ['#f97316','#eab308','#3b82f6','#22c55e']; // turuncu,sarı,mavi,yeşil
+            const ids = ['ss1','ss2','ss3','ss4'];
+            ids.forEach((id,i)=>{
+                setTimeout(()=>{
+                    $('#'+id).css({background: colors[i]+'33', borderColor: colors[i], color: colors[i], fontWeight:'700'});
+                }, i*300);
+            });
+        },200);
         break;
 
     /* Adım 6: Ölçme ve Değerlendirme */
     case 6:
         html += `<div class="instruction-box">
             <h3>📝 Ölçme ve Değerlendirme</h3>
-            <p><strong>Soru:</strong> a = 3 ve b = 2 için geometri tahtası üzerinde $(a + b)^2$ tam kare açılımını gösteriniz.</p>
-            <p style="margin-top:8px;font-size:.9em;color:var(--text-secondary);">Sağ panelde gösterilen şekli inceleyiniz. Alanlar toplamı:</p>
-            <div class="formula-card">
-                <div class="formula-text">$(a+b)^2 = a^2 + 2ab + b^2$</div>
+            <p><strong>Görev:</strong> a = 3 ve b = 2 için geometri tahtası üzerinde <strong>(a + b)²</strong> tamkare açılımını oluşturunuz.</p>
+            <p style="margin-top:8px;font-size:.9em;color:var(--text-secondary);">💡 Önceki adımlardan farklı olarak 4 bölgeyi farklı lastiklerle oluşturunuz:<br>
+            a² (3×3 kare) + ab (3×2 dikdörtgen) + ab (2×3 dikdörtgen) + b² (2×2 kare)</p>
+            <div id="assess6Status" style="margin-top:10px;padding:8px;background:var(--bg-tertiary);border-radius:7px;font-size:.88em;color:var(--text-secondary);">
+                ⬡ Henüz şekil oluşturulmadı
             </div>
-            <p style="font-size:.9em;margin-top:6px;">$(2+3)^2 = 2^2 + 3^2 + 3 \\cdot 2 + 3 \\cdot 2 = 4 + 9 + 6 + 6 = 25$</p>
-            <p style="font-size:.9em;">Aşağıdaki soruyu cevaplayınız:</p>
-            <p style="font-weight:700;margin-top:8px;">$(a+b)^2$ ifadesinde a=3, b=2 olduğunda sonuç kaçtır?</p>
-            <input type="text" id="app1AssessInput" class="input-field" placeholder="Cevabınızı girin" inputmode="decimal">
+        </div>
+        <div style="text-align:center;"><button class="action-button" id="app1s6BuildBtn" disabled>Devam Et</button></div>
+
+        <div id="assess6QuestionArea" style="display:none;" class="instruction-box">
+            <p style="font-size:.95em;">Geometri tahtasında oluşan şekli inceleyiniz.</p>
+            <p style="margin-top:8px;font-size:.95em;">Aşağıdaki soruyu geometri tahtasında oluşan şekle göre cevaplayınız:</p>
+            <p style="font-weight:700;margin-top:10px;font-size:1em;">$(a + b)^2$ ifadesinde $a=3, b=2$ olduğunda sonuç kaç olur?</p>
+            <input type="text" id="app1AssessInput" class="input-field" placeholder="Cevabınızı girin" inputmode="decimal" style="margin-top:8px;">
             <div id="app1AssessFeedback" style="margin-top:8px;"></div>
-            </div>
-            <div style="text-align:center;"><button class="action-button" id="app1s6CheckBtn">Kontrol Et</button></div>
-            <div style="display:none;text-align:center;" id="app1s6NextArea"><button class="action-button" id="app1FinishBtn">Uygulama 2'ye Geç →</button></div>`;
-            // a=3 (b birimi=2, a birimi=1 → toplam 3×3 tahta):
-            // Görseldeki gibi: sarı 3×3, kırmızı 2×2, mavi 2×1 dikdörtgenler
-            clearBoard();
-            setTimeout(()=>{
-                // Büyük kare (a+b)=5 → 5×5, a=3,b=2 → 6×6 grid üzerinde 5 birim
-                // Sol üst a²=3×3 kırmızı (ama grid 6×6 olduğu için a=3 birim)
-                drawSquare(0,0,3,'#ef4444');  // a²
-                // Sağ üst ab sarı
-                elastics.push({pins:[{r:0,c:3},{r:0,c:5},{r:2,c:5},{r:2,c:3}],color:'#eab308',closed:true});
-                // Sol alt ab sarı
-                elastics.push({pins:[{r:3,c:0},{r:3,c:3},{r:5,c:3},{r:5,c:0}],color:'#eab308',closed:true});
-                // Sağ alt b² mavi
-                drawSquare(3,3,2,'#3b82f6');
-                rebuildBoard();
-            },300);
-            if(window.MathJax) setTimeout(()=>MathJax.typesetPromise(),200);
-             $('[data-tab="app2"]').prop('disabled',false);
+        </div>
+        <div style="display:none;text-align:center;" id="app1s6NextArea"><button class="action-button" id="app1FinishBtn">Uygulama 2'ye Geç</button></div>`;
+        clearBoard();
+        if(window.MathJax) setTimeout(()=>MathJax.typesetPromise(),200);
+        $('[data-tab="app2"]').prop('disabled',false);
         break;
     }
 
@@ -1408,7 +1562,7 @@ function renderApp1Step(step){
                 $('#numFeedback').text(`${correctSelections.size}/3 doğru seçim`).css('color','var(--success-bg)');
                 if(correctSelections.size===3){
                     $('#app1s1Btn').prop('disabled',false);
-                    $('#numFeedback').text('✓ Doğru! 1, 4 ve 9 tam kare sayılardır.').css('color','var(--success-bg)');
+                    $('#numFeedback').text('✓ Doğru! 1, 4 ve 9 tamkare sayılardır.').css('color','var(--success-bg)');
                     $(document).off('click.numgrid');
                 }
             } else {
@@ -1424,81 +1578,244 @@ function renderApp1Step(step){
             const last = elastics[elastics.length-1];
             if(last && last.closed && last.pins.length===4){
                 if(isValidSquare(last.pins)){
-                    $('#squareStatus').html('✓ Kare oluşturuldu!').css('color','var(--success-bg)');
-                    $('#app1s2Btn').prop('disabled',false);
+                    $('#squareStatus').html('✓ 2×2 kare oluşturuldu! Şimdi aşağıdaki soruyu yanıtlayın.').css('color','var(--success-bg)');
+                    $('#edgeQuestion').show();
+                    $(document).off('elasticAdded.app1s2');
                 } else {
-                    $('#squareStatus').text('⚠ Lütfen kare şeklinde bir yol çizin (eşit kenarlar).').css('color','var(--error-bg)');
+                    $('#squareStatus').text('⚠ Lütfen tam olarak 2×2 boyutunda bir kare çizin.').css('color','var(--error-bg)');
                 }
             }
         });
         $(document).off('pinSelected.app1s2').on('pinSelected.app1s2',function(e,data){
             $('#squareStatus').text(`${data.count} pin seçildi — İlk pine geri dönerek kapatın`).css('color','var(--text-secondary)');
         });
-        $('#app1s2Btn').on('click',()=>{ $(document).off('elasticAdded.app1s2 pinSelected.app1s2'); renderApp1Step(3); });
-        break;
-    case 3: $('#app1s3Btn').on('click',()=>renderApp1Step(4)); break;
-    case 4:
-        $('#app1s4CheckBtn').on('click',function(){
-            const vals = {
-                area1: $('#area1').val().replace(/\s/g,'').toLowerCase(),
-                area2: $('#area2').val().replace(/\s/g,'').toLowerCase(),
-                area3: $('#area3').val().replace(/\s/g,'').toLowerCase(),
-                area4: $('#area4').val().replace(/\s/g,'').toLowerCase(),
-                area5: $('#area5').val().replace(/\s/g,'').toLowerCase(),
-            };
-            const correct = {
-                area1: ['a²','a^2','a*a','a·a'],
-                area2: ['ab','a·b','a*b','ba','b·a'],
-                area3: ['ab','a·b','a*b','ba','b·a'],
-                area4: ['b²','b^2','b*b','b·b'],
-                area5: ['(a+b)²','(a+b)^2','a²+2ab+b²','a^2+2ab+b^2','(a+b)*(a+b)'],
-            };
-            let allOk = true;
-            let msg = '';
-            Object.keys(correct).forEach(key=>{
-                const ok = correct[key].some(v => vals[key]===v);
-                if(!ok){ allOk=false; }
-            });
-            if(allOk){
-                $('#areaFeedback').html('<div class="success-message">✓ Doğru! a², ab, ab, b² ve toplamları (a+b)² = a²+2ab+b²</div>');
-                $('#app1s4NextArea').show();
-                $('#app1s4CheckBtn').hide();
-            } else {
-                $('#areaFeedback').html('<div class="error-message">✗ Bazı alanlar yanlış. İpucu: Sol üst = a², Sağ alt = b², Orta = ab</div>');
-            }
-        });
-        $('#app1s4Btn').on('click',()=>renderApp1Step(5));
-        break;
-    case 5:
-        $(document).off('click.identity').on('click.identity','#identityChoices .option-button',function(){
+        // Kenar uzunluğu sorusu
+        $(document).off('click.edgeQ').on('click.edgeQ','#edgeQuestion .option-button', function(){
             if($(this).prop('disabled')) return;
-            const choice = parseInt($(this).data('choice'));
-            if(choice===2){
+            const ans = $(this).data('ans');
+            if(ans === 'right'){
                 $(this).addClass('correct');
-                $('#identityChoices .option-button').prop('disabled',true);
-                $('#identityFeedback').html('<div class="explain-box"><p>✓ Doğru!<br>$(a+b)^2 = a^2 + 2ab + b^2$<br>Bu <strong>tam kare özdeşliği</strong>dir. Geometrik olarak 3×3 karenin alanı, 4 parçanın toplamına eşittir.</p></div>');
-                if(window.MathJax) MathJax.typesetPromise();
-                $('#app1s5NextArea').show();
-                $(document).off('click.identity');
+                $('#edgeQuestion .option-button').prop('disabled',true);
+                $('#edgeFeedback').html('✓ Doğru! Kenar uzunluğu <strong>2 birim</strong>dir. Bu uzunluğu bundan sonra <strong>a</strong> olarak adlandırıyoruz.').css('color','var(--success-bg)');
+                $('#app1s2Btn').prop('disabled',false);
+                $(document).off('click.edgeQ');
             } else {
                 $(this).addClass('incorrect');
                 setTimeout(()=>$(this).removeClass('incorrect'),800);
-                $('#identityFeedback').html('<div class="error-message">✗ Yanlış. Renkli bölmelerin toplamını düşünün: a² + ab + ab + b²</div>');
+                $('#edgeFeedback').text('Kaç birim? Pinleri sayın.').css('color','var(--error-bg)');
             }
         });
-        $('#app1s5Btn').on('click',()=>{ $(document).off('click.identity'); renderApp1Step(6); });
+        $('#app1s2Btn').on('click',()=>{ $(document).off('elasticAdded.app1s2 pinSelected.app1s2 click.edgeQ'); renderApp1Step(3); });
+        break;
+    case 3:
+        // 3×3 tamamlama kontrolü
+        // elastics[0] = adım 3/8'de çizilen 2×2 kare (korunuyor)
+        // Kullanıcı 2 yeni farklı renkli kapalı şekil eklemelidir ve
+        // tüm elastikler birlikte tam 3×3 boyutunda bir kareyi kapsamalıdır.
+
+        // Yardımcı: verilen elastikler toplamda 3×3 boyutunu kapsıyor mu?
+        // Pozisyondan bağımsız — sadece span 3 birim olmalı
+        function covers3x3(elList){
+            const allPins = elList.flatMap(e => e.pins);
+            if(allPins.length === 0) return false;
+            const rs = allPins.map(p=>p.r), cs = allPins.map(p=>p.c);
+            const spanR = Math.max(...rs) - Math.min(...rs);
+            const spanC = Math.max(...cs) - Math.min(...cs);
+            return spanR === 3 && spanC === 3;
+        }
+
+        $(document).off('elasticAdded.app1s3').on('elasticAdded.app1s3', function(){
+            // İlk elastik (index 0) = önceki adımdan gelen 2×2 kare
+            const addedElastics = elastics.slice(1); // yeni eklenenler
+            if(addedElastics.length < 2){
+                $('#completeStatus')
+                    .text(`${addedElastics.length}/2 lastik eklendi — 1 tane daha ekleyin`)
+                    .css('color','var(--text-secondary)');
+                return;
+            }
+            // Son 2 yeni lastiği al
+            const last2 = addedElastics.slice(-2);
+            // Renk kontrolü: 2 yeni lastiğin rengi birbirleriyle farklı olmalı
+            const baseColor = elastics[0] ? elastics[0].color : null;
+            const c1 = last2[0].color, c2 = last2[1].color;
+            if(c1 === c2){
+                $('#completeStatus')
+                    .text('⚠ İki yeni lastiğin rengi birbirinden farklı olmalıdır!')
+                    .css('color','var(--error-bg)');
+                return;
+            }
+            if(baseColor && (c1 === baseColor || c2 === baseColor)){
+                $('#completeStatus')
+                    .text('⚠ Yeni lastiklerin rengi ilk karedekinden farklı olmalıdır!')
+                    .css('color','var(--error-bg)');
+                return;
+            }
+            // 3×3 kaplama kontrolü — tüm elastiklerin pin aralığı 3 birim olmalı
+            if(!covers3x3(elastics)){
+                $('#completeStatus')
+                    .text('⚠ Lastikler henüz 3×3 kareyi tam olarak tamamlamıyor.')
+                    .css('color','var(--error-bg)');
+                return;
+            }
+            // Başarı!
+            $('#completeStatus')
+                .html('✓ (a+b)×(a+b) kare tamamlandı!')
+                .css('color','var(--success-bg)');
+            $('#abEdgeReveal').show();
+            $('#app1s3Btn').prop('disabled', false);
+            $(document).off('elasticAdded.app1s3');
+        });
+        $('#app1s3Btn').on('click',()=>{ $(document).off('elasticAdded.app1s3'); renderApp1Step(4); });
+        break;
+    case 4:
+        let activeAreaInput = null;
+        const areaLabels = {area1:'2×2 Kare (a²)', area2:'1×2 Dikdörtgen (ab)', area3:'2×1 Dikdörtgen (ab)', area4:'1×1 Kare (b²)'};
+        const areaBorderColors = {area1:'#ef4444', area2:'#eab308', area3:'#22c55e', area4:'#3b82f6'};
+        $(document).on('click.sqkey','button.sq-key', function(){
+            if(!activeAreaInput) return;
+            const val = $(this).data('val');
+            if(val === '⌫') activeAreaInput.value = activeAreaInput.value.slice(0,-1);
+            else activeAreaInput.value += val;
+        });
+        // Panel inputlarına tıklanınca klavye açılır
+        $(document).on('click.areaovl', '.area-panel-input', function(){
+            // Önceki aktifin kenarlık rengini geri yükle
+            if(activeAreaInput){
+                activeAreaInput.style.boxShadow = '';
+                activeAreaInput.style.borderColor = areaBorderColors[activeAreaInput.id] || 'var(--border-color)';
+            }
+            activeAreaInput = this;
+            this.style.boxShadow = `0 0 0 3px ${areaBorderColors[this.id] || 'var(--border-color)'}55`;
+            $('#activeAreaLabel').text(areaLabels[this.id] || '');
+            $('#panelKeyboard').show();
+        });
+        $('#app1s4CheckBtn').on('click',function(){
+            const get = id => (document.getElementById(id)||{value:''}).value.replace(/\s/g,'').toLowerCase();
+            const vals = { area1:get('area1'), area2:get('area2'), area3:get('area3'), area4:get('area4') };
+            const correct = {
+                area1: ['a²','a^2','a*a','a·a','a2'],
+                area2: ['ab','a·b','a*b','ba','b·a','a×b','b×a'],
+                area3: ['ab','a·b','a*b','ba','b·a','a×b','b×a'],
+                area4: ['b²','b^2','b*b','b·b','b2'],
+            };
+            const fieldNames = {area1:'2×2 Kare',area2:'1×2 Dikdörtgen',area3:'2×1 Dikdörtgen',area4:'1×1 Kare'};
+            const wrongFields = [];
+            Object.keys(correct).forEach(key=>{
+                const ok = correct[key].some(v => vals[key]===v);
+                if(!ok) wrongFields.push(fieldNames[key]);
+                const el = document.getElementById(key);
+                if(el) el.style.borderColor = ok ? 'var(--success-bg)' : 'var(--error-bg)';
+            });
+            if(wrongFields.length===0){
+                $(document).off('click.sqkey click.areaovl');
+                $('#areaFeedback').html('<div class="success-message">✓ Tüm bölgeler doğru! a², ab, ab, b²</div>');
+                $('#app1s4NextArea').show();
+                $('#app1s4CheckBtn').hide();
+                $('#panelKeyboard').hide();
+            } else {
+                $('#areaFeedback').html(`<div class="error-message">✗ Yanlış: ${wrongFields.join(', ')} — Sembolik ifade girin (a², ab, b²)</div>`);
+            }
+        });
+        $('#app1s4Btn').on('click',()=>{ $(document).off('click.sqkey click.areaovl'); renderApp1Step(5); });
+        break;
+    case 5:
+        $(document).on('click.sqkey2','button.sq-key2', function(){
+            const inp = document.getElementById('sumInput');
+            if(!inp) return;
+            const val = $(this).data('val');
+            if(val === '⌫') inp.value = inp.value.slice(0,-1);
+            else inp.value += val;
+        });
+        $(document).on('click.sqkey3','button.sq-key3', function(){
+            const inp = document.getElementById('squareInput');
+            if(!inp) return;
+            const val = $(this).data('val');
+            if(val === '⌫') inp.value = inp.value.slice(0,-1);
+            else inp.value += val;
+        });
+        $('#sumCheckBtn').on('click', function(){
+            const raw = $('#sumInput').val().replace(/\s/g,'').toLowerCase();
+            const sumCorrect = ['a²+2ab+b²','a^2+2ab+b^2','a2+2ab+b2'];
+            if(sumCorrect.some(v => raw === v)){
+                $(document).off('click.sqkey2');
+                $('#sumKeyboard').hide();
+                $('#sumCheckBtn').prop('disabled',true);
+                $('#simplLine').css('display','block');
+                $('#sumFeedback').html('<div class="success-message">✓ Doğru! Şimdi geometri tahtasındaki büyük karenin alanını bulunuz.</div>');
+                setTimeout(()=>{
+                    $('#formulaReveal').show();
+                }, 400);
+            } else {
+                $('#sumFeedback').html('<div class="error-message">✗ Henüz tam değil. İpucu: ab + ab = 2ab olarak yazılır.</div>');
+            }
+        });
+        $('#squareCheckBtn').on('click', function(){
+            const raw = $('#squareInput').val().replace(/\s/g,'').toLowerCase();
+            const sqCorrect = ['(a+b)²','(a+b)^2','(a+b)2'];
+            if(sqCorrect.some(v => raw === v)){
+                $(document).off('click.sqkey3');
+                $('#squareKeyboard').hide();
+                $('#squareCheckBtn').prop('disabled',true);
+                $('#squareFeedback').html('<div class="success-message">✓ Doğru! Büyük karenin alanı (a+b)²</div>');
+                setTimeout(()=>{ $('#identityReveal').show(); $('#app1s5NextArea').show(); }, 400);
+            } else {
+                $('#squareFeedback').html('<div class="error-message">✗ İpucu: kenar uzunluğu (a+b), alan = kenar² şeklinde yazılır.</div>');
+            }
+        });
+        $('#app1s5Btn').on('click',()=>{ $(document).off('click.sqkey2 click.sqkey3'); renderApp1Step(6); });
         break;
     case 6:
-        $('#app1s6CheckBtn').on('click',function(){
-            const val = $('#app1AssessInput').val().trim().replace(',','.');
-            if(val==='25'){
-                $('#app1AssessFeedback').html('<div class="success-message">✓ Doğru! $(2+3)^2 = 25$</div>');
-                if(window.MathJax) MathJax.typesetPromise();
-                $('#app1s6NextArea').show();
-                $('#app1s6CheckBtn').hide();
-            } else {
-                $('#app1AssessFeedback').html('<div class="error-message">✗ Yanlış. İpucu: $(2+3)^2 = 5^2 = 25$</div>');
-            }
+        // Doğru şekil kontrolü: 4 elastik, belirli konumlar ve boyutlar
+        function isValidAssess6(){
+            if(elastics.length < 4) return false;
+            const allPins = elastics.flatMap(e => e.pins);
+            const rs = allPins.map(p=>p.r), cs = allPins.map(p=>p.c);
+            const spanR = Math.max(...rs) - Math.min(...rs);
+            const spanC = Math.max(...cs) - Math.min(...cs);
+            // (a+b) = 5 birim → span 5
+            return spanR === 5 && spanC === 5 && elastics.length >= 4;
+        }
+        $(document).off('elasticAdded.app1s6 pinSelected.app1s6')
+            .on('elasticAdded.app1s6', function(){
+                if(isValidAssess6()){
+                    $('#assess6Status').html('✓ Şekil tamamlandı! Devam edebilirsiniz.').css('color','var(--success-bg)');
+                    $('#app1s6BuildBtn').prop('disabled', false);
+                    $(document).off('elasticAdded.app1s6 pinSelected.app1s6');
+                } else {
+                    const n = elastics.length;
+                    $('#assess6Status').text(n + ' bölge oluşturuldu — ' + (4-n<0?0:4-n) + ' tane daha ekleyin').css('color','var(--text-secondary)');
+                }
+            })
+            .on('pinSelected.app1s6', function(e,data){
+                $('#assess6Status').text(data.count + ' pin seçildi...').css('color','var(--text-secondary)');
+            });
+        $('#app1s6BuildBtn').on('click', function(){
+            $(this).hide();
+            $('#assess6QuestionArea').show();
+            if(window.MathJax) MathJax.typesetPromise();
+            // Soru alanında Kontrol Et bağla
+            $('#assess6QuestionArea').find('button').remove();
+            const checkBtn = $('<button class="action-button" id="app1s6CheckBtn" style="margin-top:8px;display:block;width:100%;text-align:center;">Kontrol Et</button>');
+            $('#assess6QuestionArea').append(checkBtn);
+            $('#app1s6CheckBtn').on('click', function(){
+                const val = $('#app1AssessInput').val().trim().replace(',','.');
+                if(val==='25'){
+                    $('#app1AssessFeedback').html(`
+                        <div class="success-message" style="text-align:left;line-height:1.8;">
+                            ✓ <strong>Doğru!</strong><br>
+                            <span style="font-size:.95em;">
+                            (2 + 3)² = 2² + 2 · 2 · 3 + 3² = 4 + 12 + 9 = <strong>25</strong>
+                            </span><br>
+                            <span style="font-size:.88em;opacity:.85;">ya da kısaca: (2 + 3)² = 5² = 25</span>
+                        </div>
+                    `);
+                    if(window.MathJax) MathJax.typesetPromise();
+                    $('#app1s6NextArea').show();
+                    $(this).hide();
+                } else {
+                    $('#app1AssessFeedback').html('<div class="error-message">✗ Yanlış. Tahtadaki büyük karenin kenar uzunluğu (2+3) = 5, o hâlde alanı kaçtır?</div>');
+                }
+            });
         });
         $('#app1FinishBtn').on('click',()=>$('[data-tab="app2"]').prop('disabled',false).click());
         break;
@@ -1515,7 +1832,7 @@ function loadApp2(){
 function renderApp2Step(step){
     clearBoard();
     boardMode = 'draw';
-    const totalSteps = 8;
+    const totalSteps = 6;
     const pct = Math.round(((step+1)/totalSteps)*100);
     let html = `<div class="progress-container">
         <div class="progress-label"><span>Uygulama 2 — π'yi Görelim</span><span>${step+1}/${totalSteps}</span></div>
@@ -1526,127 +1843,443 @@ function renderApp2Step(step){
     case 0:
         html += `<div class="instruction-box">
             <h3>🔵 π'yi Görelim</h3>
-            <p><strong>Süre:</strong> 35 dakika</p>
             <h4>Hedef</h4>
             <p>İrrasyonel bir sayının (<strong>π</strong>) geometrik yorumunu yapabilmek.</p>
             <h4>Hedeflenen Beceriler</h4>
             <ul>
-                <li>Ölçme ve tahmin</li>
-                <li>Matematiksel modelleme</li>
                 <li>İlişkilendirme</li>
+                <li>Akıl Yürütme</li>
+                <li>İletişim</li>
+                <li>Matematiksel Modelleme</li>                
             </ul>
         </div>
-        <div style="text-align:center;"><button class="action-button" id="app2s0Btn">Başla →</button></div>`;
+        <div class="instruction-box" style="background:rgba(0,212,255,0.08);border-color:var(--border-color);margin-top:8px;">
+            <p style="font-size:.93em;color:var(--text-secondary);">📋 <em>Geometri tahtasında çemberlerin olduğu yüz kullanılacaktır.</em></p>
+        </div>
+        <div style="text-align:center;"><button class="action-button" id="app2s0Btn">Başla</button></div>`;
         setTimeout(()=>{
-            // Çember göster
-            const pins24=[];
-            const cx=2.5,cy=2.5;
-            for(let i=0;i<8;i++){
-                const angle=i*Math.PI/4;
-                const r=Math.round(cy+2*Math.sin(angle));
-                const c=Math.round(cx+2*Math.cos(angle));
-                if(r>=0&&r<GRID_N&&c>=0&&c<GRID_N) pins24.push({r,c});
+            if(threeCamera && threeControls){
+                threeCamera.position.set(0, 0, -9);
+                threeCamera.lookAt(0, 0, 0);
+                threeControls.target.set(0, 0, 0);
+                threeControls.update();
             }
-            if(pins24.length>=4) elastics.push({pins:pins24,color:'#ef4444',closed:true});
-            rebuildBoard();
-        },400);
-        $('#boardHint').text('🔴 Çember oluşturulmuş tahta — π keşfedilecek');
+        }, 500);
+        $('#boardHint').text('🔵 Çemberlerin olduğu arka yüz — π keşfedilecek');
         break;
+
     case 1:
         html += `<div class="instruction-box">
-            <h3>⭕ Çember Oluşturma</h3>
+            <h3>⭕ Çember İnceleme</h3>
             <p>Geometri tahtasının <strong>arka yüzünde</strong> 12 ve 24 pinli çemberler bulunmaktadır.</p>
             <p style="margin-top:8px;">Sağ panelde iki farklı çember gösterilmektedir. Her birini seçerek inceleyebilirsiniz.</p>
-            <div style="display:flex;gap:8px;margin-top:10px;">
+            <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
                 <button class="circle-select-btn selected" id="smallCircleBtn">Küçük Çember (12 pin)</button>
                 <button class="circle-select-btn" id="bigCircleBtn">Büyük Çember (24 pin)</button>
             </div>
-            <p style="margin-top:10px;font-size:.88em;color:var(--text-secondary);">Oluşturduğunuz çemberin <strong>çevresini (C)</strong> ve <strong>çapını (d)</strong> ölçün.</p>
         </div>
-        <div style="text-align:center;"><button class="action-button" id="app2s1Btn">Devam Et →</button></div>`;
-        // Küçük çember varsayılan
-        setTimeout(()=>drawCircleOnBoard('small'),300);
+        <div style="text-align:center;margin-top:10px;"><button class="action-button" id="app2s1Btn">Devam Et</button></div>`;
+        setTimeout(()=>{
+            if(threeCamera && threeControls){
+                threeCamera.position.set(0, 0, -9);
+                threeCamera.lookAt(0, 0, 0);
+                threeControls.target.set(0, 0, 0);
+                threeControls.update();
+            }
+        }, 300);
         $('#boardHint').text('⭕ Çemberleri seçerek inceleyin');
         break;
-    renderApp2Step 
+
+    case 2:
+        if(typeof window.app2subStep === 'undefined') window.app2subStep = 0;
+
+        if(window.app2subStep === 0){
+            // ── Diyalog: Formül sorusu
+            html += `<div class="instruction-box">
+                <h3>🔵 Büyük Kare ve Çember</h3>
+                <p>Hazırlanıyor...</p>
+            </div>`;
+            setTimeout(()=>{
+                // Sağ paneli çember yüzüne çevir
+                if(threeCamera && threeControls){
+                    threeCamera.position.set(0, 0, -9);
+                    threeCamera.lookAt(0, 0, 0);
+                    threeControls.target.set(0, 0, 0);
+                    threeControls.update();
+                }
+                clearBoard();
+                // Formül diyaloğunu aç
+                $('#app2FormulaDialog').remove();
+                const dlg = `<div class="dialog-overlay" id="app2FormulaDialog" style="display:flex;">
+                    <div class="dialog-content" style="max-width:480px;">
+                        <h2>⭕ Daire Alanı Formülü</h2>
+                        <svg id="formulaSVG" viewBox="0 0 220 220" width="220" height="220"
+                            style="display:block;margin:0 auto 14px;background:var(--bg-tertiary);border-radius:50%;border:2px solid var(--border-color);">
+                            <circle cx="110" cy="110" r="4" fill="#ffd700"/>
+                            <text x="116" y="107" fill="#ffd700" font-size="15" font-family="Segoe UI">O</text>
+                            <line x1="110" y1="110" x2="216" y2="110" stroke="#c084fc" stroke-width="2.5" stroke-dasharray="6,3"/>
+                            <text x="150" y="105" fill="#c084fc" font-size="15" font-family="Segoe UI">r</text>
+                        </svg>
+                        <p style="text-align:center;font-size:.95em;margin-bottom:10px;">Yukarıdaki dairenin alan formülünü yazınız:</p>
+                        <div style="display:flex;align-items:center;gap:6px;justify-content:center;flex-wrap:wrap;">
+                            <span style="font-size:1.1em;font-weight:700;color:var(--text-accent);">A =</span>
+                            <input id="formulaInput" type="text" class="input-field"
+                                placeholder="Formülü girin..." readonly
+                                style="width:170px;text-align:center;font-size:1.1em;cursor:default;"/>
+                            <button id="formulaClearBtn" style="padding:6px 10px;border-radius:7px;background:var(--bg-tertiary);border:1.5px solid var(--border-color);color:var(--text-primary);cursor:pointer;font-size:13px;">⌫</button>
+                        </div>
+                        <!-- Özel klavye -->
+                        <div style="display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin-top:12px;">
+                            ${['π','r','²','(',')','+','-','·','0','1','2','3','4','5'].map(k=>
+                                `<button class="formula-key action-button" data-key="${k}"
+                                    style="padding:7px 13px;font-size:1em;min-width:40px;">${k}</button>`
+                            ).join('')}
+                        </div>
+                        <div id="formulaFeedback" style="margin-top:10px;text-align:center;"></div>
+                        <div class="dialog-btn-row" style="gap:10px;">
+                            <button class="action-button" id="formulaCheckBtn">Kontrol Et</button>
+                            <button class="action-button" id="formulaContinueBtn" style="display:none;background:var(--success-bg);border-color:var(--success-bg);">Devam Et ✓</button>
+                        </div>
+                    </div>
+                </div>`;
+                $('body').append(dlg);
+                // Klavye
+                $(document).off('click.fkey').on('click.fkey', '.formula-key', function(){
+                    const k = $(this).data('key');
+                    $('#formulaInput').val($('#formulaInput').val() + k);
+                });
+                $('#formulaClearBtn').on('click', function(){
+                    const v = $('#formulaInput').val();
+                    $('#formulaInput').val(v.slice(0,-1));
+                });
+                $('#formulaCheckBtn').on('click', function(){
+                    const raw = $('#formulaInput').val().replace(/\s/g,'').toLowerCase();
+                    // Kabul: πr², pi*r^2, π·r², πr2 vb.
+                    const ok = /^π?pi?[·*]?r[\^²2]?2?$/.test(raw) || raw==='πr²' || raw==='πr2' || raw==='π·r²' || raw==='π*r²' || raw==='pir²' || raw==='pir2';
+                    if(ok){
+                        $('#formulaFeedback').html('<div class="success-message">✓ Harika! Daire alanı A = πr² formülüdür.</div>');
+                        $('#formulaCheckBtn').hide();
+                        $('#formulaContinueBtn').show();
+                    } else {
+                        $('#formulaFeedback').html('<div class="error-message">✗ Tekrar deneyin. İpucu: π, r ve ² kullanın.</div>');
+                    }
+                });
+                $('#formulaContinueBtn').on('click', function(){
+                    $(document).off('click.fkey');
+                    $('#app2FormulaDialog').remove();
+                    window.app2subStep = 1;
+                    renderApp2Step(2);
+                });
+            }, 300);
+            $('#boardHint').text('⭕ Çember yüzü — daire alanı formülünü bulun');
+
+        } else if(window.app2subStep === 1){
+            // ── Büyük kareyi lastikle oluştur (rehber kesikli çizgi)
+            html += `<div class="instruction-box">
+                <h3>🔵 Adım 1 — Büyük Kareyi Oluşturun</h3>
+                <p>Geometri tahtası üzerinde <strong>büyük kareyi</strong> lastikle çeviriniz.</p>
+                <p style="margin-top:8px;font-size:.92em;color:var(--text-secondary);">
+                    Kesikli çizgi üzerindeki köşe pinlerini sırasıyla seçip başlangıç pinine dönerek kareyi kapatınız.
+                </p>
+                <div class="explain-box" style="margin-top:10px;">
+                    <p>💡 <strong>[!] Yarıçap uzunluğu: 2 birim</strong></p>
+                </div>
+            </div>
+            <div style="text-align:center;margin-top:10px;">
+                <button class="action-button" id="app2s2Btn" disabled style="opacity:.4;">Devam Et</button>
+            </div>`;
+            // Hedef köşeler (6×6 grid, 0-indexli, köşe pinler = r0c0, r0c5, r5c5, r5c0)
+            window.app2TargetSquare = [{r:0,c:0},{r:0,c:5},{r:5,c:5},{r:5,c:0}];
+            setTimeout(()=>{
+                // Arka yüze (çember yüzü) döndür
+                if(threeCamera && threeControls){
+                    threeCamera.position.set(0, 0, -9);
+                    threeCamera.lookAt(0, 0, 0);
+                    threeControls.target.set(0, 0, 0);
+                    threeControls.update();
+                }
+                clearBoard();
+                
+                // Çember pinlerini tam görünürlüğe döndür
+                backGroup && backGroup.children.forEach(ch => {
+                    if(!ch.userData || !ch.userData.isCirclePin) return;
+                    ch.material.opacity = 1.0;
+                    ch.material.transparent = false;
+                });
+
+                // 3D rehber: backGroup'a kesikli sarı kare (çember yüzü köşe pinleri arası)
+                if(backGroup && THREE){
+                    // Eski rehberleri temizle
+                    backGroup.children
+                        .filter(c => c.userData && c.userData.isGuide)
+                        .forEach(g => backGroup.remove(g));
+
+                    // Köşe pinleriyle aynı koordinatlar (buildBack'teki corners ile birebir)
+                    const half = BOARD3D_SIZE / 2 - 0.25; // = 2.5
+                    const bz = -(BOARD3D_THICK / 2 + 0.22);
+                    const guideCorners = [
+                        new THREE.Vector3(-half,  half, bz),
+                        new THREE.Vector3( half,  half, bz),
+                        new THREE.Vector3( half, -half, bz),
+                        new THREE.Vector3(-half, -half, bz),
+                    ];
+
+                    // Kesikli çizgi (kareyi kapat)
+                    const pts = [...guideCorners, guideCorners[0]];
+                    const geo = new THREE.BufferGeometry().setFromPoints(pts);
+                    const mat = new THREE.LineDashedMaterial({
+                        color: 0xffd700, dashSize: 0.18, gapSize: 0.10, linewidth: 2
+                    });
+                    const line = new THREE.Line(geo, mat);
+                    line.computeLineDistances();
+                    line.userData.isGuide = true;
+                    backGroup.add(line);
+                }
+            }, 400);
+            $('#boardHint').text('📐 Sarı kesikli çizgideki kareyi lastikle oluşturun');
+
+        } else if(window.app2subStep === 2){
+            html += `<div class="instruction-box">
+                <h3>⭕ Adım 2 — İçten Teğet Çemberi Ekleyin</h3>
+                <p>Büyük kareye <strong>içten teğet çemberi</strong> lastikle çeviriniz.</p>
+                <p style="margin-top:8px;font-size:.92em;color:var(--text-secondary);">Çember, büyük karenin her kenarına tam ortadan değmektedir.</p>
+            </div>
+            <div style="text-align:center;margin-top:10px;"><button class="action-button" id="app2s2Btn">Devam Et</button></div>`;
+            setTimeout(()=>{
+                const circPins=[];
+                for(let i=0;i<16;i++){
+                    const a=i*Math.PI/8;
+                    const r=Math.round(3+3*Math.sin(a));
+                    const c=Math.round(3+3*Math.cos(a));
+                    if(r>=0&&r<GRID_N&&c>=0&&c<GRID_N) circPins.push({r,c});
+                }
+                const uCirc=[];
+                circPins.forEach(p=>{if(!uCirc.some(u=>u.r===p.r&&u.c===p.c))uCirc.push(p);});
+                if(uCirc.length>=4) elastics.push({pins:uCirc, color:'#c084fc', closed:true});
+                if(typeof updateElastics3D==='function') updateElastics3D();
+            }, 300);
+            $('#boardHint').text('⭕ İçten teğet çemberi (mor) ekleyin');
+
+        } else {
+            html += `<div class="instruction-box">
+                <h3>🔷 Adım 3 — İç Kareyi Ekleyin</h3>
+                <p>Büyük çember içinde <strong>köşeleri çemberin üzerinde olan kareyi</strong> lastikle çeviriniz.</p>
+                <p style="margin-top:8px;font-size:.92em;color:var(--text-secondary);">İç karenin köşeleri tam olarak çember üzerindedir.</p>
+            </div>
+            <div style="text-align:center;margin-top:10px;"><button class="action-button" id="app2s2Btn">Devam Et</button></div>`;
+            setTimeout(()=>{
+                const inSq=[{r:0,c:3},{r:3,c:6},{r:6,c:3},{r:3,c:0}];
+                elastics.push({pins:inSq, color:'#3b82f6', closed:true});
+                if(typeof updateElastics3D==='function') updateElastics3D();
+            }, 300);
+            $('#boardHint').text('📐 Büyük kare (cyan), çember (mor), iç kare (mavi)');
+        }
+        break;
+
+    case 3:
+        html += `<div class="instruction-box">
+            <h3>📐 Alan Hesabı ve Eşitsizlik</h3>
+            <p>Oluşan şekillerin alanlarını hesaplayınız ve eşitsizlik kullanarak yazınız.</p>
+            <div class="explain-box" style="margin-top:10px;">
+                <p>💡 <strong>[!] Alan (küçük kare) &lt; Alan (daire) &lt; Alan (büyük kare)</strong></p>
+            </div>
+            <p style="margin-top:10px;font-size:.93em;">Bilinen değerler:</p>
+            <ul style="margin-top:6px;font-size:.92em;">
+                <li>Büyük karenin kenar uzunluğu = <strong>4 birim</strong></li>
+                <li>Dairenin yarıçap uzunluğu = <strong>2 birim</strong></li>
+                <li>Küçük karenin kenar uzunluğu = <strong>2√2 birim</strong></li>
+            </ul>
+            <p style="margin-top:10px;font-size:.92em;">Bu durumda öğrencilerin ulaşması beklenen sonuç:</p>
+            <div style="background:var(--bg-tertiary);border-radius:8px;padding:10px 14px;margin-top:6px;font-size:.95em;line-height:2.2;">
+                <div>(2√2)² &lt; 4π &lt; 4²</div>
+                <div>8 &lt; 4π &lt; 16</div>
+                <div style="color:var(--text-accent);font-weight:700;">∴ <strong>2 &lt; π &lt; 4</strong></div>
+            </div>
+            <p style="margin-top:10px;font-size:.9em;color:var(--text-secondary);">π sayısının 2 ile 4 sayıları arasında bulunduğu geometri tahtası uygulamasıyla görülmüştür.</p>
+            <p style="margin-top:6px;font-size:.9em;color:var(--text-secondary);">📚 <em>Arşimed'in π sayısını hesapladığı çalışmasını araştırınız.</em></p>
+        </div>
+        <div style="text-align:center;margin-top:10px;"><button class="action-button" id="app2s3Btn">Devam Et</button></div>`;
+        $('#boardHint').text('📐 Alan (küçük kare) < Alan (daire) < Alan (büyük kare)');
+        break;
+
+    case 4:
+        html += `<div class="instruction-box">
+            <h3>📏 Ölçme ve Değerlendirme</h3>
+            <p><strong>Soru:</strong> Yarıçap uzunluğu 5 birim olan dairenin alanı hangi <strong>tam sayılar arasında</strong> yer almalıdır?</p>
+            <p style="margin-top:8px;font-size:.9em;color:var(--text-secondary);">Cevabınızı "küçük sayı-büyük sayı" formatında yazınız. (Örn: 50-100)</p>
+            <input type="text" id="app2AssessInput" class="input-field" placeholder="Örn: 50-100" style="margin-top:8px;">
+            <div id="app2AssessFeedback" style="margin-top:6px;"></div>
+            <div id="app2AssessNextArea" style="display:none;margin-top:10px;">
+                <div class="explain-box">
+                    <p>✓ <strong>Çözüm:</strong><br>
+                    Alan = πr² = 25π<br>
+                    2 &lt; π &lt; 4 eşitsizliği kullanılarak:<br>
+                    <strong>50 &lt; 25π &lt; 100</strong><br>
+                    Alan 50 ile 100 arasında yer alır.</p>
+                </div>
+            </div>
+        </div>
+        <div style="text-align:center;margin-top:10px;">
+            <button class="action-button" id="app2AssessCheckBtn">Kontrol Et</button>
+            <div id="app2FinishArea" style="display:none;margin-top:10px;">
+                <button class="action-button" id="app2FinishBtn" style="background:var(--success-bg);border-color:var(--success-bg);">✓ Uygulama 2 Tamamlandı — Kazanımları Gör</button>
+            </div>
+        </div>`;
+        $('#boardHint').text('🔢 Yarıçap=5 birim → Alan hangi tam sayılar arasında?');
+        break;
+
+    case 5:
+        html += `<div class="success-message" style="padding:16px;text-align:center;">
+            🎉 Uygulama 2 Tamamlandı!
+        </div>
+        <div class="instruction-box" style="margin-top:10px;">
+            <h3>🎯 Bu Uygulamada Neler Öğrendik?</h3>
+            <ul style="margin-top:8px;line-height:1.9;">
+                <li>İrrasyonel bir sayı olan <strong>π'nin geometrik yorumunu</strong> yaptık.</li>
+                <li>Geometri tahtasının arka yüzündeki <strong>çemberli yüzü</strong> inceledik (12 ve 24 pin).</li>
+                <li>Büyük kare, içten teğet daire ve köşeleri daire üzerinde olan küçük kare oluşturarak <strong>2 &lt; π &lt; 4</strong> sonucuna ulaştık.</li>
+                <li>Alan eşitsizliği kullanarak daire alanının sınırlarını hesapladık.</li>
+                <li><strong>Arşimed'in π hesabı</strong> hakkında araştırma yaptık.</li>
+            </ul>
+        </div>
+        <div style="text-align:center;margin-top:12px;">
+            <button class="action-button" id="app2ToApp3Btn" style="font-size:15px;padding:12px 28px;">
+                Uygulama 3'e Geç →
+            </button>
+        </div>`;
+        $('#boardHint').text('🎯 Uygulama 2 tamamlandı!');
+        break;
     }
 
     $('#contentArea').html(html);
     if(window.MathJax) MathJax.typesetPromise();
 
     switch(step){
-    case 0: $('#app2s0Btn').on('click',()=>renderApp2Step(1)); break;
+    case 0:
+        $('#app2s0Btn').on('click', function(){
+            $('#app2DikkatDialog').remove();
+            const dialogHtml = `
+            <div class="dialog-overlay" id="app2DikkatDialog" style="display:flex;">
+                <div class="dialog-content" style="max-width:600px;">
+                    <h2>🔵 π Şeklini İnceleyelim</h2>
+                    <div style="text-align:center;margin-bottom:14px;">
+                        <img src="images/uygulama2_dikkat.png" alt="π Dikkat Görseli"
+                            style="max-width:100%;max-height:260px;border-radius:12px;border:2px solid var(--border-color);box-shadow:0 0 16px var(--border-glow);object-fit:contain;">
+                    </div>
+                    <p style="line-height:1.8;font-size:.93em;">Üstteki görselde rakamlar bir dairenin etrafına eş aralıklarla yazılmıştır. 3'ten 1'e bir çizgi çizilmiş ardından 1'den 4'e, 4'ten 1'e, 1'den 5'e, 5'ten 9'a, 9'dan 2'ye, 2'den 6'ya, 6'dan 5'e, 5'ten 3'e devamında da π sayısının diğer basamaklarındaki rakama göre çizgiler çizilmeye devam edilmiştir.</p>
+                    <div class="instruction-box" style="margin-top:10px;">
+                        <p style="font-size:.9em;">🔍 Bu şekli dikkatlice inceleyiniz. π sayısının basamaklarındaki rakamların daire üzerindeki noktaları nasıl birleştirdiğini gözlemleyiniz. Oluşan geometrik deseni keşfetmeye çalışınız.</p>
+                    </div>
+                    <div class="dialog-btn-row">
+                        <button class="action-button" id="app2DikkatDevamBtn">Devam Et</button>
+                    </div>
+                </div>
+            </div>`;
+            $('body').append(dialogHtml);
+            $('#app2DikkatDevamBtn').on('click', function(){
+                $('#app2DikkatDialog').remove();
+                renderApp2Step(1);
+            });
+        });
+        break;
+
     case 1:
-        $('#smallCircleBtn').on('click',function(){ $(this).addClass('selected'); $('#bigCircleBtn').removeClass('selected'); clearBoard(); setTimeout(()=>drawCircleOnBoard('small'),200); });
-        $('#bigCircleBtn').on('click',function(){ $(this).addClass('selected'); $('#smallCircleBtn').removeClass('selected'); clearBoard(); setTimeout(()=>drawCircleOnBoard('big'),200); });
-        $('#app2s1Btn').on('click',()=>renderApp2Step(2));
+        $('#smallCircleBtn').on('click', function(){
+            $(this).addClass('selected');
+            $('#bigCircleBtn').removeClass('selected');
+            if(threeCamera && threeControls){
+                threeCamera.position.set(0, 0, -9);
+                threeCamera.lookAt(0, 0, 0);
+                threeControls.target.set(0, 0, 0);
+                threeControls.update();
+            }
+            // YENİ: Küçük çemberi vurgula, büyüğü solar
+            backGroup && backGroup.children.forEach(ch => {
+                if(!ch.userData || !ch.userData.isCirclePin) return;
+                const isMine = ch.userData.circleType === 'small';
+                ch.material.opacity = isMine ? 1.0 : 0.15;
+                ch.material.transparent = true;
+            });
+        });
+        $('#bigCircleBtn').on('click', function(){
+            $(this).addClass('selected');
+            $('#smallCircleBtn').removeClass('selected');
+            if(threeCamera && threeControls){
+                threeCamera.position.set(0, 0, -9);
+                threeCamera.lookAt(0, 0, 0);
+                threeControls.target.set(0, 0, 0);
+                threeControls.update();
+            }
+            // YENİ: Büyük çemberi vurgula, küçüğü solar
+            backGroup && backGroup.children.forEach(ch => {
+                if(!ch.userData || !ch.userData.isCirclePin) return;
+                const isMine = ch.userData.circleType === 'big';
+                ch.material.opacity = isMine ? 1.0 : 0.15;
+                ch.material.transparent = true;
+            });
+        });
+        $('#app2s1Btn').on('click', ()=>renderApp2Step(2));
         break;
+
     case 2:
-        $('#app2s2Btn').on('click',function(){
-            const v1 = parseFloat($('#piInput1').val().replace(',','.'));
-            const v2 = parseFloat($('#piInput2').val().replace(',','.'));
-            if(isNaN(v1)||isNaN(v2)){
-                $('#piFeedback').html('<div class="error-message">Lütfen her iki değeri de girin.</div>');
-                return;
-            }
-            const ok = v1>=2.9&&v1<=3.3 && v2>=2.9&&v2<=3.3;
-            if(ok){
-                $('#piFeedback').html('<div class="success-message">✓ Doğru! Her iki oran da yaklaşık π ≈ 3,14</div>');
-                $('#app2s2NextArea').show(); $('#app2s2Btn').hide();
+        if(window.app2subStep === 1){
+            $(document).off('elasticAdded.bigSquare').on('elasticAdded.bigSquare', function(){
+                const target = window.app2TargetSquare;
+                if(!target) return;
+                const found = elastics.some(el => {
+                    if(!el.closed || el.pins.length !== 4) return false;
+                    return target.every(tp => el.pins.some(p => p.r===tp.r && p.c===tp.c));
+                });
+                if(found){
+                    $(document).off('elasticAdded.bigSquare');
+                    window.app2TargetSquare = null;
+                    // 3D rehber çizgiyi kaldır
+                    if(frontGroup) frontGroup.children.filter(c=>c.userData&&c.userData.isGuide).forEach(g=>frontGroup.remove(g));
+                    $('#app2s2Btn').prop('disabled', false).css('opacity','1');
+                    $('#boardHint').text('✅ Harika! Büyük kare oluşturuldu. Devam edebilirsiniz.');
+                }
+            });
+        }
+        $('#app2s2Btn').on('click', ()=>{
+            $(document).off('elasticAdded.bigSquare');
+            window._app2RebuildHook = null;
+            if(window.app2subStep === 0){
+                // subStep 0 → diyalog kendi içinde ilerliyor, buraya gelmemeli
+            } else if(window.app2subStep < 3){
+                window.app2subStep++;
+                renderApp2Step(2);
             } else {
-                $('#piFeedback').html('<div class="error-message">✗ Değerler 3,0 ile 3,3 arasında olmalı. Tekrar hesaplayın.</div>');
+                window.app2subStep = undefined;
+                window.app2TargetSquare = null;
+                renderApp2Step(3);
             }
         });
-        $('#app2s2NextBtn').on('click',()=>renderApp2Step(3));
         break;
-    case 3: $('#app2s3Btn').on('click',()=>renderApp2Step(4)); break;
+
+    case 3:
+        $('#app2s3Btn').on('click', ()=>renderApp2Step(4));
+        break;
+
     case 4:
-        $('#app2s4CheckBtn').on('click',function(){
-            const val = parseFloat($('#piQInput').val().replace(',','.'));
-            if(isNaN(val)){
-                $('#piQFeedback').html('<div class="error-message">Lütfen sayısal bir değer girin.</div>');
-                return;
-            }
-            if(Math.abs(val-22)<=0.5){
-                $('#piQFeedback').html('<div class="success-message">✓ Doğru! C = π × d = 22/7 × 7 = 22 cm</div>');
-                $('#app2s4NextArea').show(); $('#app2s4CheckBtn').hide();
-            } else {
-                $('#piQFeedback').html('<div class="error-message">✗ İpucu: C = π × d = 22/7 × 7 = ?</div>');
-            }
-        });
-        $('#app2s4Btn').on('click',()=>renderApp2Step(5));
-        break;
-    case 5:
-        $('#app2s5CheckBtn').on('click',function(){
-            const big  = $('#bigSqArea').val().replace(/\s/g,'').replace(',','.');
-            const circ = $('#circleArea').val().replace(/\s/g,'').toLowerCase().replace('π','pi').replace('4π','4pi').replace('4pi','4pi');
-            const sml  = $('#smallSqArea').val().replace(/\s/g,'').replace(',','.');
-            const bigOk  = ['16','4²','4^2','4*4'].includes(big);
-            const circOk = ['4π','4pi','4·π','4*π','πr²','pi*4','4*pi'].includes(circ.replace(/\s/g,''));
-            const smlOk  = ['8','2√2²','(2√2)²','2*2*2','2·2·2'].some(v=>sml.replace(/\s/g,'')===v) || sml==='8';
-            if(bigOk && circOk && smlOk){
-                $('#app2s5Feedback').html('<div class="success-message">✓ Doğru! Büyük kare=16, Daire=4π, Küçük kare=8</div>');
-                $('#app2s5NextArea').show(); $(this).hide();
-            } else {
-                $('#app2s5Feedback').html(`<div class="error-message">✗ Kontrol edin. İpucu: Büyük kare alanı=4²=16, Daire=πr²=4π, Küçük kare=(2√2)²=8</div>`);
-            }
-        });
-        $('#app2s5Btn').on('click',()=>renderApp2Step(6));
-        break;
-    case 6: $('#app2s6Btn').on('click',()=>renderApp2Step(7)); break;
-    case 7:
-        $('#app2AssessCheckBtn').on('click',function(){
+        $('#app2AssessCheckBtn').on('click', function(){
             const raw = $('#app2AssessInput').val().replace(/\s/g,'');
-            // Cevap: 50 < 25π < 100
-            const ok = raw==='50,100' || raw==='50-100' || raw==='50ile100' || raw.includes('50') && raw.includes('100');
+            const ok = raw==='50,100' || raw==='50-100' || raw==='50ile100' || (raw.includes('50') && raw.includes('100'));
             if(ok){
                 $('#app2AssessFeedback').html('<div class="success-message">✓ Doğru! Alan=25π, 2&lt;π&lt;4 → 50&lt;25π&lt;100</div>');
-                $('#app2AssessNextArea').show(); $(this).hide();
+                $('#app2AssessNextArea').show();
+                $('#app2FinishArea').show();
+                $(this).hide();
             } else {
                 $('#app2AssessFeedback').html('<div class="error-message">✗ Yanlış. Alan=πr²=25π. 2&lt;π&lt;4 kullanarak sınırları bul.</div>');
             }
         });
-        $('#app2FinishBtn').on('click',()=>$('[data-tab="app3"]').prop('disabled',false).click());
+        $('#app2FinishBtn').on('click', ()=>renderApp2Step(5));
+        break;
+
+    case 5:
+        $('#app2ToApp3Btn').on('click', ()=>{
+            $('[data-tab="app3"]').prop('disabled', false).click();
+        });
         break;
     }
 }
@@ -1702,7 +2335,6 @@ function renderApp3Step(step){
     case 0:
         html += `<div class="instruction-box">
             <h3>🔺 Konveks Çokgenlerde Açıların Gizemi</h3>
-            <p><strong>Süre:</strong> 40 dakika</p>
             <h4>Hedeflenen Beceriler</h4>
             <ul><li>Akıl Yürütme</li><li>Matematiksel Modelleme</li><li>İletişim</li></ul>
             <h4>Hedefler</h4>
@@ -1710,7 +2342,7 @@ function renderApp3Step(step){
             <h4>Uygulama Aşaması</h4>
             <p>Dersin sonunda konunun derinleşme sürecinde kullanılabilir.</p>
         </div>
-        <div style="text-align:center;"><button class="action-button" id="app3s0Btn">Başla →</button></div>`;
+        <div style="text-align:center;"><button class="action-button" id="app3s0Btn">Başla</button></div>`;
         $('#boardHint').text('🔺 Geometri tahtasını hazırlayın');
         break;
 
@@ -1723,7 +2355,7 @@ function renderApp3Step(step){
             </div>
             <div id="app3DiagFeedback" style="margin-top:8px;font-size:.9em;color:var(--text-secondary);">Seçim yapınız</div>
         </div>
-        <div style="text-align:center;"><button class="action-button" id="app3s1Btn" disabled>Devam Et →</button></div>`;
+        <div style="text-align:center;"><button class="action-button" id="app3s1Btn" disabled>Devam Et</button></div>`;
         $('#boardHint').text('Beşgenin bir köşesinden kaç köşegen çizilir?');
         // Beşgen göster
         setTimeout(()=>{
@@ -1747,7 +2379,7 @@ function renderApp3Step(step){
             <div id="triAngleFeedback" style="margin-top:8px;"></div>
         </div>
         <div style="text-align:center;"><button class="action-button" id="app3s2CheckBtn">Kontrol Et</button></div>
-        <div style="display:none;text-align:center;" id="app3s2NextArea"><button class="action-button" id="app3s2Btn">Devam Et →</button></div>`;
+        <div style="display:none;text-align:center;" id="app3s2NextArea"><button class="action-button" id="app3s2Btn">Devam Et</button></div>`;
         setTimeout(()=>{
             // Dar açılı üçgen
             const tri=[{r:0,c:1},{r:4,c:0},{r:4,c:3}];
@@ -1781,7 +2413,7 @@ function renderApp3Step(step){
             <div id="app3s3Feedback" style="margin-top:8px;"></div>
         </div>
         <div style="text-align:center;"><button class="action-button" id="app3s3CheckBtn">Kontrol Et</button></div>
-        <div style="display:none;text-align:center;" id="app3s3NextArea"><button class="action-button" id="app3s3Btn">Devam Et →</button></div>`;
+        <div style="display:none;text-align:center;" id="app3s3NextArea"><button class="action-button" id="app3s3Btn">Devam Et</button></div>`;
         setTimeout(()=>{
             // Dörtgen varsayılan
             const quad=[{r:0,c:0},{r:0,c:4},{r:4,c:4},{r:4,c:0}];
@@ -1805,7 +2437,7 @@ function renderApp3Step(step){
             <div id="diagFeedback" style="margin-top:8px;"></div>
         </div>
         <div style="text-align:center;"><button class="action-button" id="app3s4CheckBtn">Kontrol Et</button></div>
-        <div style="display:none;text-align:center;" id="app3s4NextArea"><button class="action-button" id="app3s4Btn">Devam Et →</button></div>`;
+        <div style="display:none;text-align:center;" id="app3s4NextArea"><button class="action-button" id="app3s4Btn">Devam Et</button></div>`;
         // Beşgen + köşegenler
         setTimeout(()=>{
             const pent=[{r:0,c:2},{r:1,c:4},{r:3,c:4},{r:4,c:1},{r:2,c:0}];
@@ -1846,7 +2478,7 @@ function renderApp3Step(step){
             <div id="tableFeedback" style="margin-top:8px;"></div>
         </div>
         <div style="text-align:center;"><button class="action-button" id="app3s5CheckBtn">Kontrol Et</button></div>
-        <div style="display:none;text-align:center;" id="app3s5NextArea"><button class="action-button" id="app3s5Btn">Devam Et →</button></div>`;
+        <div style="display:none;text-align:center;" id="app3s5NextArea"><button class="action-button" id="app3s5Btn">Devam Et</button></div>`;
         // Altıgen göster
         setTimeout(()=>{
             const hex=[{r:0,c:2},{r:0,c:4},{r:2,c:5},{r:4,c:4},{r:4,c:2},{r:2,c:0}];
@@ -1868,7 +2500,7 @@ function renderApp3Step(step){
                 <li>Geometri tahtası üzerinde çokgenler modellediniz.</li>
             </ul>
         </div>
-        <div style="text-align:center;"><button class="action-button" id="app3FinishBtn">Derinleştirme'ye Geç →</button></div>`;
+        <div style="text-align:center;"><button class="action-button" id="app3FinishBtn">Derinleştirme'ye Geç</button></div>`;
         clearBoard();
         setTimeout(()=>{
             const hex=[{r:0,c:2},{r:0,c:4},{r:2,c:5},{r:4,c:4},{r:4,c:2},{r:2,c:0}];
@@ -2075,7 +2707,7 @@ function renderDeepStep(step){
             </ul>
             <p style="margin-top:8px;font-size:.88em;color:var(--text-secondary);">Sağ paneldeki tahta <strong>serbesttir</strong> — istediğiniz şekli oluşturabilirsiniz.</p>
         </div>
-        <div style="text-align:center;"><button class="action-button" id="deepS0Btn">Başla →</button></div>`;
+        <div style="text-align:center;"><button class="action-button" id="deepS0Btn">Başla</button></div>`;
         $('#boardHint').text('📌 Serbest keşif — istediğiniz şekli çizin');
         break;
     case 1:
@@ -2088,7 +2720,7 @@ function renderDeepStep(step){
                 <br><span style="font-size:.85em;color:var(--text-secondary);">Büyük bir kareden iki dikdörtgen çıkarıp küçük kare ekleyin.</span>
             </div>
         </div>
-        <div style="text-align:center;"><button class="action-button" id="deepS1Btn">Devam Et →</button></div>`;
+        <div style="text-align:center;"><button class="action-button" id="deepS1Btn">Devam Et</button></div>`;
         boardMode = 'draw';
         if(window.MathJax) setTimeout(()=>MathJax.typesetPromise(),200);
         break;
@@ -2168,13 +2800,6 @@ $tbToggle.on('click', function(){
     const isOpen = $toolbar.hasClass('tb-visible');
     $toolbar.toggleClass('tb-visible', !isOpen);
     $tbToggle.toggleClass('tb-open', !isOpen);
-});
-
-/* ══ AÇILIŞ DİYALOĞU ════════════════════════════════════════ */
-$('#introDialog').show();
-$('#introContinueBtn').on('click',function(){
-    $('#introDialog').hide();
-    loadTab('intro');
 });
 
 /* ══ MOBİL TOOLBAR TOGGLE ════════════════════════════════════ */
@@ -2306,10 +2931,12 @@ function initThreeJS(){
     }
     animate();
 
-    // Raycasting ile pin tıklama
-    canvas.addEventListener('pointerdown', ()=>{ dragStarted = false; });
+    // Raycasting ile pin tıklama — drag ile çakışmasın
+    let _ptrDownPos = {x:0,y:0};
+    canvas.addEventListener('pointerdown', (e)=>{ _ptrDownPos = {x:e.clientX, y:e.clientY}; dragStarted = false; });
     canvas.addEventListener('pointerup', (e)=>{
-        if(!dragStarted) onThreePinClick(e);
+        const dx = e.clientX - _ptrDownPos.x, dy = e.clientY - _ptrDownPos.y;
+       if(Math.sqrt(dx*dx+dy*dy) < 12) onThreePinClick(e);
     });
 }
 
@@ -2338,7 +2965,7 @@ function buildFront(){
 
     // Ana tahta (ön yüz)
     const boardGeo  = new THREE.BoxGeometry(BOARD3D_SIZE, BOARD3D_SIZE, BOARD3D_THICK);
-    const boardMat  = new THREE.MeshPhongMaterial({color: boardColor, shininess: 40});
+    const boardMat  = new THREE.MeshPhongMaterial({color: boardColor, shininess: 40, side: THREE.DoubleSide});
     const boardMesh = new THREE.Mesh(boardGeo, boardMat);
     boardMesh.receiveShadow = true;
     frontGroup.add(boardMesh);
@@ -2392,6 +3019,7 @@ function buildBack(){
     const boardMesh = new THREE.Mesh(boardGeo, boardMat);
     boardMesh.position.z = -0.001; // Çok az arkada
     boardMesh.receiveShadow = true;
+    boardMesh.userData.isBoard = true;
     backGroup.add(boardMesh);
 
     // Kenar çizgileri
@@ -2441,6 +3069,7 @@ function drawCircleBack(pinCount, radius, color){
         const pin = new THREE.Mesh(pinGeo, mat.clone());
         pin.position.set(Math.cos(a) * radius, Math.sin(a) * radius, -(BOARD3D_THICK / 2 + 0.08));
         pin.rotation.x = Math.PI / 2;
+        pin.userData = {isCirclePin: true, circleType: pinCount===24?'big':'small', idx: i, baseColor: color};
         backGroup.add(pin);
     }
 }
@@ -2501,31 +3130,306 @@ function updateElastics3D(){
     });
 }
 
-/* 3D pin tıklama — raycasting */
-const _raycaster = new THREE.Raycaster();
-const _mouse     = new THREE.Vector2();
+/* 3D pin tıklama — raycasting: hem ön yüz grid pinleri hem arka yüz çember pinleri */
 function onThreePinClick(e){
-    if(!threeRenderer || !pinMeshes.length) return;
-    if(currentFace !== 'front') return; // Arka yüzdeyken pin seçimi yok
+    if(!threeRenderer) return;
 
     const canvas = document.getElementById('threeCanvas');
     const rect   = canvas.getBoundingClientRect();
-    _mouse.x =  ((e.clientX - rect.left) / rect.width)  * 2 - 1;
-    _mouse.y = -((e.clientY - rect.top)  / rect.height) * 2 + 1;
+    const mouse  = new THREE.Vector2(
+         ((e.clientX - rect.left) / rect.width)  * 2 - 1,
+        -((e.clientY - rect.top)  / rect.height) * 2 + 1
+    );
 
-    _raycaster.setFromCamera(_mouse, threeCamera);
-    const hits = _raycaster.intersectObjects(pinMeshes, false);
-    if(hits.length > 0){
-        const pin = hits[0].object;
+    const ray = new THREE.Raycaster();
+    ray.setFromCamera(mouse, threeCamera);
+
+    // Ön yüz grid pinleri
+    const frontHits = ray.intersectObjects(pinMeshes, false);
+    if(frontHits.length > 0){
+        const pin = frontHits[0].object;
         const {r, c} = pin.userData;
-
-        // Animasyon: pin büyür ve renk değişir
         animatePinSelect(pin);
+        handleGridPinClick3D(r, c);
+        return;
+    }
 
-        // 2D board ile aynı mantığı kullan
-        handlePinClick(r, c);
-        // 3D görünümü güncelle
-        setTimeout(()=> updateElastics3D(), 50);
+    // Arka yüz çember pinleri
+    const backPinMeshes = backGroup.children.filter(ch => ch.isMesh && ch.userData.isCirclePin);
+    const backHits = ray.intersectObjects(backPinMeshes, false);
+    if(backHits.length > 0){
+        const pin = backHits[0].object;
+        handleCirclePinClick3D(pin);
+        return;
+    }
+}
+
+/* Seçili pin listesi ve lastik için ortak state */
+let selected3DPinsAll = []; // [{type:'grid',r,c,mesh,key} | {type:'circle',circleType,idx,mesh,key}]
+
+function handleGridPinClick3D(r, c){
+    const key = `grid-${r}-${c}`;
+
+    // İlk pine geri dönüş → kapalı çokgen oluştur (3+ pin varsa)
+    if(selected3DPinsAll.length >= 3){
+        const first = selected3DPinsAll[0];
+        if(first.type === 'grid' && first.r === r && first.c === c){
+            _commitGridPolygon(true);
+            return;
+        }
+    }
+
+    const existIdx = selected3DPinsAll.findIndex(p => p.type==='grid' && p.r===r && p.c===c);
+    if(existIdx >= 0){
+        // Zaten seçili → kaldır
+        selected3DPinsAll.splice(existIdx, 1);
+        updatePinSelectionColors();
+        updatePreview3D();
+        return;
+    }
+    // Limit kontrolü: yeni lastik başlatılacaksa (henüz pin seçili değilse) limit dolu mu?
+    if(selected3DPinsAll.length === 0 && getElasticUseCount(currentElasticColor) >= ELASTIC_MAX_USE){
+        const colorName = ELASTIC_COLORS.find(c=>c.hex===currentElasticColor)?.name;
+        showLimitToast(colorName);
+        return;
+    }
+    const mesh = pinMeshes.find(m => m.userData.r===r && m.userData.c===c);
+    selected3DPinsAll.push({type:'grid', r, c, mesh, key});
+    updatePinSelectionColors();
+    updatePreview3D();
+    // pinSelected olayını tetikle (adım 3/8 durumu güncellemesi için)
+    $(document).trigger('pinSelected', {r, c, count: selected3DPinsAll.length});
+}
+
+function handleCirclePinClick3D(pinMesh){
+    const {circleType, idx} = pinMesh.userData;
+    const key = `circle-${circleType}-${idx}`;
+
+    const existIdx = selected3DPinsAll.findIndex(p => p.key === key);
+    if(existIdx >= 0){
+        selected3DPinsAll.splice(existIdx, 1);
+        pinMesh.material.color.setHex(pinMesh.userData.baseColor || 0xef4444);
+        pinMesh.material.emissive && pinMesh.material.emissive.setHex(0x000000);
+        pinMesh.material.emissiveIntensity = 0;
+        pinMesh.scale.setScalar(1.0);
+        return;
+    }
+
+    selected3DPinsAll.push({type:'circle', circleType, idx, mesh: pinMesh, key});
+
+    // Seçilen pini hemen sarıya boya (animasyon sonrası kaybolmasın)
+    pinMesh.material.color.setHex(0xffd700);
+    pinMesh.material.emissive && pinMesh.material.emissive.setHex(0xaa6600);
+    pinMesh.material.emissiveIntensity = 0.5;
+    pinMesh.scale.setScalar(1.3);
+
+    // İki pin seçildi → kesikli rehber çizgiyi kaldır, lastik ekle
+    if(selected3DPinsAll.length === 2){
+        const [pinA, pinB] = selected3DPinsAll;
+
+        // backGroup'taki kesikli rehber çizgileri kaldır
+        backGroup.children
+            .filter(ch => ch.userData && ch.userData.isGuide)
+            .forEach(g => backGroup.remove(g));
+
+        // İki pin arasına lastik tüp ekle
+        const posA = getPinWorldPos(pinA);
+        const posB = getPinWorldPos(pinB);
+        try {
+            const curve   = new THREE.CatmullRomCurve3([posA, posB], false, 'catmullrom', 0);
+            const tubeGeo = new THREE.TubeGeometry(curve, 10, 0.025, 8, false);
+            const rc = parseInt(currentElasticColor.slice(1,3),16)/255;
+            const gc = parseInt(currentElasticColor.slice(3,5),16)/255;
+            const bc = parseInt(currentElasticColor.slice(5,7),16)/255;
+            const tube = new THREE.Mesh(tubeGeo,
+                new THREE.MeshPhongMaterial({color: new THREE.Color(rc,gc,bc), shininess:80, specular:0x444444})
+            );
+            tube.userData.isElastic = true;
+            backGroup.add(tube);
+        } catch(e){ console.warn(e); }
+
+        selected3DPinsAll = [];
+        updatePinSelectionColors();
+        return;
+    }
+}
+
+
+/* Grid pinlerinden kapalı/açık TubeGeometry lastik yap */
+function _commitGridPolygon(closed){
+    if(selected3DPinsAll.length < 2) return;
+    const gridPins = selected3DPinsAll.filter(p => p.type === 'grid');
+    if(gridPins.length < 2) return;
+    // Limit kontrolü
+    if(getElasticUseCount(currentElasticColor) >= ELASTIC_MAX_USE){
+        const colorName = ELASTIC_COLORS.find(c=>c.hex===currentElasticColor)?.name;
+        showLimitToast(colorName);
+        selected3DPinsAll = [];
+        updatePinSelectionColors();
+        if(previewLine3D){ frontGroup.remove(previewLine3D); previewLine3D = null; }
+        return;
+    }
+
+    const offset = -(GRID3D_N - 1) * PIN3D_GAP / 2;
+    const ez = BOARD3D_THICK / 2 + 0.18;
+    const pts3D = gridPins.map(p => new THREE.Vector3(
+        offset + p.c * PIN3D_GAP,
+        -(offset + p.r * PIN3D_GAP),
+        ez
+    ));
+    if(closed && pts3D.length >= 3) pts3D.push(pts3D[0].clone());
+
+    try {
+        const curve  = new THREE.CatmullRomCurve3(pts3D, false, 'catmullrom', 0.1);
+        const tubeGeo = new THREE.TubeGeometry(curve, Math.max(pts3D.length * 6, 20), 0.025, 8, false);
+        const rc = parseInt(currentElasticColor.slice(1,3),16)/255;
+        const gc = parseInt(currentElasticColor.slice(3,5),16)/255;
+        const bc = parseInt(currentElasticColor.slice(5,7),16)/255;
+        const mat = new THREE.MeshPhongMaterial({
+            color: new THREE.Color(rc, gc, bc), shininess: 80, specular: 0x444444
+        });
+        const tube = new THREE.Mesh(tubeGeo, mat);
+        tube.userData.isElastic = true;
+        frontGroup.add(tube);
+        elasticMeshes.push(tube);
+
+        // Kapalı dolgu
+        if(closed && gridPins.length >= 3){
+            const shape = new THREE.Shape();
+            gridPins.forEach((p, i) => {
+                const x = offset + p.c * PIN3D_GAP;
+                const y = -(offset + p.r * PIN3D_GAP);
+                i === 0 ? shape.moveTo(x, y) : shape.lineTo(x, y);
+            });
+            shape.closePath();
+            const fillMesh = new THREE.Mesh(
+                new THREE.ShapeGeometry(shape),
+                new THREE.MeshBasicMaterial({color: new THREE.Color(rc,gc,bc), transparent:true, opacity:0.18, side:THREE.DoubleSide, depthWrite:false})
+            );
+            fillMesh.position.z = ez - 0.01;
+            fillMesh.userData.isElastic = true;
+            frontGroup.add(fillMesh);
+        }
+
+        // elastics dizisine ekle (isValidSquare ve elasticAdded için)
+        const elObj = {pins: gridPins.map(p=>({r:p.r,c:p.c})), color: currentElasticColor, closed};
+        elastics.push(elObj);
+
+        // Olayları tetikle
+        incrementElasticUse(currentElasticColor);
+        updateSwatchBadges();
+        $(document).trigger('elasticAdded', {count: elastics.length});
+    } catch(e){ console.warn('_commitGridPolygon error:', e); }
+
+    selected3DPinsAll = [];
+    updatePinSelectionColors();
+    if(previewLine3D){ frontGroup.remove(previewLine3D); previewLine3D = null; }
+}
+
+/* Çember pinlerinden kapalı/açık lastik yap */
+function _commitCirclePolygon(closed){
+    if(selected3DPinsAll.length < 2) return;
+    const circlePins = selected3DPinsAll.filter(p => p.type === 'circle');
+    if(circlePins.length < 2) return;
+    // Limit kontrolü
+    if(getElasticUseCount(currentElasticColor) >= ELASTIC_MAX_USE){
+        const colorName = ELASTIC_COLORS.find(c=>c.hex===currentElasticColor)?.name;
+        showLimitToast(colorName);
+        selected3DPinsAll = [];
+        updatePinSelectionColors();
+        if(previewLine3D){ frontGroup.remove(previewLine3D); previewLine3D = null; }
+        return;
+    }
+
+    const pts3D = circlePins.map(p => getPinWorldPos(p));
+    if(closed && pts3D.length >= 3) pts3D.push(pts3D[0].clone());
+
+    try {
+        const curve  = new THREE.CatmullRomCurve3(pts3D, false, 'catmullrom', 0.1);
+        const tubeGeo = new THREE.TubeGeometry(curve, Math.max(pts3D.length * 6, 20), 0.025, 8, false);
+        const rc = parseInt(currentElasticColor.slice(1,3),16)/255;
+        const gc = parseInt(currentElasticColor.slice(3,5),16)/255;
+        const bc = parseInt(currentElasticColor.slice(5,7),16)/255;
+        const mat = new THREE.MeshPhongMaterial({
+            color: new THREE.Color(rc, gc, bc), shininess: 80, specular: 0x444444
+        });
+        const tube = new THREE.Mesh(tubeGeo, mat);
+        tube.userData.isElastic = true;
+        backGroup.add(tube);
+    } catch(e){ console.warn('_commitCirclePolygon error:', e); }
+
+    selected3DPinsAll = [];
+    updatePinSelectionColors();
+    if(previewLine3D){ frontGroup.remove(previewLine3D); previewLine3D = null; }
+}
+
+function getPinWorldPos(pinEntry){
+    if(pinEntry.type === 'grid'){
+        const offset = -(GRID3D_N - 1) * PIN3D_GAP / 2;
+        return new THREE.Vector3(
+            offset + pinEntry.c * PIN3D_GAP,
+            -(offset + pinEntry.r * PIN3D_GAP),
+            BOARD3D_THICK / 2 + 0.18
+        );
+    } else {
+        // circle pin — back face
+        const radius = pinEntry.circleType === 'big' ? 2.2 : 1.2;
+        const count  = pinEntry.circleType === 'big' ? 24 : 12;
+        const a = (pinEntry.idx / count) * Math.PI * 2;
+        return new THREE.Vector3(
+            Math.cos(a) * radius,
+            Math.sin(a) * radius,
+            -(BOARD3D_THICK / 2 + 0.18)
+        );
+    }
+}
+
+function updatePinSelectionColors(){
+    // Grid pinleri
+    const pinColor = currentTheme === 'dark' ? 0x4a9fd4 : 0x93c5fd;
+    const guidePins = window.app2TargetSquare || [];
+    pinMeshes.forEach(m => {
+        const sel = selected3DPinsAll.find(p => p.type==='grid' && p.r===m.userData.r && p.c===m.userData.c);
+        const isGuidePin = guidePins.some(p => p.r===m.userData.r && p.c===m.userData.c);
+        if(sel){
+            m.material.color.setHex(0xffd700);
+            m.material.emissive.setHex(0xaa6600);
+            m.material.emissiveIntensity = 0.5;
+            m.scale.setScalar(1.4);
+        } else if(isGuidePin){
+            m.material.color.setHex(0xffd700);
+            m.material.emissive.setHex(0xaa6600);
+            m.material.emissiveIntensity = 0.3;
+            m.scale.setScalar(1.2);
+        } else {
+            m.material.color.setHex(pinColor);
+            m.material.emissive && m.material.emissive.setHex(0x000000);
+            m.material.emissiveIntensity = 0;
+            m.scale.setScalar(1.0);
+        }
+    });
+
+    // Circle pinleri (backGroup)
+    if(backGroup){
+        backGroup.children.forEach(ch => {
+            if(!ch.isMesh || !ch.userData.isCirclePin) return;
+            const sel = selected3DPinsAll.find(p =>
+                p.type === 'circle' &&
+                p.circleType === ch.userData.circleType &&
+                p.idx === ch.userData.idx
+            );
+            if(sel){
+                ch.material.color.setHex(0xffd700);
+                ch.material.emissive && ch.material.emissive.setHex(0xaa6600);
+                ch.material.emissiveIntensity = 0.5;
+                ch.scale.setScalar(1.3);
+            } else {
+                ch.material.color.setHex(ch.userData.baseColor || 0x4a9fd4);
+                ch.material.emissive && ch.material.emissive.setHex(0x000000);
+                ch.material.emissiveIntensity = 0;
+                ch.scale.setScalar(1.0);
+            }
+        });
     }
 }
 
@@ -2540,40 +3444,35 @@ function animatePinSelect(pinMesh){
         t += 0.1;
         const s = 1.8 - 0.8 * Math.min(t, 1);
         pinMesh.scale.setScalar(s);
-        if(t >= 1){ clearInterval(anim); pinMesh.scale.setScalar(1.0); }
+        if(t >= 1){
+            clearInterval(anim);
+            pinMesh.scale.setScalar(1.0);
+            // Eğer pin hâlâ seçiliyse sarı rengini koru
+            const stillSelected = selected3DPinsAll.some(p =>
+                p.type === 'circle' &&
+                p.circleType === pinMesh.userData.circleType &&
+                p.idx === pinMesh.userData.idx
+            );
+            if(!stillSelected){
+                pinMesh.material.color.setHex(pinMesh.userData.baseColor || 0x4a9fd4);
+                pinMesh.material.emissive && pinMesh.material.emissive.setHex(0x000000);
+                pinMesh.material.emissiveIntensity = 0;
+            }
+        }
     }, 16);
 }
 
-/* 2D / 3D geçiş */
-$('#btn2D').on('click', function(){
-    $(this).addClass('active'); $('#btn3D').removeClass('active');
-    $('#geoBoard').css('display','flex');
-    $('#threeContainer').hide();
-    if(threeAnimId){ cancelAnimationFrame(threeAnimId); threeAnimId = null; }
-});
-
-$('#btn3D').on('click', function(){
-    $(this).addClass('active'); $('#btn2D').removeClass('active');
-    $('#geoBoard').css('display','none');
-    $('#threeContainer').css('display','flex').css('flex','1');
-
-    // Kısa gecikme ile başlat (container boyutu hazır olsun)
-    setTimeout(()=>{
-        initThreeJS();
-        // Elastikleri 3D'ye yansıt
-        if(frontGroup) updateElastics3D();
-        // Temayı güncelle
-        if(threeScene) threeScene.background = new THREE.Color(currentTheme === 'dark' ? 0x0a0e27 : 0xf0f4f8);
-    }, 80);
-});
+/* 3D otomatik başlat — 2D geçiş butonları kaldırıldı */
+setTimeout(()=>{
+    initThreeJS();
+    if(threeScene) threeScene.background = new THREE.Color(currentTheme === 'dark' ? 0x0a0e27 : 0xf0f4f8);
+}, 80);
 
 /* Tema değişince 3D'yi yeniden oluştur */
-const _origThemeClick = $('#themeToggle').off('click');
-$('#themeToggle').on('click', function(){
+$('#themeToggle').off('click').on('click', function(){
     currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
     $('html').attr('data-theme', currentTheme);
     $('#themeIcon').text(currentTheme === 'dark' ? '☀' : '🌙');
-    rebuildBoard();
     if(threeScene){
         threeScene.background = new THREE.Color(currentTheme === 'dark' ? 0x0a0e27 : 0xf0f4f8);
         buildFront();
@@ -2906,19 +3805,24 @@ function update3DPinColors(){
 /* ── Preview lastik (seçili pinler arası kesik çizgi) ── */
 let previewLine3D = null;
 function updatePreview3D(){
-    if(previewLine3D){ boardGroup.remove(previewLine3D); previewLine3D=null; }
-    if(selected3DPins.length < 1) return;
+    if(previewLine3D){ frontGroup && frontGroup.remove(previewLine3D); previewLine3D=null; }
+    const gridSel = selected3DPinsAll.filter(p => p.type === 'grid');
+    if(gridSel.length < 1) return;
 
-    const step=BOARD_SIZE_3D/(PIN_COLS-1), half=BOARD_SIZE_3D/2;
-    const ez=BOARD_THICK/2+0.15;
-    const pts=selected3DPins.map(p=>new THREE.Vector3(-half+p.c*step, half-p.r*step, ez));
+    const offset = -(GRID3D_N - 1) * PIN3D_GAP / 2;
+    const ez = BOARD3D_THICK / 2 + 0.15;
+    const pts = gridSel.map(p => new THREE.Vector3(
+        offset + p.c * PIN3D_GAP,
+        -(offset + p.r * PIN3D_GAP),
+        ez
+    ));
 
-    const geo=new THREE.BufferGeometry().setFromPoints(pts);
-    previewLine3D=new THREE.Line(geo,
-        new THREE.LineDashedMaterial({color:new THREE.Color(currentElasticColor),dashSize:0.12,gapSize:0.07,linewidth:2})
-    );
+    const geo = new THREE.BufferGeometry().setFromPoints(pts);
+    const previewMat = new THREE.LineDashedMaterial({color: new THREE.Color(currentElasticColor), dashSize:0.12, gapSize:0.07, linewidth:2, depthTest:false});
+    previewLine3D = new THREE.Line(geo, previewMat);
     previewLine3D.computeLineDistances();
-    boardGroup.add(previewLine3D);
+    previewLine3D.renderOrder = 999; // Her zaman üstte görün
+    if(frontGroup) frontGroup.add(previewLine3D);
 }
 
 /* ── Mouse / Touch olayları ── */
@@ -3045,54 +3949,32 @@ function animateElasticSnap(){
     requestAnimationFrame(anim);
 }
 
-/* ── 2D / 3D geçiş ── */
-$('#btn2D').on('click', function(){
-    $(this).addClass('active'); $('#btn3D').removeClass('active');
-    $('#geoBoard').show(); $('#threeContainer').hide();
-    $('#boardHint').show();
-    if(threeAnimId){ cancelAnimationFrame(threeAnimId); threeAnimId=null; }
-    // 3D'de yapılan seçimleri temizle
-    selected3DPins=[];
-    if(previewLine3D&&boardGroup){ boardGroup.remove(previewLine3D); previewLine3D=null; }
+/* ══ AÇILIŞ DİYALOĞU ════════════════════════════════════════ */
+/*
+$('#introDialog').show();
+$('#introContinueBtn').on('click',function(){
+    $('#introDialog').hide();
+    loadTab('intro');
 });
+*/
 
-$('#btn3D').on('click', function(){
-    $(this).addClass('active'); $('#btn2D').removeClass('active');
-    $('#geoBoard').hide(); $('#threeContainer').show();
 
-    if(!threeRenderer){
-        initThreeJS();
-    } else {
-        if(boardGroup){
-            build3DBoard(); // temadan ve elastiklerden güncelle
-        }
-        if(!threeAnimId){
-            (function loop(){
-                threeAnimId=requestAnimationFrame(loop);
-                threeControls.update();
-                threeRenderer.render(threeScene,threeCamera);
-            })();
-        }
-    }
-    setTimeout(onThreeResize, 50);
-});
+/**
+ * TEST MODU: Uygulama 2'yi görseldeki (Step 1/8) durumla başlatır.
+ * Sol panelde hedefler, sağ panelde ise kırmızı beşgen benzeri lastik görünür.
+ */
+// TEST MODU: Uygulama 2'yi doğrudan başlat
 
-/* Tema değiştiğinde */
-$('#themeToggle').off('click').on('click', function(){
-    currentTheme = currentTheme==='dark'?'light':'dark';
-    $('html').attr('data-theme', currentTheme);
-    $('#themeIcon').text(currentTheme==='dark'?'☀':'🌙');
-    rebuildBoard();
-    if(threeRenderer&&threeScene&&boardGroup){
-        threeScene.background=new THREE.Color(getThemeColors().bg);
-        build3DBoard();
-    }
-});
+(function(){
+    $('#introDialog').hide();
+    $('[data-tab="app2"]').prop('disabled', false);
+    $('.tab-button').removeClass('active');
+    $('[data-tab="app2"]').addClass('active');
+    loadTab('app2');
+})();
+
 
 });
-
-
-
 
 </script>
 </body>
