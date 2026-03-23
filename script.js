@@ -638,6 +638,7 @@ $(document).ready(function () {
     function clear3DElastics() {
         if (frontGroup) { frontGroup.children.filter(c => c.userData.isElastic).forEach(c => frontGroup.remove(c)); }
         if (backGroup) { backGroup.children.filter(c => c.userData.isElastic).forEach(c => backGroup.remove(c)); }
+        if (backGroup) { backGroup.children.filter(c => c.userData && c.userData.isCornerGuide).forEach(c => backGroup.remove(c)); }
         elastics = []; elasticMeshes = [];
         selected3DPinsAll = [];
         updatePinSelectionColors();
@@ -2790,11 +2791,75 @@ $(document).ready(function () {
 
         selected3DPinsAll.push({ type: 'circle', circleType, idx, mesh: pinMesh, key });
 
-        // Seçilen pini hemen sarıya boya (animasyon sonrası kaybolmasın)
+        // Seçilen pini hemen sarıya boya
         pinMesh.material.color.setHex(0xffd700);
         pinMesh.material.emissive && pinMesh.material.emissive.setHex(0xaa6600);
         pinMesh.material.emissiveIntensity = 0.5;
         pinMesh.scale.setScalar(1.3);
+
+        const cornerPins = selected3DPinsAll.filter(p => p.circleType === 'corner');
+
+        // Her yeni pin eklenince: önceki sarı kesikli çizgileri kaldır,
+        // seçili pinler arasına kırmızı kesikli çizgi çiz
+        if (cornerPins.length >= 2) {
+            // Eski tüm rehber çizgileri (sarı + kırmızı) temizle
+            backGroup.children
+                .filter(c => c.userData && c.userData.isCornerGuide)
+                .forEach(g => backGroup.remove(g));
+
+            // Seçili köşe pinleri arasına kırmızı kesikli çizgiler ekle
+            for (let i = 0; i < cornerPins.length - 1; i++) {
+                const pA = cornerPins[i].mesh.position;
+                const pB = cornerPins[i + 1].mesh.position;
+                const pts = [
+                    new THREE.Vector3(pA.x, pA.y, pA.z),
+                    new THREE.Vector3(pB.x, pB.y, pB.z)
+                ];
+                const geo = new THREE.BufferGeometry().setFromPoints(pts);
+                const mat = new THREE.LineDashedMaterial({
+                    color: 0xff0000, dashSize: 0.15, gapSize: 0.08, linewidth: 2
+                });
+                const seg = new THREE.Line(geo, mat);
+                seg.computeLineDistances();
+                seg.userData.isCornerGuide = true;
+                backGroup.add(seg);
+            }
+        }
+
+        // 4 köşe pin seçildi → tüm rehber çizgileri kaldır, kapalı kare lastik çiz
+        if (cornerPins.length === 4) {
+            // Tüm rehber çizgileri temizle (sarı isGuide + kırmızı isCornerGuide)
+            backGroup.children
+                .filter(c => c.userData && (c.userData.isGuide || c.userData.isCornerGuide))
+                .forEach(g => backGroup.remove(g));
+
+            // Seçilen renkte kapalı kare oluştur
+            const positions = cornerPins.map(p => p.mesh.position);
+            const closedPts = [...positions, positions[0]].map(
+                p => new THREE.Vector3(p.x, p.y, p.z)
+            );
+            const geo = new THREE.BufferGeometry().setFromPoints(closedPts);
+            const colorHex = parseInt(currentElasticColor.replace('#', ''), 16);
+            const mat = new THREE.LineBasicMaterial({ color: colorHex, linewidth: 3 });
+            const square = new THREE.Line(geo, mat);
+            square.userData.isElastic = true;
+            backGroup.add(square);
+
+            // Pinleri varsayılan renge döndür
+            cornerPins.forEach(p => {
+                p.mesh.material.color.setHex(p.mesh.userData.baseColor || 0xef4444);
+                p.mesh.material.emissive && p.mesh.material.emissive.setHex(0x000000);
+                p.mesh.material.emissiveIntensity = 0;
+                p.mesh.scale.setScalar(1.0);
+            });
+
+            // Seçim listesini temizle
+            selected3DPinsAll = selected3DPinsAll.filter(p => p.circleType !== 'corner');
+
+            // Adım tamamlandı olayını tetikle
+            $(document).trigger('elasticAdded', { count: 1, source: 'corner' });
+            return;
+        }
 
         // Köşe pini mi? → 4 pin beklenir. Diğer circle pinlerde 2 pin yeterli.
         const isCornerMode = selected3DPinsAll.some(p => p.circleType === 'corner');
