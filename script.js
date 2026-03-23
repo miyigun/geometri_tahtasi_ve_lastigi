@@ -1093,7 +1093,7 @@ $(document).ready(function () {
             /* Adım 6: Ölçme ve Değerlendirme */
             case 6:
                 html += `<div class="instruction-box">
-            <h3>📝 Ölçme ve Değerlendirme</h3>
+            <h3>Ölçme ve Değerlendirme</h3>
             <p><strong>Görev:</strong> a = 3 ve b = 2 için geometri tahtası üzerinde <strong>(a + b)²</strong> tamkare açılımını oluşturunuz.</p>
             <p style="margin-top:8px;font-size:.9em;color:var(--text-secondary);">💡 Önceki adımlardan farklı olarak 4 bölgeyi farklı lastiklerle oluşturunuz:<br>
             a² (3×3 kare) + ab (3×2 dikdörtgen) + ab (2×3 dikdörtgen) + b² (2×2 kare)</p>
@@ -1549,7 +1549,7 @@ $(document).ready(function () {
                 } else if (window.app2subStep === 1) {
                     // ── Büyük kareyi lastikle oluştur (rehber kesikli çizgi)
                     html += `<div class="instruction-box">
-                <h3>🔵 Adım 1 — Büyük Kareyi Oluşturun</h3>
+                <h3>Büyük Kare Oluşturma</h3>
                 <p>Geometri tahtası üzerinde <strong>büyük kareyi</strong> lastikle çeviriniz.</p>
                 <p style="margin-top:8px;font-size:.92em;color:var(--text-secondary);">
                     Kesikli çizgi üzerindeki köşe pinlerini sırasıyla seçip başlangıç pinine dönerek kareyi kapatınız.
@@ -2298,7 +2298,7 @@ $(document).ready(function () {
                 break;
             case 2:
                 html += `<div class="instruction-box">
-            <h3>📝 Ek Soru</h3>
+            <h3>Ek Soru</h3>
             <p>$(a + b)^2 - 4ab$ ifadesinin eşiti nedir?</p>
         </div>
         <div id="deepChoices" style="margin-top:8px;">
