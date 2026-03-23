@@ -2609,11 +2609,12 @@ $(document).ready(function () {
             [BOARD3D_SIZE / 2 - 0.25, -BOARD3D_SIZE / 2 + 0.25],
             [-BOARD3D_SIZE / 2 + 0.25, -BOARD3D_SIZE / 2 + 0.25],
         ];
-        corners.forEach(([x, y]) => {
-            const mat = new THREE.MeshPhongMaterial({ color: cornerPinColor });
+        corners.forEach(([x, y], i) => {
+            const mat = new THREE.MeshPhongMaterial({ color: cornerPinColor, emissive: 0x000000, emissiveIntensity: 0 });
             const pin = new THREE.Mesh(cornerPinGeo, mat);
             pin.position.set(x, y, -(BOARD3D_THICK / 2 + 0.08));
             pin.rotation.x = Math.PI / 2;
+            pin.userData = { isCirclePin: true, circleType: 'corner', idx: i, baseColor: cornerPinColor };
             backGroup.add(pin);
         });
 
@@ -2795,8 +2796,10 @@ $(document).ready(function () {
         pinMesh.material.emissiveIntensity = 0.5;
         pinMesh.scale.setScalar(1.3);
 
-        // İki pin seçildi → kesikli rehber çizgiyi kaldır, lastik ekle
-        if (selected3DPinsAll.length === 2) {
+        // Köşe pini mi? → 4 pin beklenir. Diğer circle pinlerde 2 pin yeterli.
+        const isCornerMode = selected3DPinsAll.some(p => p.circleType === 'corner');
+        const requiredCount = isCornerMode ? 4 : 2;
+        if (selected3DPinsAll.length === requiredCount) {
             const [pinA, pinB] = selected3DPinsAll;
 
             // backGroup'taki kesikli rehber çizgileri kaldır
@@ -3024,7 +3027,7 @@ $(document).ready(function () {
                     p.type === 'circle' &&
                     p.circleType === pinMesh.userData.circleType &&
                     p.idx === pinMesh.userData.idx
-                );
+                ) || selected3DPinsAll.some(p => p.mesh === pinMesh);
                 if (!stillSelected) {
                     pinMesh.material.color.setHex(pinMesh.userData.baseColor || 0x4a9fd4);
                     pinMesh.material.emissive && pinMesh.material.emissive.setHex(0x000000);
