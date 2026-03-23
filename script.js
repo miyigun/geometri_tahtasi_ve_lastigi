@@ -811,7 +811,7 @@ $(document).ready(function () {
         switch (step) {
             case 0:
                 html += `<div class="instruction-box">
-            <h3>📋 Geometri Tahtası ve Lastiği</h3>
+            <h3>Geometri Tahtası ve Lastiği</h3>
             <p>Plastikten yapılan materyal, <strong>mavi renktedir</strong> ve <strong>kare şeklindedir</strong>.</p>
             <p>Bir yüzünde <strong>36 pin</strong> vardır. Diğer yüzünde ise merkezleri aynı olan, 12 ve 24 pinden oluşan <strong>iki çember</strong> yer almaktadır.</p>
             <p>Materyalin bu yüzünün her köşesinde birer pin vardır.</p>
@@ -828,7 +828,7 @@ $(document).ready(function () {
                 break;
             case 1:
                 html += `<div class="instruction-box">
-            <h3>📚 Konular</h3>
+            <h3>Konular</h3>
             <p>Geometri tahtası materyali, tüm sınıf düzeylerinde <strong>geometri</strong> ve <strong>analitik geometri</strong> konularında kullanılabilir.</p>
             <h4>🎯 Kazanımlar</h4>
             <ul>
@@ -845,7 +845,7 @@ $(document).ready(function () {
             <span style="font-size:.9em;">Uygulamalara geçmeye hazırsınız.</span>
         </div>
         <div class="instruction-box">
-            <h3>🚀 Başlamaya Hazır mısınız?</h3>
+            <h3>Başlamaya Hazır mısınız?</h3>
             <p>Uygulama 1'de <strong>Tamkare İfade</strong> elde etmeyi öğreneceksiniz.</p>
             <p>Geometri tahtasında 2×2 kare oluşturmayı deneyebilirsiniz.</p>
         </div>
@@ -887,7 +887,7 @@ $(document).ready(function () {
             /* Adım 0: Bilgilendirme */
             case 0:
                 html += `<div class="instruction-box">
-            <h3>🟦 Tamkare İfade Elde Edelim!</h3>
+            <h3>Tamkare İfade Elde Edelim!</h3>
             <h4>Hedeflenen Beceriler</h4>
             <ul>
                 <li>İlişkilendirme</li>
@@ -907,7 +907,6 @@ $(document).ready(function () {
             /* Adım 1: Dikkat çekme — tamkare sayılar */
             case 1:
                 html += `<div class="instruction-box">
-            <h3>🎯 Dikkat Çekme</h3>
             <p>"1'den 10'a kadar olan tam sayıların karekökleri alındığında hangileri <strong>bir tam sayıya karşılık gelir</strong>? Neden?"</p>
             <p style="margin-top:10px;font-size:.9em;color:var(--text-secondary);">Aşağıdaki sayılardan <strong>tamkare olanları</strong> seçiniz:</p>
             <div class="num-grid" id="numGrid">
@@ -924,7 +923,6 @@ $(document).ready(function () {
                 clearBoard();
                 if (frontGroup) updateElastics3D();
                 html += `<div class="instruction-box">
-            <h3>🔲 İşleniş — Adım 1</h3>
             <p>Geometri tahtası üzerinde <strong>tek bir lastikle 2×2'lik bir kare oluşturunuz.</strong></p>
             <p style="margin-top:8px;font-size:.9em;color:var(--text-secondary);">Tahtada <strong>4 pine sırasıyla tıklayınız</strong> ve başlangıç noktasına dönerek kareyi tamamlayınız.</p>
             <div id="squareStatus" style="margin-top:10px;padding:8px;background:var(--bg-tertiary);border-radius:7px;font-size:.88em;color:var(--text-secondary);">
@@ -947,7 +945,6 @@ $(document).ready(function () {
             /* Adım 3: 3×3 Kareye tamamlama */
             case 3:
                 html += `<div class="instruction-box">
-            <h3>🔳 İşleniş — Adım 2</h3>
             <p>Karenin kenarını <strong>a</strong> olarak adlandırdık. Şimdi kareyi <strong>sağa ve aşağıya 1 birim</strong> genişleterek yeni bir kare elde ediniz.</p>
             <p style="margin-top:8px;font-size:.9em;color:var(--text-secondary);">💡 Bundan sonra bu <strong>1 birimlik kenarı b olarak adlandıracağız</strong>.</p>
             <p style="margin-top:8px;font-size:.9em;color:var(--text-secondary);">Yeni kenar uzunluğu <strong>a + b</strong> olacaktır. Bunu oluşturmak için <strong>farklı renkte 2 yeni lastik</strong> ekleyiniz.</p>
@@ -966,7 +963,6 @@ $(document).ready(function () {
             /* Adım 4: Alan hesabı — sol panel girişleri */
             case 4:
                 html += `<div class="instruction-box">
-            <h3>📐 İşleniş — Adım 3</h3>
             <p>Oluşturduğunuz şekilde <strong>2 birimlik kenar a</strong>, <strong>1 birimlik kenar b</strong>'dir.</p>
             <p style="margin-top:8px;">Sağ taraftaki tahtada dört renkli bölgenin alanını <strong>a</strong> ve <strong>b</strong> cinsinden yazınız:</p>
             <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px;">
@@ -1008,7 +1004,6 @@ $(document).ready(function () {
             /* Adım 5: Adım adım sadeleştirme + Özdeşlik */
             case 5:
                 html += `<div class="instruction-box">
-            <h3>✏️ İşleniş — Adım 4</h3>
             <p>Bulduğunuz dört bölge alanını sırasıyla toplayınız:</p>
             <div id="sumSteps" style="margin-top:12px;">
                 <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:1em;line-height:2.4em;">
@@ -1926,7 +1921,6 @@ $(document).ready(function () {
 
             case 1:
                 html += `<div class="instruction-box">
-            <h3>🎯 Dikkat Çekme</h3>
             <p>"Bir beşgenin bir köşesinden çizilebilecek <strong>en çok kaç köşegen vardır</strong>?"</p>
             <div id="app3DiagChoices" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">
                 ${[1, 2, 3, 4, 5].map(n => `<button class="num-btn" data-diag="${n}">${n}</button>`).join('')}
@@ -3528,13 +3522,13 @@ $(document).ready(function () {
     }
 
     /* ══ AÇILIŞ DİYALOĞU ════════════════════════════════════════ */
-    /*
+  
     $('#introDialog').show();
     $('#introContinueBtn').on('click',function(){
         $('#introDialog').hide();
         loadTab('intro');
     });
-    */
+  
 
 
     /**
@@ -3543,6 +3537,7 @@ $(document).ready(function () {
      */
     // TEST MODU: Uygulama 2'yi doğrudan başlat
 
+    /*
     (function () {
         $('#introDialog').hide();
         $('[data-tab="app2"]').prop('disabled', false);
@@ -3550,6 +3545,6 @@ $(document).ready(function () {
         $('[data-tab="app2"]').addClass('active');
         loadTab('app2');
     })();
-
+    */
 
 });
