@@ -42,7 +42,9 @@ Sol panelde adım adım ilerleyen etkinlik yapısı bulunur:
 
 ## Proje Yapısı
 
-- `index.html` — uygulamanın tamamı (HTML/CSS/JS tek dosya)
+- `index.html` — ana HTML yapısı ve sayfa düzeni
+- `styles.css` — tüm uygulama stilleri ve tema değişkenleri
+- `script.js` — tüm uygulama mantığı (3B tahta, lastik çizimi, yönlendirmeli etkinlikler)
 - Harici kütüphaneler CDN ile yüklenir:
   - jQuery
   - MathJax
