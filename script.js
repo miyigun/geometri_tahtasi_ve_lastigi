@@ -1046,7 +1046,7 @@ $(document).ready(function () {
                 Alan = kenar × kenar = <strong style="color:var(--text-accent);">(a + b) ∙ (a + b)</strong> = ?
             </div>
             <div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:6px;justify-content:center;" id="squareKeyboard">
-                ${['(', 'a', '+', 'b', ')', '²'].map(k => `<button class="sq-key3" data-val="${k}" style="padding:8px 14px;border-radius:8px;background:var(--button-bg);border:1.5px solid var(--border-color);color:var(--button-text);cursor:pointer;font-size:1.05em;font-weight:700;">${k}</button>`).join('')}
+                ${['a', 'b', '(',  '+',  ')', '²'].map(k => `<button class="sq-key3" data-val="${k}" style="padding:8px 14px;border-radius:8px;background:var(--button-bg);border:1.5px solid var(--border-color);color:var(--button-text);cursor:pointer;font-size:1.05em;font-weight:700;">${k}</button>`).join('')}
                 <button class="sq-key3" data-val="⌫" style="padding:8px 14px;border-radius:8px;background:rgba(239,68,68,.2);border:1.5px solid #ef4444;color:#ef4444;cursor:pointer;font-size:1.05em;font-weight:700;">⌫</button>
             </div>
             <div style="margin-top:10px;background:var(--bg-tertiary);border:2px solid var(--border-color);border-radius:12px;padding:14px;text-align:center;">
@@ -1490,11 +1490,11 @@ $(document).ready(function () {
                         <svg id="formulaSVG" viewBox="0 0 220 220" width="220" height="220"
                             style="display:block;margin:0 auto 14px;background:var(--bg-tertiary);border-radius:50%;border:2px solid var(--border-color);">
                             <circle cx="110" cy="110" r="4" fill="#ffd700"/>
-                            <text x="116" y="107" fill="#ffd700" font-size="15" font-family="Segoe UI">O</text>
+                            <text x="110" y="100" fill="#ffd700" font-size="15" font-family="Segoe UI">O</text>
                             <line x1="110" y1="110" x2="216" y2="110" stroke="#c084fc" stroke-width="2.5" stroke-dasharray="6,3"/>
                             <text x="150" y="105" fill="#c084fc" font-size="15" font-family="Segoe UI">r</text>
                         </svg>
-                        <p style="text-align:center;font-size:.95em;margin-bottom:10px;">Yukarıdaki dairenin alan formülünü yazınız:</p>
+                        <p style="text-align:center;font-size:.95em;margin-bottom:10px; font-weight: bold;">Yukarıdaki dairenin alan formülünü yazınız:</p>
                         <div style="display:flex;align-items:center;gap:6px;justify-content:center;flex-wrap:wrap;">
                             <span style="font-size:1.1em;font-weight:700;color:var(--text-accent);">A =</span>
                             <input id="formulaInput" type="text" class="input-field"
@@ -1504,7 +1504,7 @@ $(document).ready(function () {
                         </div>
                         <!-- Özel klavye -->
                         <div style="display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin-top:12px;">
-                            ${['π', 'r', '²', '(', ')', '+', '-', '·', '0', '1', '2', '3', '4', '5'].map(k =>
+                            ${['π', '(', 'r', ')', '+', '²', '-', '·', '0', '1', '2', '3', '4', '5'].map(k =>
                             `<button class="formula-key action-button" data-key="${k}"
                                     style="padding:7px 13px;font-size:1em;min-width:40px;">${k}</button>`
                         ).join('')}
@@ -2650,17 +2650,18 @@ $(document).ready(function () {
 
     /* 3D'de lastikleri güncelle */
     function updateElastics3D() {
-        if (!frontGroup) return;
+        if (!boardGroup) return;
         // Önceki lastik mesh'lerini kaldır
-        elasticMeshes.forEach(m => frontGroup.remove(m));
+        elasticMeshes.forEach(m => boardGroup.remove(m));
         elasticMeshes = [];
 
-        const offset = -(GRID3D_N - 1) * PIN3D_GAP / 2;
+        const step = BOARD_SIZE_3D / (PIN_COLS - 1);
+        const half = BOARD_SIZE_3D / 2;
         function pin3DPos(r, c) {
             return new THREE.Vector3(
-                offset + c * PIN3D_GAP,
-                -(offset + r * PIN3D_GAP),
-                BOARD3D_THICK / 2 + 0.18
+                -half + c * step,
+                half - r * step,
+                BOARD_THICK / 2 + 0.13
             );
         }
 
@@ -2679,7 +2680,7 @@ $(document).ready(function () {
             });
             const tube = new THREE.Mesh(tubeGeo, tubeMat);
             tube.castShadow = true;
-            frontGroup.add(tube);
+            boardGroup.add(tube);
             elasticMeshes.push(tube);
 
             // Pinlerde parlama efekti
