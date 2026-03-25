@@ -923,8 +923,8 @@ $(document).ready(function () {
             /* Adım 3: 3×3 Kareye tamamlama */
             case 3:
                 html += `<div class="instruction-box">
-            <p>Karenin kenarını <strong>a</strong> olarak adlandırdık. Şimdi kareyi <strong>sağa ve aşağıya 1 birim</strong> genişleterek yeni bir kare elde ediniz.</p>
-            <p style="margin-top:8px;font-size:.9em;color:var(--text-secondary);">💡 Bundan sonra bu <strong>1 birimlik kenarı b olarak adlandıracağız</strong>.</p>
+            <p>Karenin kenarını <strong>a</strong> olarak adlandırdık. Şimdi kareyi 2×2’den 3×3 olacak şekilde büyütmek için sağa ve aşağıya <strong>1 birimlik parçalar ekleyerek büyük kareyi tamamlayınız.</strong></p>
+            <p style="margin-top:8px;font-size:.9em;color:var(--text-secondary);">💡 Eklediğiniz bu yeni parçaların kenar uzunluğunu <strong>b</strong> olarak adlandıracağız.</p>
             <p style="margin-top:8px;font-size:.9em;color:var(--text-secondary);">Yeni kenar uzunluğu <strong>a + b</strong> olacaktır. Bunu oluşturmak için <strong>farklı renkte 2 yeni lastik</strong> ekleyiniz.</p>
             <div id="completeStatus" style="margin-top:10px;padding:8px;background:var(--bg-tertiary);border-radius:7px;font-size:.88em;color:var(--text-secondary);">
                 ⬡ Henüz (a+b)∙(a+b) kare tamamlanmadı
