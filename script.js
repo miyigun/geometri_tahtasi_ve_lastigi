@@ -1097,7 +1097,20 @@ $(document).ready(function () {
             <input type="text" id="app1AssessInput" class="input-field" placeholder="Cevabınızı girin" inputmode="decimal" style="margin-top:8px;">
             <div id="app1AssessFeedback" style="margin-top:8px;"></div>
         </div>
-        <div style="display:none;text-align:center;" id="app1s6NextArea"><button class="action-button" id="app1FinishBtn">Uygulama 2'ye Geç</button></div>`;
+                <div style="display:none;text-align:center;" id="app1s6NextArea">
+                    <div class="instruction-box" style="margin-top:12px;text-align:left;">
+                        <h3>Bu Bölümde Neler Öğrendik?</h3>
+                        <ul style="margin-top:8px;line-height:1.9;">
+                            <li>Tamkare sayıların ne olduğunu keşfettik (1, 4, 9...).</li>
+                            <li>Geometri tahtasında <strong>2×2 kare</strong> oluşturduk ve kenar uzunluğunu <strong>a</strong> olarak adlandırdık.</li>
+                            <li>Kareyi genişleterek <strong>(a+b)×(a+b)</strong> büyük karesini 4 bölgeye ayırdık.</li>
+                            <li>Bölge alanlarını <strong>a², ab, ab, b²</strong> olarak ifade ettik.</li>
+                            <li>Toplamı sadeleştirerek <strong>a² + 2ab + b²</strong> elde ettik.</li>
+                            <li><strong>Tamkare özdeşliğini</strong> geometrik olarak kanıtladık: (a+b)² = a² + 2ab + b²</li>
+                        </ul>
+                    </div>
+                    <button class="action-button" id="app1FinishBtn" style="margin-top:8px;">Uygulama 2'ye Geç</button>
+                </div>`;
                 clearBoard();
                 if (window.MathJax) setTimeout(() => MathJax.typesetPromise(), 200);
                 $('[data-tab="app2"]').prop('disabled', false);
@@ -1693,13 +1706,13 @@ $(document).ready(function () {
             Uygulama 2 Tamamlandı!
         </div>
         <div class="instruction-box" style="margin-top:10px;">
-            <h3>🎯 Bu Uygulamada Neler Öğrendik?</h3>
+            <h3>Bu Uygulamada Neler Öğrendik?</h3>
             <ul style="margin-top:8px;line-height:1.9;">
-                <li>İrrasyonel bir sayı olan <strong>π'nin geometrik yorumunu</strong> yaptık.</li>
-                <li>Geometri tahtasının arka yüzündeki <strong>çemberli yüzü</strong> inceledik (12 ve 24 pin).</li>
-                <li>Büyük kare, içten teğet daire ve köşeleri daire üzerinde olan küçük kare oluşturarak <strong>2 &lt; π &lt; 4</strong> sonucuna ulaştık.</li>
-                <li>Alan eşitsizliği kullanarak daire alanının sınırlarını hesapladık.</li>
-                <li><strong>Arşimed'in π hesabı</strong> hakkında araştırma yaptık.</li>
+                <li>Geometri tahtasının arka yüzündeki <strong>12 ve 24 pinli çemberleri</strong> inceledik.</li>
+                <li><strong>Daire alanı formülünü</strong> (A = πr²) hatırladık ve uyguladık.</li>
+                <li>Büyük kare, içten teğet daire ve köşeleri daire üzerinde olan küçük kare oluşturarak <strong>2 &lt; π &lt; 4</strong> eşitsizliğine ulaştık.</li>
+                <li>Alan eşitsizliği ile daire alanının sınırlarını hesapladık: <strong>50 &lt; 25π &lt; 100</strong>.</li>
+                <li>π gibi irrasyonel sayıların <strong>geometrik yorumunu</strong> yapabildik.</li>
             </ul>
         </div>
         <div style="text-align:center;margin-top:12px;">
@@ -1707,7 +1720,7 @@ $(document).ready(function () {
                 Uygulama 3'e Geç →
             </button>
         </div>`;
-                $('#boardHint').text('🎯 Uygulama 2 tamamlandı!');
+                $('#boardHint').text('Uygulama 2 tamamlandı!');
                 break;
         }
 
@@ -2051,7 +2064,7 @@ $(document).ready(function () {
             case 6:
                 html += `<div class="success-message" style="padding:18px;font-size:1.05em;">Tebrikler! Uygulama 3 tamamlandı!</div>
         <div class="instruction-box">
-            <h3>Öğrendikleriniz</h3>
+            <h3>Bu Bölümde Neler Öğrendik?</h3>
             <ul>
                 <li>Konveks bir n-genin iç açıları toplamı: <strong>$(n-2)×180°$</strong></li>
                 <li>Bir köşeden çizilebilecek köşegen sayısı: <strong>$n-3$</strong></li>
