@@ -874,20 +874,11 @@ $(document).ready(function () {
             /* Adım 0: Bilgilendirme */
             case 0:
                 html += `<div class="instruction-box">
-            <h3>Tamkare İfade Elde Edelim!</h3>
-            <h4>Hedeflenen Beceriler</h4>
-            <ul>
-                <li>İlişkilendirme</li>
-                <li>Akıl Yürütme</li>
-                <li>İletişim</li>
-                <li>Matematiksel Modelleme</li>
-            </ul>
-            <h4>Hedefler</h4>
-            <p>Öğrencilerin bütünü oluşturan parçaları bulabilmesi, <strong>tamkare ifade elde edebilmesi</strong> hedeflenir.</p>
-            <h4>Uygulama Aşaması</h4>
-            <p>Tamkare özdeşliğini elde etmek amacıyla kavramsal bilgiyi sorgulama, işlemsel bilgiyi inceleme ve derinleştirme sürecinde kullanılabilir.</p>
-        </div>
-        <div style="text-align:center;"><button class="action-button" id="app1s0Btn">Başla</button></div>`;
+                        <h3>Tamkare İfade Elde Edelim!</h3>
+                        <p>Bu uygulamada geometri tahtasını kullanarak <strong>(a+b)² = a² + 2ab + b²</strong> tamkare özdeşliğini görsel olarak keşfedeceksiniz.</p>
+                        <p style="margin-top:8px;">Tamkare sayıları tanıyacak, kare bölgelerini tahtada oluşturacak ve özdeşliği parçalara ayırarak <strong>geometrik olarak kanıtlayacaksınız</strong>.</p>
+                    </div>
+                    <div style="text-align:center;"><button class="action-button" id="app1s0Btn">Başla</button></div>`;
                 $('#boardHint').text('🟦 Geometri tahtasını hazırlayın');
                 break;
 
@@ -1415,21 +1406,14 @@ $(document).ready(function () {
         switch (step) {
             case 0:
                 html += `<div class="instruction-box">
-            <h3>🔵 π'yi Görelim</h3>
-            <h4>Hedef</h4>
-            <p>İrrasyonel bir sayının (<strong>π</strong>) geometrik yorumunu yapabilmek.</p>
-            <h4>Hedeflenen Beceriler</h4>
-            <ul>
-                <li>İlişkilendirme</li>
-                <li>Akıl Yürütme</li>
-                <li>İletişim</li>
-                <li>Matematiksel Modelleme</li>                
-            </ul>
-        </div>
-        <div class="instruction-box" style="background:rgba(0,212,255,0.08);border-color:var(--border-color);margin-top:8px;">
-            <p style="font-size:.93em;color:var(--text-secondary);">📋 <em>Geometri tahtasında çemberlerin olduğu yüz kullanılacaktır.</em></p>
-        </div>
-        <div style="text-align:center;"><button class="action-button" id="app2s0Btn">Başla</button></div>`;
+                        <h3>🔵 π'yi Görelim</h3>
+                        <p>Bu uygulamada geometri tahtasının <strong>çember yüzünü</strong> kullanarak π sayısının ne anlama geldiğini geometrik olarak keşfedeceksiniz.</p>
+                        <p style="margin-top:8px;">Çemberin çevresi ile çapı arasındaki ilişkiyi inceleyerek <strong>π ≈ 3.14…</strong> değerine nasıl ulaşıldığını göreceksiniz.</p>
+                    </div>
+                    <div class="instruction-box" style="background:rgba(0,212,255,0.08);border-color:var(--border-color);margin-top:8px;">
+                        <p style="font-size:.93em;color:var(--text-secondary);">📋 <em>Geometri tahtasında çemberlerin olduğu yüz kullanılacaktır.</em></p>
+                    </div>
+                    <div style="text-align:center;"><button class="action-button" id="app2s0Btn">Başla</button></div>`;
                 setTimeout(() => {
                     if (threeCamera && threeControls) {
                         threeCamera.position.set(0, 0, -9);
@@ -1906,16 +1890,12 @@ $(document).ready(function () {
 
         switch (step) {
             case 0:
-                html += `<div class="instruction-box">
-            <h3>🔺 Konveks Çokgenlerde Açıların Gizemi</h3>
-            <h4>Hedeflenen Beceriler</h4>
-            <ul><li>Akıl Yürütme</li><li>Matematiksel Modelleme</li><li>İletişim</li></ul>
-            <h4>Hedefler</h4>
-            <p>Çokgenlerin iç açılarının toplamını veren formülü elde edebilmek; kenar sayısı, açı ölçüleri ve köşegen sayısı arasındaki ilişkiyi bulabilmek.</p>
-            <h4>Uygulama Aşaması</h4>
-            <p>Dersin sonunda konunun derinleşme sürecinde kullanılabilir.</p>
-        </div>
-        <div style="text-align:center;"><button class="action-button" id="app3s0Btn">Başla</button></div>`;
+               html += `<div class="instruction-box">
+                    <h3>🔺 Konveks Çokgenlerde Açıların Gizemi</h3>
+                    <p>Bu uygulamada geometri tahtasında farklı konveks çokgenler oluşturarak iç açı toplamlarını keşfedeceksiniz.</p>
+                    <p style="margin-top:8px;">Köşegen sayısı, kenar sayısı ve açı ölçüleri arasındaki ilişkiyi inceleyerek <strong>(n−2)×180°</strong> formülüne nasıl ulaşıldığını adım adım göreceksiniz.</p>
+                </div>
+                <div style="text-align:center;"><button class="action-button" id="app3s0Btn">Başla</button></div>`;
                 $('#boardHint').text('🔺 Geometri tahtasını hazırlayın');
                 break;
 
@@ -2193,7 +2173,6 @@ $(document).ready(function () {
         boardMode = 'draw';
         let html = `<div class="instruction-box">
         <h3>🔍 Derinleştirme</h3>
-        <p>Öğrencilerin öğrenmiş oldukları kazanımları kullanarak alt kazanımlar elde etmeleri, kavramsal anlama yeteneklerini geliştirmeleri ve pekiştirmeleri hedeflenir.</p>
         <h4>Serbest Keşif</h4>
         <p>Aşağıdaki soruları araştırın ve geometri tahtasını kullanarak modeller oluşturun.</p>
     </div>
