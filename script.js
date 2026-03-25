@@ -860,9 +860,10 @@ $(document).ready(function () {
     }
 
     function renderApp1Step(step) {
-        if (step < 2) clearBoard();
+        // Adım 3 ve sonrasında tahta korunur (kullanıcının çizimleri silinmez)
+        if (step < 3) clearBoard();
         boardMode = 'draw';
-        const totalSteps = 7;
+        const totalSteps = 8;
         const pct = Math.round(((step + 1) / totalSteps) * 100);
         let html = `<div class="progress-container">
         <div class="progress-label"><span>Uygulama 1</span><span>${step + 1}/${totalSteps}</span></div>
@@ -870,7 +871,25 @@ $(document).ready(function () {
     </div>`;
 
         switch (step) {
+            /* Adım 0: Bilgilendirme */
             case 0:
+                html += `<div class="instruction-box">
+            <h3>Tamkare İfade Elde Edelim!</h3>
+            <h4>Hedeflenen Beceriler</h4>
+            <ul>
+                <li>İlişkilendirme</li>
+                <li>Akıl Yürütme</li>
+                <li>İletişim</li>
+                <li>Matematiksel Modelleme</li>
+            </ul>
+            <h4>Hedefler</h4>
+            <p>Öğrencilerin bütünü oluşturan parçaları bulabilmesi, <strong>tamkare ifade elde edebilmesi</strong> hedeflenir.</p>
+            <h4>Uygulama Aşaması</h4>
+            <p>Tamkare özdeşliğini elde etmek amacıyla kavramsal bilgiyi sorgulama, işlemsel bilgiyi inceleme ve derinleştirme sürecinde kullanılabilir.</p>
+        </div>
+        <div style="text-align:center;"><button class="action-button" id="app1s0Btn">Başla</button></div>`;
+                $('#boardHint').text('🟦 Geometri tahtasını hazırlayın');
+                break;
 
             /* Adım 1: Dikkat çekme — tamkare sayılar */
             case 1:
@@ -1013,7 +1032,7 @@ $(document).ready(function () {
                 Alan = kenar × kenar = <strong style="color:var(--text-accent);">(a + b) ∙ (a + b)</strong> = ?
             </div>
             <div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:6px;justify-content:center;" id="squareKeyboard">
-                ${['a', 'b', '(', '+', ')', '²'].map(k => `<button class="sq-key3" data-val="${k}" style="padding:8px 14px;border-radius:8px;background:var(--button-bg);border:1.5px solid var(--border-color);color:var(--button-text);cursor:pointer;font-size:1.05em;font-weight:700;">${k}</button>`).join('')}
+                ${['a', 'b', '(',  '+',  ')', '²'].map(k => `<button class="sq-key3" data-val="${k}" style="padding:8px 14px;border-radius:8px;background:var(--button-bg);border:1.5px solid var(--border-color);color:var(--button-text);cursor:pointer;font-size:1.05em;font-weight:700;">${k}</button>`).join('')}
                 <button class="sq-key3" data-val="⌫" style="padding:8px 14px;border-radius:8px;background:rgba(239,68,68,.2);border:1.5px solid #ef4444;color:#ef4444;cursor:pointer;font-size:1.05em;font-weight:700;">⌫</button>
             </div>
             <div style="margin-top:10px;background:var(--bg-tertiary);border:2px solid var(--border-color);border-radius:12px;padding:14px;text-align:center;">
@@ -1078,20 +1097,7 @@ $(document).ready(function () {
             <input type="text" id="app1AssessInput" class="input-field" placeholder="Cevabınızı girin" inputmode="decimal" style="margin-top:8px;">
             <div id="app1AssessFeedback" style="margin-top:8px;"></div>
         </div>
-        <div style="display:none;text-align:center;" id="app1s6NextArea">
-            <div class="instruction-box" style="margin-top:12px;text-align:left;">
-                <h3>Bu Bölümde Neler Öğrendik?</h3>
-                <ul style="margin-top:8px;line-height:1.9;">
-                    <li>Tamkare sayıların ne olduğunu keşfettik (1, 4, 9...).</li>
-                    <li>Geometri tahtasında <strong>2×2 kare</strong> oluşturduk ve kenar uzunluğunu <strong>a</strong> olarak adlandırdık.</li>
-                    <li>Kareyi genişleterek <strong>(a+b)×(a+b)</strong> büyük karesini 4 bölgeye ayırdık.</li>
-                    <li>Bölge alanlarını <strong>a², ab, ab, b²</strong> olarak ifade ettik.</li>
-                    <li>Toplamı sadeleştirerek <strong>a² + 2ab + b²</strong> elde ettik.</li>
-                    <li><strong>Tamkare özdeşliğini</strong> geometrik olarak kanıtladık: (a+b)² = a² + 2ab + b²</li>
-                </ul>
-            </div>
-            <button class="action-button" id="app1FinishBtn" style="margin-top:8px;">Uygulama 2'ye Geç</button>
-        </div>`;
+        <div style="display:none;text-align:center;" id="app1s6NextArea"><button class="action-button" id="app1FinishBtn">Uygulama 2'ye Geç</button></div>`;
                 clearBoard();
                 if (window.MathJax) setTimeout(() => MathJax.typesetPromise(), 200);
                 $('[data-tab="app2"]').prop('disabled', false);
@@ -1386,16 +1392,43 @@ $(document).ready(function () {
     function renderApp2Step(step) {
         clearBoard();
         boardMode = 'draw';
-        const totalSteps = 5;
+        const totalSteps = 6;
         const pct = Math.round(((step + 1) / totalSteps) * 100);
         let html = `<div class="progress-container">
         <div class="progress-label"><span>Uygulama 2 — π'yi Görelim</span><span>${step + 1}/${totalSteps}</span></div>
         <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
-        </div>`;
+    </div>`;
 
         switch (step) {
-
             case 0:
+                html += `<div class="instruction-box">
+            <h3>🔵 π'yi Görelim</h3>
+            <h4>Hedef</h4>
+            <p>İrrasyonel bir sayının (<strong>π</strong>) geometrik yorumunu yapabilmek.</p>
+            <h4>Hedeflenen Beceriler</h4>
+            <ul>
+                <li>İlişkilendirme</li>
+                <li>Akıl Yürütme</li>
+                <li>İletişim</li>
+                <li>Matematiksel Modelleme</li>                
+            </ul>
+        </div>
+        <div class="instruction-box" style="background:rgba(0,212,255,0.08);border-color:var(--border-color);margin-top:8px;">
+            <p style="font-size:.93em;color:var(--text-secondary);">📋 <em>Geometri tahtasında çemberlerin olduğu yüz kullanılacaktır.</em></p>
+        </div>
+        <div style="text-align:center;"><button class="action-button" id="app2s0Btn">Başla</button></div>`;
+                setTimeout(() => {
+                    if (threeCamera && threeControls) {
+                        threeCamera.position.set(0, 0, -9);
+                        threeCamera.lookAt(0, 0, 0);
+                        threeControls.target.set(0, 0, 0);
+                        threeControls.update();
+                    }
+                }, 500);
+                $('#boardHint').text('🔵 Çemberlerin olduğu arka yüz — π keşfedilecek');
+                break;
+
+            case 1:
                 html += `<div class="instruction-box">
             <h3>⭕ Çember İnceleme</h3>
             <p>Geometri tahtasının <strong>arka yüzünde</strong> 12 ve 24 pinli çemberler bulunmaktadır.</p>
@@ -1417,15 +1450,17 @@ $(document).ready(function () {
                 $('#boardHint').text('⭕ Çemberleri seçerek inceleyin');
                 break;
 
-            case 1:
+            case 2:
                 if (typeof window.app2subStep === 'undefined') window.app2subStep = 0;
 
                 if (window.app2subStep === 0) {
+                    // ── Diyalog: Formül sorusu
                     html += `<div class="instruction-box">
                 <h3>🔵 Büyük Kare ve Çember</h3>
                 <p>Hazırlanıyor...</p>
             </div>`;
                     setTimeout(() => {
+                        // Sağ paneli çember yüzüne çevir
                         if (threeCamera && threeControls) {
                             threeCamera.position.set(0, 0, -9);
                             threeCamera.lookAt(0, 0, 0);
@@ -1433,6 +1468,7 @@ $(document).ready(function () {
                             threeControls.update();
                         }
                         clearBoard();
+                        // Formül diyaloğunu aç
                         $('#app2FormulaDialog').remove();
                         const dlg = `<div class="dialog-overlay" id="app2FormulaDialog" style="display:flex;">
                     <div class="dialog-content" style="max-width:480px;">
@@ -1444,7 +1480,7 @@ $(document).ready(function () {
                             <line x1="110" y1="110" x2="216" y2="110" stroke="#c084fc" stroke-width="2.5" stroke-dasharray="6,3"/>
                             <text x="150" y="105" fill="#c084fc" font-size="15" font-family="Segoe UI">r</text>
                         </svg>
-                        <p style="text-align:center;font-size:.95em;margin-bottom:10px;font-weight:bold;">Yukarıdaki dairenin alan formülünü yazınız:</p>
+                        <p style="text-align:center;font-size:.95em;margin-bottom:10px; font-weight: bold;">Yukarıdaki dairenin alan formülünü yazınız:</p>
                         <div style="display:flex;align-items:center;gap:6px;justify-content:center;flex-wrap:wrap;">
                             <span style="font-size:1.1em;font-weight:700;color:var(--text-accent);">A =</span>
                             <input id="formulaInput" type="text" class="input-field"
@@ -1452,9 +1488,11 @@ $(document).ready(function () {
                                 style="width:170px;text-align:center;font-size:1.1em;cursor:default;"/>
                             <button id="formulaClearBtn" style="padding:6px 10px;border-radius:7px;background:var(--bg-tertiary);border:1.5px solid var(--border-color);color:var(--text-primary);cursor:pointer;font-size:13px;">⌫</button>
                         </div>
+                        <!-- Özel klavye -->
                         <div style="display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin-top:12px;">
                             ${['π', '(', 'r', ')', '+', '²', '-', '·', '0', '1', '2', '3', '4', '5'].map(k =>
-                            `<button class="formula-key action-button" data-key="${k}" style="padding:7px 13px;font-size:1em;min-width:40px;">${k}</button>`
+                            `<button class="formula-key action-button" data-key="${k}"
+                                    style="padding:7px 13px;font-size:1em;min-width:40px;">${k}</button>`
                         ).join('')}
                         </div>
                         <div id="formulaFeedback" style="margin-top:10px;text-align:center;"></div>
@@ -1465,14 +1503,18 @@ $(document).ready(function () {
                     </div>
                 </div>`;
                         $('body').append(dlg);
+                        // Klavye
                         $(document).off('click.fkey').on('click.fkey', '.formula-key', function () {
-                            $('#formulaInput').val($('#formulaInput').val() + $(this).data('key'));
+                            const k = $(this).data('key');
+                            $('#formulaInput').val($('#formulaInput').val() + k);
                         });
                         $('#formulaClearBtn').on('click', function () {
-                            $('#formulaInput').val($('#formulaInput').val().slice(0, -1));
+                            const v = $('#formulaInput').val();
+                            $('#formulaInput').val(v.slice(0, -1));
                         });
                         $('#formulaCheckBtn').on('click', function () {
                             const raw = $('#formulaInput').val().replace(/\s/g, '').toLowerCase();
+                            // Kabul: πr², pi*r^2, π·r², πr2 vb.
                             const ok = /^π?pi?[·*]?r[\^²2]?2?$/.test(raw) || raw === 'πr²' || raw === 'πr2' || raw === 'π·r²' || raw === 'π*r²' || raw === 'pir²' || raw === 'pir2';
                             if (ok) {
                                 $('#formulaFeedback').html('<div class="success-message">✓ Harika! Daire alanı A = πr² formülüdür.</div>');
@@ -1486,12 +1528,13 @@ $(document).ready(function () {
                             $(document).off('click.fkey');
                             $('#app2FormulaDialog').remove();
                             window.app2subStep = 1;
-                            renderApp2Step(1);
+                            renderApp2Step(2);
                         });
                     }, 300);
                     $('#boardHint').text('⭕ Çember yüzü — daire alanı formülünü bulun');
 
                 } else if (window.app2subStep === 1) {
+                    // ── Büyük kareyi lastikle oluştur (rehber kesikli çizgi)
                     html += `<div class="instruction-box">
                 <h3>Büyük Kare Oluşturma</h3>
                 <p>Geometri tahtası üzerinde <strong>büyük kareyi</strong> lastikle çeviriniz.</p>
@@ -1505,8 +1548,10 @@ $(document).ready(function () {
             <div style="text-align:center;margin-top:10px;">
                 <button class="action-button" id="app2s2Btn" disabled style="opacity:.4;">Devam Et</button>
             </div>`;
+                    // Hedef köşeler (6×6 grid, 0-indexli, köşe pinler = r0c0, r0c5, r5c5, r5c0)
                     window.app2TargetSquare = [{ r: 0, c: 0 }, { r: 0, c: 5 }, { r: 5, c: 5 }, { r: 5, c: 0 }];
                     setTimeout(() => {
+                        // Arka yüze (çember yüzü) döndür
                         if (threeCamera && threeControls) {
                             threeCamera.position.set(0, 0, -9);
                             threeCamera.lookAt(0, 0, 0);
@@ -1514,14 +1559,23 @@ $(document).ready(function () {
                             threeControls.update();
                         }
                         clearBoard();
+
+                        // Çember pinlerini tam görünürlüğe döndür
                         backGroup && backGroup.children.forEach(ch => {
                             if (!ch.userData || !ch.userData.isCirclePin) return;
                             ch.material.opacity = 1.0;
                             ch.material.transparent = false;
                         });
+
+                        // 3D rehber: backGroup'a kesikli sarı kare (çember yüzü köşe pinleri arası)
                         if (backGroup && THREE) {
-                            backGroup.children.filter(c => c.userData && c.userData.isGuide).forEach(g => backGroup.remove(g));
-                            const half = BOARD3D_SIZE / 2 - 0.25;
+                            // Eski rehberleri temizle
+                            backGroup.children
+                                .filter(c => c.userData && c.userData.isGuide)
+                                .forEach(g => backGroup.remove(g));
+
+                            // Köşe pinleriyle aynı koordinatlar (buildBack'teki corners ile birebir)
+                            const half = BOARD3D_SIZE / 2 - 0.25; // = 2.5
                             const bz = -(BOARD3D_THICK / 2 + 0.22);
                             const guideCorners = [
                                 new THREE.Vector3(-half, half, bz),
@@ -1529,9 +1583,13 @@ $(document).ready(function () {
                                 new THREE.Vector3(half, -half, bz),
                                 new THREE.Vector3(-half, -half, bz),
                             ];
+
+                            // Kesikli çizgi (kareyi kapat)
                             const pts = [...guideCorners, guideCorners[0]];
                             const geo = new THREE.BufferGeometry().setFromPoints(pts);
-                            const mat = new THREE.LineDashedMaterial({ color: 0xffd700, dashSize: 0.18, gapSize: 0.10, linewidth: 2 });
+                            const mat = new THREE.LineDashedMaterial({
+                                color: 0xffd700, dashSize: 0.18, gapSize: 0.10, linewidth: 2
+                            });
                             const line = new THREE.Line(geo, mat);
                             line.computeLineDistances();
                             line.userData.isGuide = true;
@@ -1578,7 +1636,7 @@ $(document).ready(function () {
                 }
                 break;
 
-            case 2:
+            case 3:
                 html += `<div class="instruction-box">
             <h3>📐 Alan Hesabı ve Eşitsizlik</h3>
             <p>Oluşan şekillerin alanlarını hesaplayınız ve eşitsizlik kullanarak yazınız.</p>
@@ -1604,7 +1662,7 @@ $(document).ready(function () {
                 $('#boardHint').text('📐 Alan (küçük kare) < Alan (daire) < Alan (büyük kare)');
                 break;
 
-            case 3:
+            case 4:
                 html += `<div class="instruction-box">
             <h3>📏 Ölçme ve Değerlendirme</h3>
             <p><strong>Soru:</strong> Yarıçap uzunluğu 5 birim olan dairenin alanı hangi <strong>tam sayılar arasında</strong> yer almalıdır?</p>
@@ -1630,18 +1688,18 @@ $(document).ready(function () {
                 $('#boardHint').text('🔢 Yarıçap=5 birim → Alan hangi tam sayılar arasında?');
                 break;
 
-            case 4:
+            case 5:
                 html += `<div class="success-message" style="padding:16px;text-align:center;">
             Uygulama 2 Tamamlandı!
         </div>
         <div class="instruction-box" style="margin-top:10px;">
-            <h3>🎯 Bu Bölümde Neler Öğrendik?</h3>
+            <h3>🎯 Bu Uygulamada Neler Öğrendik?</h3>
             <ul style="margin-top:8px;line-height:1.9;">
-                <li>Geometri tahtasının arka yüzündeki <strong>12 ve 24 pinli çemberleri</strong> inceledik.</li>
-                <li><strong>Daire alanı formülünü</strong> (A = πr²) hatırladık ve uyguladık.</li>
-                <li>Büyük kare, içten teğet daire ve köşeleri daire üzerinde olan küçük kare oluşturarak <strong>2 &lt; π &lt; 4</strong> eşitsizliğine ulaştık.</li>
-                <li>Alan eşitsizliği ile daire alanının sınırlarını hesapladık: <strong>50 &lt; 25π &lt; 100</strong>.</li>
-                <li>π gibi irrasyonel sayıların <strong>geometrik yorumunu</strong> yapabildik.</li>
+                <li>İrrasyonel bir sayı olan <strong>π'nin geometrik yorumunu</strong> yaptık.</li>
+                <li>Geometri tahtasının arka yüzündeki <strong>çemberli yüzü</strong> inceledik (12 ve 24 pin).</li>
+                <li>Büyük kare, içten teğet daire ve köşeleri daire üzerinde olan küçük kare oluşturarak <strong>2 &lt; π &lt; 4</strong> sonucuna ulaştık.</li>
+                <li>Alan eşitsizliği kullanarak daire alanının sınırlarını hesapladık.</li>
+                <li><strong>Arşimed'in π hesabı</strong> hakkında araştırma yaptık.</li>
             </ul>
         </div>
         <div style="text-align:center;margin-top:12px;">
@@ -1658,6 +1716,34 @@ $(document).ready(function () {
 
         switch (step) {
             case 0:
+                $('#app2s0Btn').on('click', function () {
+                    $('#app2DikkatDialog').remove();
+                    const dialogHtml = `
+            <div class="dialog-overlay" id="app2DikkatDialog" style="display:flex;">
+                <div class="dialog-content" style="max-width:600px;">
+                    <h2>🔵 π Şeklini İnceleyelim</h2>
+                    <div style="text-align:center;margin-bottom:14px;">
+                        <img src="images/uygulama2_dikkat.png" alt="π Dikkat Görseli"
+                            style="max-width:100%;max-height:260px;border-radius:12px;border:2px solid var(--border-color);box-shadow:0 0 16px var(--border-glow);object-fit:contain;">
+                    </div>
+                    <p style="line-height:1.8;font-size:.93em;">Üstteki görselde rakamlar bir dairenin etrafına eş aralıklarla yazılmıştır. 3'ten 1'e bir çizgi çizilmiş ardından 1'den 4'e, 4'ten 1'e, 1'den 5'e, 5'ten 9'a, 9'dan 2'ye, 2'den 6'ya, 6'dan 5'e, 5'ten 3'e devamında da π sayısının diğer basamaklarındaki rakama göre çizgiler çizilmeye devam edilmiştir.</p>
+                    <div class="instruction-box" style="margin-top:10px;">
+                        <p style="font-size:.9em;">🔍 Bu şekli dikkatlice inceleyiniz. π sayısının basamaklarındaki rakamların daire üzerindeki noktaları nasıl birleştirdiğini gözlemleyiniz. Oluşan geometrik deseni keşfetmeye çalışınız.</p>
+                    </div>
+                    <div class="dialog-btn-row">
+                        <button class="action-button" id="app2DikkatDevamBtn">Devam Et</button>
+                    </div>
+                </div>
+            </div>`;
+                    $('body').append(dialogHtml);
+                    $('#app2DikkatDevamBtn').on('click', function () {
+                        $('#app2DikkatDialog').remove();
+                        renderApp2Step(1);
+                    });
+                });
+                break;
+
+            case 1:
                 $('#smallCircleBtn').on('click', function () {
                     $(this).addClass('selected');
                     $('#bigCircleBtn').removeClass('selected');
@@ -1667,9 +1753,11 @@ $(document).ready(function () {
                         threeControls.target.set(0, 0, 0);
                         threeControls.update();
                     }
+                    // YENİ: Küçük çemberi vurgula, büyüğü solar
                     backGroup && backGroup.children.forEach(ch => {
                         if (!ch.userData || !ch.userData.isCirclePin) return;
-                        ch.material.opacity = ch.userData.circleType === 'small' ? 1.0 : 0.15;
+                        const isMine = ch.userData.circleType === 'small';
+                        ch.material.opacity = isMine ? 1.0 : 0.15;
                         ch.material.transparent = true;
                     });
                 });
@@ -1682,16 +1770,18 @@ $(document).ready(function () {
                         threeControls.target.set(0, 0, 0);
                         threeControls.update();
                     }
+                    // YENİ: Büyük çemberi vurgula, küçüğü solar
                     backGroup && backGroup.children.forEach(ch => {
                         if (!ch.userData || !ch.userData.isCirclePin) return;
-                        ch.material.opacity = ch.userData.circleType === 'big' ? 1.0 : 0.15;
+                        const isMine = ch.userData.circleType === 'big';
+                        ch.material.opacity = isMine ? 1.0 : 0.15;
                         ch.material.transparent = true;
                     });
                 });
-                $('#app2s1Btn').on('click', () => renderApp2Step(1));
+                $('#app2s1Btn').on('click', () => renderApp2Step(2));
                 break;
 
-            case 1:
+            case 2:
                 if (window.app2subStep === 1) {
                     $(document).off('elasticAdded.bigSquare').on('elasticAdded.bigSquare', function () {
                         const target = window.app2TargetSquare;
@@ -1703,6 +1793,7 @@ $(document).ready(function () {
                         if (found) {
                             $(document).off('elasticAdded.bigSquare');
                             window.app2TargetSquare = null;
+                            // 3D rehber çizgiyi kaldır
                             if (frontGroup) frontGroup.children.filter(c => c.userData && c.userData.isGuide).forEach(g => frontGroup.remove(g));
                             $('#app2s2Btn').prop('disabled', false).css('opacity', '1');
                             $('#boardHint').text('✅ Harika! Büyük kare oluşturuldu. Devam edebilirsiniz.');
@@ -1713,23 +1804,23 @@ $(document).ready(function () {
                     $(document).off('elasticAdded.bigSquare');
                     window._app2RebuildHook = null;
                     if (window.app2subStep === 0) {
-                        // subStep 0 → diyalog kendi içinde ilerliyor
+                        // subStep 0 → diyalog kendi içinde ilerliyor, buraya gelmemeli
                     } else if (window.app2subStep < 3) {
                         window.app2subStep++;
-                        renderApp2Step(1);
+                        renderApp2Step(2);
                     } else {
                         window.app2subStep = undefined;
                         window.app2TargetSquare = null;
-                        renderApp2Step(2);
+                        renderApp2Step(3);
                     }
                 });
                 break;
 
-            case 2:
-                $('#app2s3Btn').on('click', () => renderApp2Step(3));
+            case 3:
+                $('#app2s3Btn').on('click', () => renderApp2Step(4));
                 break;
 
-            case 3:
+            case 4:
                 $('#app2AssessCheckBtn').on('click', function () {
                     const raw = $('#app2AssessInput').val().replace(/\s/g, '');
                     const ok = raw === '50,100' || raw === '50-100' || raw === '50ile100' || (raw.includes('50') && raw.includes('100'));
@@ -1742,12 +1833,12 @@ $(document).ready(function () {
                         $('#app2AssessFeedback').html('<div class="error-message">✗ Yanlış. Alan=πr²=25π. 2&lt;π&lt;4 kullanarak sınırları bul.</div>');
                     }
                 });
-                $('#app2FinishBtn').on('click', () => renderApp2Step(4));
+                $('#app2FinishBtn').on('click', () => renderApp2Step(5));
                 break;
 
-            case 4:
+            case 5:
                 $('#app2ToApp3Btn').on('click', () => {
-                    $('[data-tab="app3"]').click();
+                    $('[data-tab="app3"]').prop('disabled', false).click();
                 });
                 break;
         }
@@ -1793,7 +1884,7 @@ $(document).ready(function () {
     function renderApp3Step(step) {
         clearBoard();
         boardMode = 'draw';
-        const totalSteps = 6;
+        const totalSteps = 7;
         const pct = Math.round(((step + 1) / totalSteps) * 100);
         let html = `<div class="progress-container">
         <div class="progress-label"><span>Uygulama 3</span><span>${step + 1}/${totalSteps}</span></div>
@@ -1801,7 +1892,20 @@ $(document).ready(function () {
     </div>`;
 
         switch (step) {
-            
+            case 0:
+                html += `<div class="instruction-box">
+            <h3>🔺 Konveks Çokgenlerde Açıların Gizemi</h3>
+            <h4>Hedeflenen Beceriler</h4>
+            <ul><li>Akıl Yürütme</li><li>Matematiksel Modelleme</li><li>İletişim</li></ul>
+            <h4>Hedefler</h4>
+            <p>Çokgenlerin iç açılarının toplamını veren formülü elde edebilmek; kenar sayısı, açı ölçüleri ve köşegen sayısı arasındaki ilişkiyi bulabilmek.</p>
+            <h4>Uygulama Aşaması</h4>
+            <p>Dersin sonunda konunun derinleşme sürecinde kullanılabilir.</p>
+        </div>
+        <div style="text-align:center;"><button class="action-button" id="app3s0Btn">Başla</button></div>`;
+                $('#boardHint').text('🔺 Geometri tahtasını hazırlayın');
+                break;
+
             case 1:
                 html += `<div class="instruction-box">
             <p>"Bir beşgenin bir köşesinden çizilebilecek <strong>en çok kaç köşegen vardır</strong>?"</p>
@@ -1947,14 +2051,12 @@ $(document).ready(function () {
             case 6:
                 html += `<div class="success-message" style="padding:18px;font-size:1.05em;">Tebrikler! Uygulama 3 tamamlandı!</div>
         <div class="instruction-box">
-            <h3>Bu Bölümde Neler Öğrendik?</h3>
-            <ul style="margin-top:8px;line-height:1.9;">
-                <li>Bir beşgenin tek köşesinden <strong>2 köşegen</strong> çizilebildiğini keşfettik.</li>
-                <li>Üçgenin iç açıları toplamının <strong>180°</strong> olduğunu gözlemledik.</li>
-                <li>Dörtgen, beşgen ve altıgenin iç açı toplamlarını hesapladık: <strong>360°, 540°, 720°</strong>.</li>
-                <li>Konveks bir n-genin iç açıları toplamı formülünü bulduk: <strong>(n−2)×180°</strong>.</li>
-                <li>Köşegen sayısı formüllerini öğrendik: tek köşeden <strong>n−3</strong>, toplamda <strong>n(n−3)/2</strong>.</li>
-                <li>8-genin köşegen sayısının <strong>20</strong>, iç açılar toplamının <strong>1080°</strong> olduğunu hesapladık.</li>
+            <h3>Öğrendikleriniz</h3>
+            <ul>
+                <li>Konveks bir n-genin iç açıları toplamı: <strong>$(n-2)×180°$</strong></li>
+                <li>Bir köşeden çizilebilecek köşegen sayısı: <strong>$n-3$</strong></li>
+                <li>Toplam köşegen sayısı: <strong>$\\dfrac{n(n-3)}{2}$</strong></li>
+                <li>Geometri tahtası üzerinde çokgenler modellediniz.</li>
             </ul>
         </div>
         <div style="text-align:center;"><button class="action-button" id="app3FinishBtn">Derinleştirme'ye Geç</button></div>`;
@@ -1978,7 +2080,7 @@ $(document).ready(function () {
         if (window.MathJax) MathJax.typesetPromise();
 
         switch (step) {
-            case 0: $('#app3s0Btn').on('click', () => renderApp3Step(0)); break;
+            case 0: $('#app3s0Btn').on('click', () => renderApp3Step(1)); break;
             case 1:
                 $(document).off('click.app3diag').on('click.app3diag', '#app3DiagChoices .num-btn', function () {
                     const n = parseInt($(this).data('diag'));
@@ -1994,7 +2096,7 @@ $(document).ready(function () {
                         $('#app3DiagFeedback').text('İpucu: Kendi köşesi ve komşu 2 köşe hariç kaç köşeye çizilir?').css('color', 'var(--error-bg)');
                     }
                 });
-                $('#app3s1Btn').on('click', () => { $(document).off('click.app3diag'); renderApp3Step(1); });
+                $('#app3s1Btn').on('click', () => { $(document).off('click.app3diag'); renderApp3Step(2); });
                 break;
             case 2:
                 $('#app3s2CheckBtn').on('click', function () {
@@ -2006,7 +2108,7 @@ $(document).ready(function () {
                         $('#triAngleFeedback').html('<div class="error-message">✗ Yanlış. Üçgenin iç açıları toplamı kaç derecedir?</div>');
                     }
                 });
-                $('#app3s2Btn').on('click', () => renderApp3Step(2));
+                $('#app3s2Btn').on('click', () => renderApp3Step(3));
                 break;
             case 3:
                 $('#showQuadBtn').on('click', function () {
@@ -2039,7 +2141,7 @@ $(document).ready(function () {
                         $('#app3s3Feedback').html('<div class="error-message">✗ Kontrol edin. Formül: (n-2)×180°</div>');
                     }
                 });
-                $('#app3s3Btn').on('click', () => renderApp3Step(3));
+                $('#app3s3Btn').on('click', () => renderApp3Step(4));
                 break;
             case 4:
                 $('#app3s4CheckBtn').on('click', function () {
@@ -2051,7 +2153,7 @@ $(document).ready(function () {
                         $('#diagFeedback').html('<div class="error-message">✗ Yanlış. Formül: n(n-3)/2, n=5 için hesaplayın.</div>');
                     }
                 });
-                $('#app3s4Btn').on('click', () => renderApp3Step(4));
+                $('#app3s4Btn').on('click', () => renderApp3Step(5));
                 break;
             case 5:
                 $('#app3s5CheckBtn').on('click', function () {
@@ -2064,7 +2166,7 @@ $(document).ready(function () {
                         $('#tableFeedback').html('<div class="error-message">✗ Yanlış. n=8: köşegen=n(n-3)/2=20, iç açı toplamı=(n-2)×180=1080°</div>');
                     }
                 });
-                $('#app3s5Btn').on('click', () => renderApp3Step(5));
+                $('#app3s5Btn').on('click', () => renderApp3Step(6));
                 break;
             case 6:
                 $('#app3FinishBtn').on('click', () => $('[data-tab="deep"]').prop('disabled', false).click());
@@ -2077,14 +2179,10 @@ $(document).ready(function () {
         clearBoard();
         boardMode = 'draw';
         let html = `<div class="instruction-box">
-        <h3>🎯 Tüm Bölümlerde Neler Öğrendik?</h3>
-        <ul style="margin-top:8px;line-height:1.9;">
-            <li><strong>Uygulama 1:</strong> (a+b)² = a² + 2ab + b² tamkare özdeşliğini geometrik olarak kanıtladık.</li>
-            <li><strong>Uygulama 2:</strong> π sayısının 2 ile 4 arasında olduğunu daire ve kare alanlarıyla gösterdik.</li>
-            <li><strong>Uygulama 3:</strong> Konveks çokgenlerin iç açı toplamları ve köşegen sayıları formüllerini keşfettik.</li>
-        </ul>
-        <h3 style="margin-top:14px;">🔍 Serbest Keşif</h3>
-        <p>Öğrendiklerinizi kullanarak aşağıdaki soruları geometri tahtasında modelleyin:</p>
+        <h3>🔍 Derinleştirme</h3>
+        <p>Öğrencilerin öğrenmiş oldukları kazanımları kullanarak alt kazanımlar elde etmeleri, kavramsal anlama yeteneklerini geliştirmeleri ve pekiştirmeleri hedeflenir.</p>
+        <h4>Serbest Keşif</h4>
+        <p>Aşağıdaki soruları araştırın ve geometri tahtasını kullanarak modeller oluşturun.</p>
     </div>
     <div style="display:flex;flex-direction:column;gap:10px;margin-top:6px;">
         <button class="option-button" id="deepQ1Btn">1. $(a-b)^2$ özdeşliğini geometri tahtasında gösterin.</button>
@@ -3481,13 +3579,13 @@ $(document).ready(function () {
     }
 
     /* ══ AÇILIŞ DİYALOĞU ════════════════════════════════════════ */
-
+  
     $('#introDialog').show();
-    $('#introContinueBtn').on('click', function () {
+    $('#introContinueBtn').on('click',function(){
         $('#introDialog').hide();
         loadTab('intro');
     });
-
+  
 
 
     /**
