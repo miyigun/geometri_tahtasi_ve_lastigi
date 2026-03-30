@@ -1431,7 +1431,7 @@ $(document).ready(function () {
             <p>Geometri tahtasının <strong>arka yüzünde</strong> 12 ve 24 pinli çemberler bulunmaktadır.</p>
             <p style="margin-top:8px;">Sağ panelde iki farklı çember gösterilmektedir. Her birini seçerek inceleyebilirsiniz.</p>
             <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
-                <button class="circle-select-btn selected" id="smallCircleBtn">Küçük Çember (12 pin)</button>
+                <button class="circle-select-btn" id="smallCircleBtn">Küçük Çember (12 pin)</button>
                 <button class="circle-select-btn" id="bigCircleBtn">Büyük Çember (24 pin)</button>
             </div>
         </div>
