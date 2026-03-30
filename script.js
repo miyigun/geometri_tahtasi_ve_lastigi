@@ -1408,7 +1408,7 @@ $(document).ready(function () {
                 html += `<div class="instruction-box">
                         <h3>🔵 π'yi Görelim</h3>
                         <p>Bu uygulamada geometri tahtasının <strong>çember yüzünü</strong> kullanarak π sayısının ne anlama geldiğini geometrik olarak keşfedeceksiniz.</p>
-                        <p style="margin-top:8px;">Çemberin çevresi ile çapı arasındaki ilişkiyi inceleyerek <strong>π ≈ 3.14…</strong> değerine nasıl ulaşıldığını göreceksiniz.</p>
+                        <p style="margin-top:8px;">Çemberin çevresi ile çapı arasındaki ilişkiyi inceleyerek <strong>π ≈ 3,14…</strong> değerine nasıl ulaşıldığını göreceksiniz.</p>
                     </div>
                     <div class="instruction-box" style="background:rgba(0,212,255,0.08);border-color:var(--border-color);margin-top:8px;">
                         <p style="font-size:.93em;color:var(--text-secondary);">📋 <em>Geometri tahtasında çemberlerin olduğu yüz kullanılacaktır.</em></p>
