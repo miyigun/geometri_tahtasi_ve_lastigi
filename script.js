@@ -1582,16 +1582,21 @@ $(document).ready(function () {
                                 new THREE.Vector3(-half, -half, bz),
                             ];
 
-                            // Kesikli çizgi (kareyi kapat)
-                            const pts = [...guideCorners, guideCorners[0]];
-                            const geo = new THREE.BufferGeometry().setFromPoints(pts);
+                            // Kesikli çizgi — her kenar ayrı Line (segKey ile eşleştirme için)
+                            const cornerKeys = ['circle-corner-0','circle-corner-1','circle-corner-2','circle-corner-3'];
                             const mat = new THREE.LineDashedMaterial({
                                 color: 0xffd700, dashSize: 0.18, gapSize: 0.10, linewidth: 2
                             });
-                            const line = new THREE.Line(geo, mat);
-                            line.computeLineDistances();
-                            line.userData.isGuide = true;
-                            backGroup.add(line);
+                            for (let i = 0; i < 4; i++) {
+                                const geo = new THREE.BufferGeometry().setFromPoints([
+                                    guideCorners[i], guideCorners[(i + 1) % 4]
+                                ]);
+                                const seg = new THREE.Line(geo, mat.clone());
+                                seg.computeLineDistances();
+                                seg.userData.isGuide = true;
+                                seg.userData.segKey = `${cornerKeys[i]}-${cornerKeys[(i + 1) % 4]}`;
+                                backGroup.add(seg);
+                            }
                         }
                     }, 400);
                     $('#boardHint').text('📐 Sarı kesikli çizgideki kareyi lastikle oluşturun');
@@ -2758,6 +2763,50 @@ $(document).ready(function () {
         const { circleType, idx } = pinMesh.userData;
         const key = `circle-${circleType}-${idx}`;
 
+        // Başlangıç pinine geri dönüş → kareyi kapat (corner modunda, en az 3 pin seçilmişse)
+        const cornerPinsNow = selected3DPinsAll.filter(p => p.type === 'circle' && p.circleType === 'corner');
+        if (circleType === 'corner' && cornerPinsNow.length >= 3 && cornerPinsNow[0].key === key) {
+            // Tüm geçici lastikleri + sarı rehberi temizle
+            backGroup.children
+                .filter(c => c.userData && (c.userData.isCornerGuide || c.userData.isGuide))
+                .forEach(g => backGroup.remove(g));
+
+            // 4 köşeyi TubeGeometry ile kapalı kare olarak çiz
+            const positions = cornerPinsNow.map(p => p.mesh.position);
+            const rc = parseInt(currentElasticColor.slice(1, 3), 16) / 255;
+            const gc = parseInt(currentElasticColor.slice(3, 5), 16) / 255;
+            const bc = parseInt(currentElasticColor.slice(5, 7), 16) / 255;
+            const tubeColor = new THREE.Color(rc, gc, bc);
+            for (let i = 0; i < positions.length; i++) {
+                const pA = positions[i];
+                const pB = positions[(i + 1) % positions.length];
+                try {
+                    const curve = new THREE.LineCurve3(
+                        new THREE.Vector3(pA.x, pA.y, pA.z),
+                        new THREE.Vector3(pB.x, pB.y, pB.z)
+                    );
+                    const tubeGeo = new THREE.TubeGeometry(curve, 2, 0.025, 8, false);
+                    const tube = new THREE.Mesh(tubeGeo,
+                        new THREE.MeshPhongMaterial({ color: tubeColor, shininess: 80, specular: 0x444444 })
+                    );
+                    tube.userData.isElastic = true;
+                    backGroup.add(tube);
+                } catch (e) { console.warn(e); }
+            }
+
+            // Pinleri varsayılan renge döndür
+            cornerPinsNow.forEach(p => {
+                p.mesh.material.color.setHex(p.mesh.userData.baseColor || 0xef4444);
+                p.mesh.material.emissive && p.mesh.material.emissive.setHex(0x000000);
+                p.mesh.material.emissiveIntensity = 0;
+                p.mesh.scale.setScalar(1.0);
+            });
+
+            selected3DPinsAll = selected3DPinsAll.filter(p => p.circleType !== 'corner');
+            $(document).trigger('elasticAdded', { count: 1, source: 'corner' });
+            return;
+        }
+
         const existIdx = selected3DPinsAll.findIndex(p => p.key === key);
         if (existIdx >= 0) {
             selected3DPinsAll.splice(existIdx, 1);
@@ -2776,72 +2825,94 @@ $(document).ready(function () {
         pinMesh.material.emissiveIntensity = 0.5;
         pinMesh.scale.setScalar(1.3);
 
-        const cornerPins = selected3DPinsAll.filter(p => p.circleType === 'corner');
+        const cornerPins = selected3DPinsAll.filter(p => p.type === 'circle' && p.circleType === 'corner');
 
-        // Her yeni pin eklenince: önceki sarı kesikli çizgileri kaldır,
-        // seçili pinler arasına kırmızı kesikli çizgi çiz
+        // Her yeni pin eklenince: eski geçici lastikleri + sarı kesikli rehberi kaldır,
+        // seçili pinler arasına TubeGeometry lastik çiz
         if (cornerPins.length >= 2) {
-            // Eski tüm rehber çizgileri (sarı + kırmızı) temizle
+            // Sadece en son eklenen segment'in üstündeki sarı rehber çizgiyi kaldır
+            // (diğer henüz lastik çizilmemiş kenarlar için rehber durmalı)
+            const prevPin = cornerPins[cornerPins.length - 2];
+            const newPin  = cornerPins[cornerPins.length - 1];
             backGroup.children
-                .filter(c => c.userData && c.userData.isCornerGuide)
+                .filter(c => c.userData && c.userData.isGuide && c.userData.segKey ===
+                    `${prevPin.key}-${newPin.key}`)
                 .forEach(g => backGroup.remove(g));
 
-            // Seçili köşe pinleri arasına kırmızı kesikli çizgiler ekle
-            for (let i = 0; i < cornerPins.length - 1; i++) {
-                const pA = cornerPins[i].mesh.position;
-                const pB = cornerPins[i + 1].mesh.position;
-                const pts = [
+            // Sadece yeni eklenen son segment için lastik çiz
+            const pA = prevPin.mesh.position;
+            const pB = newPin.mesh.position;
+            const rc = parseInt(currentElasticColor.slice(1, 3), 16) / 255;
+            const gc = parseInt(currentElasticColor.slice(3, 5), 16) / 255;
+            const bc = parseInt(currentElasticColor.slice(5, 7), 16) / 255;
+            try {
+                const curve = new THREE.LineCurve3(
                     new THREE.Vector3(pA.x, pA.y, pA.z),
                     new THREE.Vector3(pB.x, pB.y, pB.z)
-                ];
-                const geo = new THREE.BufferGeometry().setFromPoints(pts);
-                const mat = new THREE.LineDashedMaterial({
-                    color: 0xff0000, dashSize: 0.15, gapSize: 0.08, linewidth: 2
-                });
-                const seg = new THREE.Line(geo, mat);
-                seg.computeLineDistances();
-                seg.userData.isCornerGuide = true;
-                backGroup.add(seg);
-            }
+                );
+                const tubeGeo = new THREE.TubeGeometry(curve, 2, 0.025, 8, false);
+                const tube = new THREE.Mesh(tubeGeo,
+                    new THREE.MeshPhongMaterial({ color: new THREE.Color(rc, gc, bc), shininess: 80, specular: 0x444444 })
+                );
+                tube.userData.isCornerGuide = true;
+                backGroup.add(tube);
+            } catch (e) { console.warn(e); }
         }
 
-        // 4 köşe pin seçildi → tüm rehber çizgileri kaldır, kapalı kare lastik çiz
-        if (cornerPins.length === 4) {
-            // Tüm rehber çizgileri temizle (sarı isGuide + kırmızı isCornerGuide)
+        // 4 köşe pin + başlangıç pinine geri dönüldü → kareyi kapat
+        // Kare kapanması: 4. seçilen pin, 1. pinin aynısı olmalı (başlangıca dönüş)
+        const firstPin = cornerPins[0];
+        const lastPin = cornerPins[cornerPins.length - 1];
+        const closedByReturn = cornerPins.length === 4 &&
+            firstPin && lastPin && firstPin.key === lastPin.key;
+
+        if (cornerPins.length === 5 || (cornerPins.length === 4 && closedByReturn)) {
+            // Tüm geçici lastikleri + sarı rehberi temizle
             backGroup.children
-                .filter(c => c.userData && (c.userData.isGuide || c.userData.isCornerGuide))
+                .filter(c => c.userData && (c.userData.isCornerGuide || c.userData.isGuide))
                 .forEach(g => backGroup.remove(g));
 
-            // Seçilen renkte kapalı kare oluştur
-            const positions = cornerPins.map(p => p.mesh.position);
-            const closedPts = [...positions, positions[0]].map(
-                p => new THREE.Vector3(p.x, p.y, p.z)
-            );
-            const geo = new THREE.BufferGeometry().setFromPoints(closedPts);
-            const colorHex = parseInt(currentElasticColor.replace('#', ''), 16);
-            const mat = new THREE.LineBasicMaterial({ color: colorHex, linewidth: 3 });
-            const square = new THREE.Line(geo, mat);
-            square.userData.isElastic = true;
-            backGroup.add(square);
+            // Kapalı kareyi TubeGeometry ile çiz (başlangıç pinine kapanma dahil)
+            const uniquePins = cornerPins.slice(0, 4);
+            const positions = uniquePins.map(p => p.mesh.position);
+            const rc = parseInt(currentElasticColor.slice(1, 3), 16) / 255;
+            const gc = parseInt(currentElasticColor.slice(3, 5), 16) / 255;
+            const bc = parseInt(currentElasticColor.slice(5, 7), 16) / 255;
+            const tubeColor = new THREE.Color(rc, gc, bc);
+            const tubeMat = new THREE.MeshPhongMaterial({ color: tubeColor, shininess: 80, specular: 0x444444 });
+
+            for (let i = 0; i < 4; i++) {
+                const pA = positions[i];
+                const pB = positions[(i + 1) % 4];
+                try {
+                    const curve = new THREE.LineCurve3(
+                        new THREE.Vector3(pA.x, pA.y, pA.z),
+                        new THREE.Vector3(pB.x, pB.y, pB.z)
+                    );
+                    const tubeGeo = new THREE.TubeGeometry(curve, 2, 0.025, 8, false);
+                    const tube = new THREE.Mesh(tubeGeo, tubeMat.clone());
+                    tube.userData.isElastic = true;
+                    backGroup.add(tube);
+                } catch (e) { console.warn(e); }
+            }
 
             // Pinleri varsayılan renge döndür
-            cornerPins.forEach(p => {
+            uniquePins.forEach(p => {
                 p.mesh.material.color.setHex(p.mesh.userData.baseColor || 0xef4444);
                 p.mesh.material.emissive && p.mesh.material.emissive.setHex(0x000000);
                 p.mesh.material.emissiveIntensity = 0;
                 p.mesh.scale.setScalar(1.0);
             });
 
-            // Seçim listesini temizle
             selected3DPinsAll = selected3DPinsAll.filter(p => p.circleType !== 'corner');
-
-            // Adım tamamlandı olayını tetikle
             $(document).trigger('elasticAdded', { count: 1, source: 'corner' });
             return;
         }
 
+        if (circleType === 'corner') return; // köşe modunda 2-pin lastik commit bloğuna asla düşme
+
         // Köşe pini mi? → 4 pin beklenir. Diğer circle pinlerde 2 pin yeterli.
-        const isCornerMode = selected3DPinsAll.some(p => p.circleType === 'corner');
+        const isCornerMode = selected3DPinsAll.some(p => p.type === 'circle' && p.circleType === 'corner');
         const requiredCount = isCornerMode ? 4 : 2;
         if (selected3DPinsAll.length === requiredCount) {
             const [pinA, pinB] = selected3DPinsAll;
