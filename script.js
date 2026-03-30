@@ -458,7 +458,7 @@ $(document).ready(function () {
         // ── Büyük çember (24 pin) ──
         // r = PIN_GAP * 2 birim ≈ yarıçap
         const bigR = PIN_GAP * 2.0;
-        const cornerInset = bigR; // kare kenarları merkeze bigR uzaklıkta olsun → kesikli kare big çembere dıştan teğet
+        const cornerInset = bigR * 0.985; // az daha içeri al: teğet ayarı
         for (let i = 0; i < 24; i++) {
             const angle = (i / 24) * Math.PI * 2;
             const px = cx + bigR * Math.cos(angle);
@@ -1573,7 +1573,7 @@ $(document).ready(function () {
                                 .forEach(g => backGroup.remove(g));
 
                             // Köşe pinleriyle aynı koordinatlar (buildBack'teki corners ile birebir)
-                            const half = 2.2; // big çember yarıçapı → rehber kare big çembere dıştan teğet
+                            const half = 2.2 * 0.985; // az daha içeri al: teğet ayarı
                             const bz = -(BOARD3D_THICK / 2 + 0.22);
                             const guideCorners = [
                                 new THREE.Vector3(-half, half, bz),
@@ -2579,7 +2579,7 @@ $(document).ready(function () {
         // Arka yüz pinleri: köşelerde 4 pin
         const cornerPinColor = 0x93c5fd;
         const cornerPinGeo = new THREE.CylinderGeometry(0.07, 0.06, 0.22, 12);
-        const cornerInset = 2.2; // dış (big) çember yarıçapı ile aynı: drawCircleBack(24, 2.2, ...)
+        const cornerInset = 2.2 * 0.985; // az daha içeri al: teğet ayarı
         const corners = [
             [-cornerInset, cornerInset],
             [cornerInset, cornerInset],
@@ -3016,11 +3016,6 @@ $(document).ready(function () {
                 m.material.emissive.setHex(0xaa6600);
                 m.material.emissiveIntensity = 0.5;
                 m.scale.setScalar(1.4);
-            } else if (isGuidePin) {
-                m.material.color.setHex(0xffd700);
-                m.material.emissive.setHex(0xaa6600);
-                m.material.emissiveIntensity = 0.3;
-                m.scale.setScalar(1.2);
             } else {
                 m.material.color.setHex(pinColor);
                 m.material.emissive && m.material.emissive.setHex(0x000000);
