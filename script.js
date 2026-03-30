@@ -458,6 +458,7 @@ $(document).ready(function () {
         // ── Büyük çember (24 pin) ──
         // r = PIN_GAP * 2 birim ≈ yarıçap
         const bigR = PIN_GAP * 2.0;
+        const cornerInset = bigR; // kare kenarları merkeze bigR uzaklıkta olsun → kesikli kare big çembere dıştan teğet
         for (let i = 0; i < 24; i++) {
             const angle = (i / 24) * Math.PI * 2;
             const px = cx + bigR * Math.cos(angle);
@@ -513,7 +514,7 @@ $(document).ready(function () {
         svg.insertBefore(smCircleEl, svg.children[1]);
 
         // Köşe pinleri (4 adet)
-        const corners = [{ x: PAD, y: PAD }, { x: W - PAD, y: PAD }, { x: W - PAD, y: H - PAD }, { x: PAD, y: H - PAD }];
+        const corners = [{ x: cx - cornerInset, y: cy - cornerInset }, { x: cx + cornerInset, y: cy - cornerInset }, { x: cx + cornerInset, y: cy + cornerInset }, { x: cx - cornerInset, y: cy + cornerInset }];
         corners.forEach((p, i) => {
             const c = document.createElementNS(ns, 'circle');
             c.setAttribute('cx', p.x); c.setAttribute('cy', p.y);
@@ -1572,7 +1573,7 @@ $(document).ready(function () {
                                 .forEach(g => backGroup.remove(g));
 
                             // Köşe pinleriyle aynı koordinatlar (buildBack'teki corners ile birebir)
-                            const half = BOARD3D_SIZE / 2 - 0.25; // = 2.5
+                            const half = 2.2; // big çember yarıçapı → rehber kare big çembere dıştan teğet
                             const bz = -(BOARD3D_THICK / 2 + 0.22);
                             const guideCorners = [
                                 new THREE.Vector3(-half, half, bz),
@@ -2578,11 +2579,12 @@ $(document).ready(function () {
         // Arka yüz pinleri: köşelerde 4 pin
         const cornerPinColor = 0x93c5fd;
         const cornerPinGeo = new THREE.CylinderGeometry(0.07, 0.06, 0.22, 12);
+        const cornerInset = 2.2; // dış (big) çember yarıçapı ile aynı: drawCircleBack(24, 2.2, ...)
         const corners = [
-            [-BOARD3D_SIZE / 2 + 0.25, BOARD3D_SIZE / 2 - 0.25],
-            [BOARD3D_SIZE / 2 - 0.25, BOARD3D_SIZE / 2 - 0.25],
-            [BOARD3D_SIZE / 2 - 0.25, -BOARD3D_SIZE / 2 + 0.25],
-            [-BOARD3D_SIZE / 2 + 0.25, -BOARD3D_SIZE / 2 + 0.25],
+            [-cornerInset, cornerInset],
+            [cornerInset, cornerInset],
+            [cornerInset, -cornerInset],
+            [-cornerInset, -cornerInset],
         ];
         corners.forEach(([x, y], i) => {
             const mat = new THREE.MeshPhongMaterial({ color: cornerPinColor, emissive: 0x000000, emissiveIntensity: 0 });
