@@ -262,6 +262,10 @@ $(document).ready(function () {
     }
 
     function handlePinClick(r, c) {
+        // Kilitli pinler seçilemesin (app2 büyük kare)
+        if (window.app2LockedPins && window.app2LockedPins.some(p => p.r === r && p.c === c)) return;
+
+
         if (boardMode === 'angle') {
             handleAnglePinClick(r, c);
             return;
@@ -1395,8 +1399,15 @@ $(document).ready(function () {
     }
 
     function renderApp2Step(step) {
-        clearBoard();
+        // subStep 2 ve adım 3'e geçişte backGroup çizimleri korunsun
+        if (!(step === 2 && window.app2subStep === 2) && !(step === 3)) {
+            clearBoard();
+        }
         boardMode = 'draw';
+        // Her adım geçişinde pin kilitlerini sıfırla
+        window.app2LockedPins = null;
+        window.app2AllowedPins = null;
+
         const totalSteps = 6;
         const pct = Math.round(((step + 1) / totalSteps) * 100);
         let html = `<div class="progress-container">
@@ -1539,9 +1550,6 @@ $(document).ready(function () {
                 <p style="margin-top:8px;font-size:.92em;color:var(--text-secondary);">
                     Kesikli çizgi üzerindeki köşe pinlerini sırasıyla seçip başlangıç pinine dönerek kareyi kapatınız.
                 </p>
-                <div class="explain-box" style="margin-top:10px;">
-                    <p>💡 <strong>[!] Yarıçap uzunluğu: 2 birim</strong></p>
-                </div>
             </div>
             <div style="text-align:center;margin-top:10px;">
                 <button class="action-button" id="app2s2Btn" disabled style="opacity:.4;">Devam Et</button>
@@ -1601,28 +1609,77 @@ $(document).ready(function () {
                     }, 400);
                     $('#boardHint').text('📐 Sarı kesikli çizgideki kareyi lastikle oluşturun');
 
-                } else if (window.app2subStep === 2) {
+                 } else if (window.app2subStep === 2) {
                     html += `<div class="instruction-box">
-                <h3>⭕ Adım 2 — İçten Teğet Çemberi Ekleyin</h3>
-                <p>Büyük kareye <strong>içten teğet çemberi</strong> lastikle çeviriniz.</p>
-                <p style="margin-top:8px;font-size:.92em;color:var(--text-secondary);">Çember, büyük karenin her kenarına tam ortadan değmektedir.</p>
-            </div>
-            <div style="text-align:center;margin-top:10px;"><button class="action-button" id="app2s2Btn">Devam Et</button></div>`;
+                        <h3>🟡 Adım 2 — İçten Teğet Kareyi Lastikle Çizin</h3>
+                        <p>Sarı kesikli çizgiyle gösterilen <strong>iç kareyi</strong> lastikle çeviriniz.</p>
+                        <p style="margin-top:8px;font-size:.92em;color:var(--text-secondary);">Yalnızca kesikli karenin <strong>dört köşesindeki pinler</strong> seçilebilir. Sırasıyla seçip başlangıç pinine dönerek kareyi kapatınız.</p>
+                        <div class="explain-box" style="margin-top:10px;">
+                            <p>💡 <strong>[!] İç kare, büyük çemberin her kenarına tam ortadan değmektedir.</strong></p>
+                        </div>
+                    </div>
+                    <div style="text-align:center;margin-top:10px;"><button class="action-button" id="app2s2Btn" disabled style="opacity:.4;">Devam Et</button></div>`;
                     setTimeout(() => {
-                        const circPins = [];
-                        for (let i = 0; i < 16; i++) {
-                            const a = i * Math.PI / 8;
-                            const r = Math.round(3 + 3 * Math.sin(a));
-                            const c = Math.round(3 + 3 * Math.cos(a));
-                            if (r >= 0 && r < GRID_N && c >= 0 && c < GRID_N) circPins.push({ r, c });
+                        // Kamerayı çember yüzüne (arka yüze) döndür
+                        if (threeCamera && threeControls) {
+                            threeCamera.position.set(0, 0, -9);
+                            threeCamera.lookAt(0, 0, 0);
+                            threeControls.target.set(0, 0, 0);
+                            threeControls.update();
                         }
-                        const uCirc = [];
-                        circPins.forEach(p => { if (!uCirc.some(u => u.r === p.r && u.c === p.c)) uCirc.push(p); });
-                        if (uCirc.length >= 4) elastics.push({ pins: uCirc, color: '#c084fc', closed: true });
-                        if (typeof updateElastics3D === 'function') updateElastics3D();
-                    }, 300);
-                    $('#boardHint').text('⭕ İçten teğet çemberi (mor) ekleyin');
 
+                        window.app2TargetInnerSquare = true;
+
+                        window.app2TargetInnerSquare = true;
+
+                        // Corner pinleri küçük kare köşelerine taşı (±inset)
+                        const insetPos = 2.2 / Math.sqrt(2); // ≈ 1.556
+                        const cornerPositions = [
+                            [-insetPos,  insetPos],   // sol üst — idx 0
+                            [ insetPos,  insetPos],   // sağ üst — idx 1
+                            [ insetPos, -insetPos],   // sağ alt — idx 2
+                            [-insetPos, -insetPos],   // sol alt — idx 3
+                        ];
+                        const bzPin = -(BOARD3D_THICK / 2 + 0.08);
+                        backGroup && backGroup.children.forEach(ch => {
+                            if (!ch.isMesh || !ch.userData.isCirclePin || ch.userData.circleType !== 'corner') return;
+                            const [nx, ny] = cornerPositions[ch.userData.idx];
+                            ch.position.set(nx, ny, bzPin);
+                        });
+
+                        // Eski rehber çizgileri temizle
+                        if (backGroup && THREE) {
+                            backGroup.children
+                                .filter(c => c.userData && c.userData.isGuide)
+                                .forEach(g => backGroup.remove(g));
+
+                            // Köşe pinleriyle çakışan kesikli sarı kare rehberi
+                            // Büyük çembere içten teğet kare: r=2.2, 45° döndürülmüş
+                            // Köşeler çemberin 0°, 90°, 180°, 270° noktalarında → x veya y = ±r, diğer = 0
+                            // Ama kare olması için: köşe pinleri çemberin top/right/bottom/left noktaları
+                            const inset = 2.2 / Math.sqrt(2); // ≈ 1.556
+                            const bz = -(BOARD3D_THICK / 2 + 0.22);
+                            const innerCorners = [
+                                new THREE.Vector3(-inset,  inset, bz),  // sol üst
+                                new THREE.Vector3( inset,  inset, bz),  // sağ üst
+                                new THREE.Vector3( inset, -inset, bz),  // sağ alt
+                                new THREE.Vector3(-inset, -inset, bz),  // sol alt
+                            ];
+                            const cornerKeys2 = ['circle-corner-0','circle-corner-1','circle-corner-2','circle-corner-3'];
+                            const mat2 = new THREE.LineDashedMaterial({ color: 0xffd700, dashSize: 0.18, gapSize: 0.10, linewidth: 2 });
+                            for (let i = 0; i < 4; i++) {
+                                const geo = new THREE.BufferGeometry().setFromPoints([
+                                    innerCorners[i], innerCorners[(i + 1) % 4]
+                                ]);
+                                const seg = new THREE.Line(geo, mat2.clone());
+                                seg.computeLineDistances();
+                                seg.userData.isGuide = true;
+                                seg.userData.segKey = `${cornerKeys2[i]}-${cornerKeys2[(i + 1) % 4]}`;
+                                backGroup.add(seg);
+                            }
+                        }
+                    }, 300);
+                    $('#boardHint').text('📐 Sarı kesikli çizgideki küçük kareyi lastikle oluşturun');
                 } else {
                     html += `<div class="instruction-box">
                 <h3>🔷 Adım 3 — İç Kareyi Ekleyin</h3>
@@ -1639,30 +1696,95 @@ $(document).ready(function () {
                 }
                 break;
 
+            // YENİ:
             case 3:
                 html += `<div class="instruction-box">
-            <h3>📐 Alan Hesabı ve Eşitsizlik</h3>
-            <p>Oluşan şekillerin alanlarını hesaplayınız ve eşitsizlik kullanarak yazınız.</p>
-            <div class="explain-box" style="margin-top:10px;">
-                <p>💡 <strong>[!] Alan (küçük kare) &lt; Alan (daire) &lt; Alan (büyük kare)</strong></p>
+                <h3>📐 Adım 3 — Yarıçapı Bulalım</h3>
+                <p>Geometri tahtasındaki <strong>yeşil dairenin yarıçapı</strong> kaç birimdir?</p>
+                <p style="margin-top:8px;font-size:.92em;color:var(--text-secondary);">
+                    Tahtada <strong>1 birim</strong>, komşu iki pin arasındaki mesafedir.
+                </p>
             </div>
-            <p style="margin-top:10px;font-size:.93em;">Bilinen değerler:</p>
-            <ul style="margin-top:6px;font-size:.92em;">
-                <li>Büyük karenin kenar uzunluğu = <strong>4 birim</strong></li>
-                <li>Dairenin yarıçap uzunluğu = <strong>2 birim</strong></li>
-                <li>Küçük karenin kenar uzunluğu = <strong>2√2 birim</strong></li>
-            </ul>
-            <p style="margin-top:10px;font-size:.92em;">Bu durumda öğrencilerin ulaşması beklenen sonuç:</p>
-            <div style="background:var(--bg-tertiary);border-radius:8px;padding:10px 14px;margin-top:6px;font-size:.95em;line-height:2.2;">
-                <div>(2√2)² &lt; 4π &lt; 4²</div>
-                <div>8 &lt; 4π &lt; 16</div>
-                <div style="color:var(--text-accent);font-weight:700;">∴ <strong>2 &lt; π &lt; 4</strong></div>
+            <div class="instruction-box" style="margin-top:8px;">
+                <label style="font-size:.9em;color:var(--text-secondary);display:block;margin-bottom:6px;">Cevabınız:</label>
+                <input type="text" id="app2RadiusInput" class="input-field" placeholder="Yarıçapı girin..." inputmode="decimal"
+                    style="margin-bottom:8px;">
+                <div id="app2RadiusFeedback" style="margin-top:4px;"></div>
             </div>
-            <p style="margin-top:10px;font-size:.9em;color:var(--text-secondary);">π sayısının 2 ile 4 sayıları arasında bulunduğu geometri tahtası uygulamasıyla görülmüştür.</p>
-            <p style="margin-top:6px;font-size:.9em;color:var(--text-secondary);">📚 <em>Arşimed'in π sayısını hesapladığı çalışmasını araştırınız.</em></p>
-        </div>
-        <div style="text-align:center;margin-top:10px;"><button class="action-button" id="app2s3Btn">Devam Et</button></div>`;
-                $('#boardHint').text('📐 Alan (küçük kare) < Alan (daire) < Alan (büyük kare)');
+            <div style="text-align:center;margin-top:10px;">
+                <button class="action-button" id="app2RadiusCheckBtn" disabled style="opacity:.4;">Kontrol Et</button>
+                <div id="app2RadiusNextArea" style="display:none;margin-top:8px;">
+                    <button class="action-button" id="app2s3Btn" style="background:var(--success-bg);border-color:var(--success-bg);">Devam Et ✓</button>
+                </div>
+            </div>`;
+                $('#boardHint').text('📏 Yeşil dairenin yarıçapı kaç birim?');
+                setTimeout(() => {
+                    if (!backGroup || !THREE) return;
+                    // Eski göstergeleri temizle
+                    backGroup.children
+                        .filter(c => c.userData && c.userData.isUnitGuide)
+                        .forEach(g => backGroup.remove(g));
+
+                    const bz = -(BOARD3D_THICK / 2 + 0.22);
+                    const lineMat = new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 2 });
+                    const dashedMat = new THREE.LineDashedMaterial({ color: 0x22c55e, dashSize: 0.15, gapSize: 0.08, linewidth: 2 });
+
+                    // 1) Ortak merkez noktası (küçük beyaz artı işareti)
+                    const crossSize = 0.12;
+                    [
+                        [new THREE.Vector3(-crossSize, 0, bz), new THREE.Vector3(crossSize, 0, bz)],
+                        [new THREE.Vector3(0, -crossSize, bz), new THREE.Vector3(0, crossSize, bz)]
+                    ].forEach(pts => {
+                        const line = new THREE.Line(
+                            new THREE.BufferGeometry().setFromPoints(pts),
+                            lineMat.clone()
+                        );
+                        line.userData.isUnitGuide = true;
+                        backGroup.add(line);
+                    });
+
+                    // 2) Yeşil dairenin yatay çapı — kesikli çizgi (r=2.2)
+                    const bigR = 2.2;
+                    const diamGeo = new THREE.BufferGeometry().setFromPoints([
+                        new THREE.Vector3(-bigR, 0, bz),
+                        new THREE.Vector3( bigR, 0, bz)
+                    ]);
+                    const diamLine = new THREE.Line(diamGeo, dashedMat);
+                    diamLine.computeLineDistances();
+                    diamLine.userData.isUnitGuide = true;
+                    backGroup.add(diamLine);
+                    // Çap uç tırnakları
+                    [-bigR, bigR].forEach(x => {
+                        const capGeo = new THREE.BufferGeometry().setFromPoints([
+                            new THREE.Vector3(x, -0.1, bz),
+                            new THREE.Vector3(x,  0.1, bz)
+                        ]);
+                        const cap = new THREE.Line(capGeo, dashedMat.clone());
+                        cap.userData.isUnitGuide = true;
+                        backGroup.add(cap);
+                    });
+
+                    // 3) Kırmızı dairenin yarıçapı = 1 birim göstergesi (r=1.2 → 1 birim = 1.1)
+                    // Kırmızı daire yarıçapı 3D'de 1.2 birim = gerçekte 1 birim
+                    // Merkez→kırmızı dairenin sağ noktasına çizgi
+                    const smallR = 1.2;
+                    const radiusGeo = new THREE.BufferGeometry().setFromPoints([
+                        new THREE.Vector3(0,       0, bz),
+                        new THREE.Vector3(smallR,  0, bz)
+                    ]);
+                    const radiusMat = new THREE.LineBasicMaterial({ color: 0xef4444, linewidth: 2 });
+                    const radiusLine = new THREE.Line(radiusGeo, radiusMat);
+                    radiusLine.userData.isUnitGuide = true;
+                    backGroup.add(radiusLine);
+                    // "1 br" etiket çizgisi — uç tırnağı
+                    const capGeo2 = new THREE.BufferGeometry().setFromPoints([
+                        new THREE.Vector3(smallR, -0.1, bz),
+                        new THREE.Vector3(smallR,  0.1, bz)
+                    ]);
+                    const cap2 = new THREE.Line(capGeo2, radiusMat.clone());
+                    cap2.userData.isUnitGuide = true;
+                    backGroup.add(cap2);
+                }, 300);
                 break;
 
             case 4:
@@ -1786,31 +1908,54 @@ $(document).ready(function () {
 
             case 2:
                 if (window.app2subStep === 1) {
-                    $(document).off('elasticAdded.bigSquare').on('elasticAdded.bigSquare', function () {
+                    $(document).off('elasticAdded.bigSquare').on('elasticAdded.bigSquare', function (e, data) {
                         const target = window.app2TargetSquare;
                         if (!target) return;
-                        const found = elastics.some(el => {
+                        // Köşe pini akışından geldiyse (source:'corner') direkt onayla
+                        const found = (data && data.source === 'corner') || elastics.some(el => {
                             if (!el.closed || el.pins.length !== 4) return false;
                             return target.every(tp => el.pins.some(p => p.r === tp.r && p.c === tp.c));
                         });
                         if (found) {
                             $(document).off('elasticAdded.bigSquare');
                             window.app2TargetSquare = null;
-                            // 3D rehber çizgiyi kaldır
+                            // Büyük karenin pinlerini kilitle — seçilemesin
+                            window.app2LockedPins = [{ r: 0, c: 0 }, { r: 0, c: 5 }, { r: 5, c: 5 }, { r: 5, c: 0 }];
                             if (frontGroup) frontGroup.children.filter(c => c.userData && c.userData.isGuide).forEach(g => frontGroup.remove(g));
                             $('#app2s2Btn').prop('disabled', false).css('opacity', '1');
                             $('#boardHint').text('✅ Harika! Büyük kare oluşturuldu. Devam edebilirsiniz.');
                         }
                     });
                 }
+
+                if (window.app2subStep === 2) {
+                    $(document).off('elasticAdded.innerSquare').on('elasticAdded.innerSquare', function (e, data) {
+                        if (!window.app2TargetInnerSquare) return;
+                        if (data && data.source === 'corner') {
+                            $(document).off('elasticAdded.innerSquare');
+                            window.app2TargetInnerSquare = null;
+                            backGroup && backGroup.children
+                                .filter(c => c.userData && (c.userData.isGuide || c.userData.isCornerGuide))
+                                .forEach(g => backGroup.remove(g));
+                            $('#app2s2Btn').prop('disabled', false).css('opacity', '1');
+                            $('#boardHint').text('✅ Harika! Küçük kare oluşturuldu. Devam edebilirsiniz.');
+                        }
+                    });
+                }
+
                 $('#app2s2Btn').on('click', () => {
                     $(document).off('elasticAdded.bigSquare');
                     window._app2RebuildHook = null;
                     if (window.app2subStep === 0) {
                         // subStep 0 → diyalog kendi içinde ilerliyor, buraya gelmemeli
-                    } else if (window.app2subStep < 3) {
-                        window.app2subStep++;
+                    } else if (window.app2subStep === 1) {
+                        // subStep 1→2: büyük kare backGroup'ta korunsun, clearBoard çağrılmasın
+                        window.app2subStep = 2;
                         renderApp2Step(2);
+                    } else if (window.app2subStep === 2) {
+                        window.app2subStep = 3;
+                        window.app2BoardLocked = true;
+                        renderApp2Step(3);
                     } else {
                         window.app2subStep = undefined;
                         window.app2TargetSquare = null;
@@ -1820,7 +1965,31 @@ $(document).ready(function () {
                 break;
 
             case 3:
-                $('#app2s3Btn').on('click', () => renderApp2Step(4));
+                // Tahta kilitli kalacak — pin tıklamaları engelle
+                window.app2BoardLocked = true;
+
+                $('#app2RadiusInput').on('input', function () {
+                    const val = $(this).val().trim();
+                    $('#app2RadiusCheckBtn').prop('disabled', val === '').css('opacity', val === '' ? '0.4' : '1');
+                });
+                $('#app2RadiusCheckBtn').on('click', function () {
+                    const val = $('#app2RadiusInput').val().trim().replace(',', '.');
+                    if (val === '2') {
+                        $('#app2RadiusFeedback').html('<div class="success-message">✓ Doğru! Büyük dairenin yarıçapı 2 birimdir.</div>');
+                        $(this).hide();
+                        $('#app2RadiusNextArea').show();
+                        // 1 birim göstergesini kaldır
+                        backGroup && backGroup.children
+                            .filter(c => c.userData && c.userData.isUnitGuide)
+                            .forEach(g => backGroup.remove(g));
+                    } else {
+                        $('#app2RadiusFeedback').html('<div class="error-message">✗ Tekrar dene. İpucu: Büyük karenin kenar uzunluğu 4 birimdir ve daire tam ortaya değmektedir.</div>');
+                    }
+                });
+                $('#app2s3Btn').on('click', () => {
+                    window.app2BoardLocked = false;
+                    renderApp2Step(4);
+                });
                 break;
 
             case 4:
@@ -2726,6 +2895,7 @@ $(document).ready(function () {
     let selected3DPinsAll = []; // [{type:'grid',r,c,mesh,key} | {type:'circle',circleType,idx,mesh,key}]
 
     function handleGridPinClick3D(r, c) {
+        if (window.app2BoardLocked) return;
         const key = `grid-${r}-${c}`;
 
         // İlk pine geri dönüş → kapalı çokgen oluştur (3+ pin varsa)
@@ -2760,6 +2930,7 @@ $(document).ready(function () {
     }
 
     function handleCirclePinClick3D(pinMesh) {
+        if (window.app2BoardLocked) return;
         const { circleType, idx } = pinMesh.userData;
         const key = `circle-${circleType}-${idx}`;
 
@@ -2802,8 +2973,24 @@ $(document).ready(function () {
                 p.mesh.scale.setScalar(1.0);
             });
 
+            // elastics dizisine de ekle ki elasticAdded.bigSquare kontrolü çalışsın
+            elastics.push({
+                pins: cornerPinsNow.map(p => {
+                    const ud = p.mesh.userData;
+                    return { r: ud.r !== undefined ? ud.r : p.idx, c: ud.c !== undefined ? ud.c : p.idx };
+                }),
+                color: currentElasticColor,
+                closed: true
+            });
+
             selected3DPinsAll = selected3DPinsAll.filter(p => p.circleType !== 'corner');
             $(document).trigger('elasticAdded', { count: 1, source: 'corner' });
+            // subStep 2 tamamlandı → Devam Et aktif
+            if (window.app2subStep === 2) {
+                $('#app2s2Btn').prop('disabled', false).css('opacity', '1');
+                $('#boardHint').text('✅ Harika! İç kare oluşturuldu. Devam edebilirsiniz.');
+            }
+            $(document).trigger('elasticAdded.innerSquare', { count: 1, source: 'corner' });
             return;
         }
 
@@ -2834,9 +3021,11 @@ $(document).ready(function () {
             // (diğer henüz lastik çizilmemiş kenarlar için rehber durmalı)
             const prevPin = cornerPins[cornerPins.length - 2];
             const newPin  = cornerPins[cornerPins.length - 1];
+            const segA = `${prevPin.key}-${newPin.key}`;
+            const segB = `${newPin.key}-${prevPin.key}`;
             backGroup.children
-                .filter(c => c.userData && c.userData.isGuide && c.userData.segKey ===
-                    `${prevPin.key}-${newPin.key}`)
+                .filter(c => c.userData && c.userData.isGuide &&
+                    (c.userData.segKey === segA || c.userData.segKey === segB))
                 .forEach(g => backGroup.remove(g));
 
             // Sadece yeni eklenen son segment için lastik çiz
@@ -2906,21 +3095,28 @@ $(document).ready(function () {
 
             selected3DPinsAll = selected3DPinsAll.filter(p => p.circleType !== 'corner');
             $(document).trigger('elasticAdded', { count: 1, source: 'corner' });
+            if (window.app2subStep === 2) {
+                $('#app2s2Btn').prop('disabled', false).css('opacity', '1');
+                $('#boardHint').text('✅ Harika! İç kare oluşturuldu. Devam edebilirsiniz.');
+            }
             return;
         }
 
         if (circleType === 'corner') return; // köşe modunda 2-pin lastik commit bloğuna asla düşme
 
-        // Köşe pini mi? → 4 pin beklenir. Diğer circle pinlerde 2 pin yeterli.
-        const isCornerMode = selected3DPinsAll.some(p => p.type === 'circle' && p.circleType === 'corner');
-        const requiredCount = isCornerMode ? 4 : 2;
-        if (selected3DPinsAll.length === requiredCount) {
-            const [pinA, pinB] = selected3DPinsAll;
+            // app2 subStep 2'de sadece corner pinlere izin ver, 2-pin commit çalışmasın
+            if (window.app2subStep === 2) return;
 
-            // backGroup'taki kesikli rehber çizgileri kaldır
-            backGroup.children
-                .filter(ch => ch.userData && ch.userData.isGuide)
-                .forEach(g => backGroup.remove(g));
+            // Köşe pini mi? → 4 pin beklenir. Diğer circle pinlerde 2 pin yeterli.
+            const isCornerMode = selected3DPinsAll.some(p => p.type === 'circle' && p.circleType === 'corner');
+            const requiredCount = isCornerMode ? 4 : 2;
+            if (selected3DPinsAll.length === requiredCount) {
+                const [pinA, pinB] = selected3DPinsAll;
+
+                // backGroup'taki kesikli rehber çizgileri kaldır — sadece corner modu dışında
+                backGroup.children
+                    .filter(ch => ch.userData && ch.userData.isGuide)
+                    .forEach(g => backGroup.remove(g));
 
             // İki pin arasına lastik tüp ekle
             const posA = getPinWorldPos(pinA);
@@ -3290,6 +3486,13 @@ $(document).ready(function () {
 
     /* 3D pin tıklamasını 2D tahta mantığına bağla + lastik animasyonu */
     function handle3DPinClick(r, c) {
+        // app2 subStep 2: yalnızca köşe pinlerine (isCornerPin) izin ver
+        if (window.app2subStep === 2) {
+            const clickedObj = pins3DObjects.find(p => p.r === r && p.c === c);
+            if (!clickedObj || !clickedObj.mesh.userData.isCornerPin) return;
+        }
+        // İlk pine geri dön → elastiği kapat
+
         // Önce 2D tahta mantığını çalıştır
         handlePinClick(r, c);
 
