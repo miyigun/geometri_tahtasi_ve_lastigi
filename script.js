@@ -106,6 +106,66 @@ $(document).ready(function () {
     function pinX(c) { return PAD + c * PIN_GAP; }
     function pinY(r) { return PAD + r * PIN_GAP; }
 
+    // App2 için: çap (iki parça) + O hizasında nokta
+    function renderApp2DiameterOverlay(svg) {
+        const ns = 'http://www.w3.org/2000/svg';
+
+        // Daha önce eklendiyse temizle
+        const old = svg.getElementById('app2DiameterOverlay');
+        if (old) old.remove();
+
+        const g = document.createElementNS(ns, 'g');
+        g.setAttribute('id', 'app2DiameterOverlay');
+
+        // Merkez (GRID 6x6 için merkez pin koordinatı: (2,2))
+        const cx = pinX(2);
+        const cy = pinY(2);
+
+        // Çap uçları (soldaki ve sağdaki pinler): (2,0) ve (2,5)
+        const xL = pinX(0), xR = pinX(5);
+
+        // Renk (yeşil çap rengi sizde bu)
+        const stroke = '#22c55e';
+
+        // SOL parça: okla gösterilen kesikli bölüm -> DÜZ çizgi
+        const left = document.createElementNS(ns, 'line');
+        left.setAttribute('x1', xL);
+        left.setAttribute('y1', cy);
+        left.setAttribute('x2', cx);
+        left.setAttribute('y2', cy);
+        left.setAttribute('stroke', stroke);
+        left.setAttribute('stroke-width', '2.5');
+        left.setAttribute('opacity', '0.95');
+        // left: dasharray YOK => düz
+
+        // SAĞ parça: diğer taraf kesikli kalsın
+        const right = document.createElementNS(ns, 'line');
+        right.setAttribute('x1', cx);
+        right.setAttribute('y1', cy);
+        right.setAttribute('x2', xR);
+        right.setAttribute('y2', cy);
+        right.setAttribute('stroke', stroke);
+        right.setAttribute('stroke-width', '2.5');
+        right.setAttribute('opacity', '0.95');
+        right.setAttribute('stroke-dasharray', '10,8');
+
+        // “O” hizasında çap üzerinde nokta (temaya uygun)
+        const dot = document.createElementNS(ns, 'circle');
+        dot.setAttribute('cx', cx);
+        dot.setAttribute('cy', cy);
+        dot.setAttribute('r', '4.2');
+        dot.setAttribute('fill', currentTheme === 'dark' ? '#93c5fd' : '#1d4ed8');
+        dot.setAttribute('stroke', 'rgba(255,255,255,0.25)');
+        dot.setAttribute('stroke-width', '1');
+
+        g.appendChild(left);
+        g.appendChild(right);
+        g.appendChild(dot);
+
+        // Üste gelsin diye sona ekliyoruz
+        svg.appendChild(g);
+    }
+
     /* SVG oluştur */
     function buildBoardSVG() {
         const ns = 'http://www.w3.org/2000/svg';
@@ -192,6 +252,9 @@ $(document).ready(function () {
         previewGroup.setAttribute('id', 'previewGroup');
         svg.appendChild(previewGroup);
         renderPreview(previewGroup);
+
+        // ✅ App2 overlay: çap + nokta
+        renderApp2DiameterOverlay(svg);
 
         return svg;
     }
@@ -1614,9 +1677,6 @@ $(document).ready(function () {
                         <h3>🟡 Adım 2 — İçten Teğet Kareyi Lastikle Çizin</h3>
                         <p>Sarı kesikli çizgiyle gösterilen <strong>iç kareyi</strong> lastikle çeviriniz.</p>
                         <p style="margin-top:8px;font-size:.92em;color:var(--text-secondary);">Yalnızca kesikli karenin <strong>dört köşesindeki pinler</strong> seçilebilir. Sırasıyla seçip başlangıç pinine dönerek kareyi kapatınız.</p>
-                        <div class="explain-box" style="margin-top:10px;">
-                            <p>💡 <strong>[!] İç kare, büyük çemberin her kenarına tam ortadan değmektedir.</strong></p>
-                        </div>
                     </div>
                     <div style="text-align:center;margin-top:10px;"><button class="action-button" id="app2s2Btn" disabled style="opacity:.4;">Devam Et</button></div>`;
                     setTimeout(() => {
@@ -1727,21 +1787,80 @@ $(document).ready(function () {
 
                     const bz = -(BOARD3D_THICK / 2 + 0.22);
                     const lineMat = new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 2 });
-                    const dashedMat = new THREE.LineDashedMaterial({ color: 0x22c55e, dashSize: 0.15, gapSize: 0.08, linewidth: 2 });
-
-                    // 1) Ortak merkez noktası (küçük beyaz artı işareti)
-                    const crossSize = 0.12;
-                    [
-                        [new THREE.Vector3(-crossSize, 0, bz), new THREE.Vector3(crossSize, 0, bz)],
-                        [new THREE.Vector3(0, -crossSize, bz), new THREE.Vector3(0, crossSize, bz)]
-                    ].forEach(pts => {
-                        const line = new THREE.Line(
-                            new THREE.BufferGeometry().setFromPoints(pts),
-                            lineMat.clone()
-                        );
-                        line.userData.isUnitGuide = true;
-                        backGroup.add(line);
+                    const dashedMat = new THREE.LineDashedMaterial({
+                        color: 0x22c55e,
+                        dashSize: 0.15,
+                        gapSize: 0.08,
+                        linewidth: 2,
+                        transparent: true,
+                        opacity: 1.0,
+                        depthTest: false
                     });
+
+                    // 1) Ortak merkez: nokta + "0" etiketi (tema rengine uygun)
+                    const accentHex = (getComputedStyle(document.documentElement)
+                    .getPropertyValue('--text-accent') || '#00d4ff').trim();
+
+                    const accent = new THREE.Color(accentHex);
+
+                    function makeTextSprite(text, hexColor) {
+                        const c = document.createElement('canvas');
+                        c.width = 256;
+                        c.height = 96;
+                        const g = c.getContext('2d');
+
+                        g.clearRect(0, 0, c.width, c.height);
+                        g.fillStyle = hexColor;
+                        g.font = 'bold 46px "Segoe UI", Arial';
+                        g.textAlign = 'center';
+                        g.textBaseline = 'middle';
+                        g.fillText(text, c.width / 2, c.height / 2);
+
+                        const t = new THREE.CanvasTexture(c);
+                        t.needsUpdate = true;
+
+                        const m = new THREE.SpriteMaterial({ map: t, transparent: true, depthTest: false });
+                        return new THREE.Sprite(m);
+                    }
+
+                    // iç çember merkezi: temaya uygun küçük nokta (daha görünür)
+                    const centerDot = new THREE.Mesh(
+                        new THREE.CircleGeometry(0.20, 28),
+                        new THREE.MeshBasicMaterial({
+                            color: accent,
+                            transparent: true,
+                            opacity: 1.0,
+                            depthTest: false
+                        })
+                    );
+                    centerDot.position.set(0, 0, bz + 0.002);
+                    centerDot.userData.isUnitGuide = true;
+                    backGroup.add(centerDot);
+
+                    // "0" etiketi (canvas texture ile sprite)
+                    const labelCanvas = document.createElement('canvas');
+                    labelCanvas.width = 128;
+                    labelCanvas.height = 64;
+                    const ctx = labelCanvas.getContext('2d');
+
+                    ctx.clearRect(0, 0, labelCanvas.width, labelCanvas.height);
+                    ctx.fillStyle = accentHex;
+                    ctx.font = 'bold 44px "Segoe UI", Arial';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText('O', labelCanvas.width / 2, labelCanvas.height / 2);
+
+                    const tex = new THREE.CanvasTexture(labelCanvas);
+                    tex.needsUpdate = true;
+
+                    const spriteMat = new THREE.SpriteMaterial({ map: tex, transparent: true });
+                    const zeroSprite = new THREE.Sprite(spriteMat);
+
+                    // noktanın altına koy
+                    zeroSprite.position.set(0, -0.28, bz + 0.001);
+                    zeroSprite.scale.set(0.55, 0.275, 1);
+                    zeroSprite.userData.isUnitGuide = true;
+                    backGroup.add(zeroSprite);
 
                     // 2) Yeşil dairenin yatay çapı — kesikli çizgi (r=2.2)
                     const bigR = 2.2;
@@ -1753,16 +1872,19 @@ $(document).ready(function () {
                     diamLine.computeLineDistances();
                     diamLine.userData.isUnitGuide = true;
                     backGroup.add(diamLine);
-                    // Çap uç tırnakları
-                    [-bigR, bigR].forEach(x => {
-                        const capGeo = new THREE.BufferGeometry().setFromPoints([
-                            new THREE.Vector3(x, -0.1, bz),
-                            new THREE.Vector3(x,  0.1, bz)
-                        ]);
-                        const cap = new THREE.Line(capGeo, dashedMat.clone());
-                        cap.userData.isUnitGuide = true;
-                        backGroup.add(cap);
-                    });
+
+                    // "1 br" yazıları (tema rengiyle) — "O"nun diğer tarafı (sol taraf)
+                    const br1a = makeTextSprite('1 br', accentHex);
+                    br1a.position.set(0.55, -0.20, bz + 0.01); // merkeze yakın (sol)
+                    br1a.scale.set(0.75, 0.28, 1);
+                    br1a.userData.isUnitGuide = true;
+                    backGroup.add(br1a);
+
+                    const br1b = makeTextSprite('1 br', accentHex);
+                    br1b.position.set(1.70, -0.20, bz + 0.01); // daha sol
+                    br1b.scale.set(0.75, 0.28, 1);
+                    br1b.userData.isUnitGuide = true;
+                    backGroup.add(br1b);
 
                     // 3) Kırmızı dairenin yarıçapı = 1 birim göstergesi (r=1.2 → 1 birim = 1.1)
                     // Kırmızı daire yarıçapı 3D'de 1.2 birim = gerçekte 1 birim
@@ -1772,18 +1894,10 @@ $(document).ready(function () {
                         new THREE.Vector3(0,       0, bz),
                         new THREE.Vector3(smallR,  0, bz)
                     ]);
-                    const radiusMat = new THREE.LineBasicMaterial({ color: 0xef4444, linewidth: 2 });
-                    const radiusLine = new THREE.Line(radiusGeo, radiusMat);
+                    const radiusLine = new THREE.Line(radiusGeo, dashedMat.clone()); // yeşil kesikli ile aynı materyal
+                    radiusLine.computeLineDistances();
                     radiusLine.userData.isUnitGuide = true;
                     backGroup.add(radiusLine);
-                    // "1 br" etiket çizgisi — uç tırnağı
-                    const capGeo2 = new THREE.BufferGeometry().setFromPoints([
-                        new THREE.Vector3(smallR, -0.1, bz),
-                        new THREE.Vector3(smallR,  0.1, bz)
-                    ]);
-                    const cap2 = new THREE.Line(capGeo2, radiusMat.clone());
-                    cap2.userData.isUnitGuide = true;
-                    backGroup.add(cap2);
                 }, 300);
                 break;
 
