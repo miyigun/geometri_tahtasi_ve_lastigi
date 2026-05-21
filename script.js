@@ -1463,7 +1463,7 @@ $(document).ready(function () {
 
     function renderApp2Step(step) {
         // subStep 2 ve adım 3'e geçişte backGroup çizimleri korunsun
-        if (!(step === 2 && window.app2subStep === 2) && !(step === 3)) {
+        if (!(step === 2 && window.app2subStep === 2) && step < 3) {
             clearBoard();
         }
         boardMode = 'draw';
@@ -1471,7 +1471,7 @@ $(document).ready(function () {
         window.app2LockedPins = null;
         window.app2AllowedPins = null;
 
-        const totalSteps = 6;
+        const totalSteps = 9;
         const pct = Math.round(((step + 1) / totalSteps) * 100);
         let html = `<div class="progress-container">
         <div class="progress-label"><span>Uygulama 2 — π'yi Görelim</span><span>${step + 1}/${totalSteps}</span></div>
@@ -1756,19 +1756,22 @@ $(document).ready(function () {
                 }
                 break;
 
-            // YENİ:
+           
             case 3:
                 html += `<div class="instruction-box">
-                <h3>📐 Adım 3 — Yarıçapı Bulalım</h3>
-                <p>Geometri tahtasındaki <strong>yeşil dairenin yarıçapı</strong> kaç birimdir?</p>
-                <p style="margin-top:8px;font-size:.92em;color:var(--text-secondary);">
-                    Tahtada <strong>1 birim</strong>, komşu iki pin arasındaki mesafedir.
-                </p>
+                <h3>📐 Adım 3 — Büyük Dairenin Alanını Bulalım</h3>
+                <p>Geometri tahtasındaki <strong>yeşil (büyük) dairenin yarıçapı 2 birimdir.</strong></p>
+                <p style="margin-top:8px;"><strong>Büyük dairenin alanını</strong> hesaplayınız.</p>
             </div>
             <div class="instruction-box" style="margin-top:8px;">
-                <label style="font-size:.9em;color:var(--text-secondary);display:block;margin-bottom:6px;">Cevabınız:</label>
-                <input type="text" id="app2RadiusInput" class="input-field" placeholder="Yarıçapı girin..." inputmode="decimal"
-                    style="margin-bottom:8px;">
+                <label style="font-size:.9em;color:var(--text-secondary);display:block;margin-bottom:6px;">
+                    Büyük dairenin alanı: ($r = 2$ birim)
+                </label>
+                <input type="text" id="app2RadiusInput" class="input-field" placeholder="Cevabınız..."
+                    inputmode="none" readonly style="margin-bottom:4px;cursor:pointer;">
+                <div id="app2MiniKeyboard" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
+                    ${['1','2','3','4','π','⌫'].map(k => `<button type="button" class="num-btn app2key" data-key="${k}" style="min-width:44px;padding:6px 10px;font-size:1.1em;">${k}</button>`).join('')}
+                </div>
                 <div id="app2RadiusFeedback" style="margin-top:4px;"></div>
             </div>
             <div style="text-align:center;margin-top:10px;">
@@ -1903,41 +1906,175 @@ $(document).ready(function () {
 
             case 4:
                 html += `<div class="instruction-box">
-            <h3>📏 Ölçme ve Değerlendirme</h3>
-            <p><strong>Soru:</strong> Yarıçap uzunluğu 5 birim olan dairenin alanı hangi <strong>tam sayılar arasında</strong> yer almalıdır?</p>
-            <p style="margin-top:8px;font-size:.9em;color:var(--text-secondary);">Cevabınızı "küçük sayı-büyük sayı" formatında yazınız. (Örn: 50-100)</p>
-            <input type="text" id="app2AssessInput" class="input-field" placeholder="Örn: 50-100" style="margin-top:8px;">
-            <div id="app2AssessFeedback" style="margin-top:6px;"></div>
-            <div id="app2AssessNextArea" style="display:none;margin-top:10px;">
-                <div class="explain-box">
-                    <p>✓ <strong>Çözüm:</strong><br>
-                    Alan = πr² = 25π<br>
-                    2 &lt; π &lt; 4 eşitsizliği kullanılarak:<br>
-                    <strong>50 &lt; 25π &lt; 100</strong><br>
-                    Alan 50 ile 100 arasında yer alır.</p>
-                </div>
+            <h3>📐 Küçük Karenin Kenar Uzunluğu</h3>
+            <p>Geometri tahtasında oluşturduğunuz <strong>küçük karenin kenar uzunluğu</strong> kaç birimdir?</p>
+            <p style="margin-top:6px;font-size:.9em;color:var(--text-secondary);">İpucu: Küçük karenin köşeleri büyük dairenin üzerindedir. Büyük dairenin yarıçapı 2 birimdir.</p>
+        </div>
+        <div class="instruction-box" style="margin-top:8px;">
+            <label style="font-size:.9em;color:var(--text-secondary);display:block;margin-bottom:6px;">Kenar uzunluğu:</label>
+            <input type="text" id="app2SmallSideInput" class="input-field" placeholder="Cevabınız..."
+                inputmode="none" readonly style="margin-bottom:4px;cursor:pointer;">
+            <div id="app2SmallSideKeyboard" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
+                ${['1','2','√2','2√2','⌫'].map(k => `<button type="button" class="num-btn app2skey" data-key="${k}" style="min-width:44px;padding:6px 10px;font-size:1em;">${k}</button>`).join('')}
             </div>
+            <div id="app2SmallSideFeedback" style="margin-top:4px;"></div>
         </div>
         <div style="text-align:center;margin-top:10px;">
-            <button class="action-button" id="app2AssessCheckBtn">Kontrol Et</button>
-            <div id="app2FinishArea" style="display:none;margin-top:10px;">
-                <button class="action-button" id="app2FinishBtn" style="background:var(--success-bg);border-color:var(--success-bg);">✓ Uygulama 2 Tamamlandı — Kazanımları Gör</button>
+            <button class="action-button" id="app2SmallSideCheckBtn" disabled style="opacity:.4;">Kontrol Et</button>
+        </div>
+        <div id="app2SmallAreaSection" style="display:none;" class="instruction-box" style="margin-top:8px;">
+            <p style="margin-top:4px;"><strong>Bu kenar uzunluğunu kullanarak küçük karenin alanını</strong> hesaplayınız.</p>
+            <label style="font-size:.9em;color:var(--text-secondary);display:block;margin:8px 0 4px;">Küçük karenin alanı:</label>
+            <input type="text" id="app2SmallAreaInput" class="input-field" placeholder="Cevabınız..."
+                inputmode="none" readonly style="margin-bottom:4px;cursor:pointer;">
+            <div id="app2SmallAreaKeyboard" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
+                ${['1','2','4','8','√2','⌫'].map(k => `<button type="button" class="num-btn app2sakey" data-key="${k}" style="min-width:44px;padding:6px 10px;font-size:1em;">${k}</button>`).join('')}
+            </div>
+            <div id="app2SmallAreaFeedback" style="margin-top:4px;"></div>
+            <div style="text-align:center;margin-top:10px;">
+                <button class="action-button" id="app2SmallAreaCheckBtn" disabled style="opacity:.4;">Kontrol Et</button>
+                <div id="app2Step4NextArea" style="display:none;margin-top:8px;">
+                    <button class="action-button" id="app2Step4NextBtn" style="background:var(--success-bg);border-color:var(--success-bg);">Devam Et ✓</button>
+                </div>
             </div>
         </div>`;
-                $('#boardHint').text('🔢 Yarıçap=5 birim → Alan hangi tam sayılar arasında?');
+                $('#boardHint').text('📐 Küçük karenin kenar uzunluğunu bulun');
                 break;
 
             case 5:
+                html += `<div class="instruction-box">
+            <h3>📐 Büyük Karenin Alanı</h3>
+            <p>Büyük karenin kenar uzunluğu <strong>4 birimdir.</strong></p>
+            <p style="margin-top:8px;"><strong>Büyük karenin alanını</strong> hesaplayınız.</p>
+        </div>
+        <div class="instruction-box" style="margin-top:8px;">
+            <label style="font-size:.9em;color:var(--text-secondary);display:block;margin-bottom:6px;">Büyük karenin alanı:</label>
+            <input type="text" id="app2BigAreaInput" class="input-field" placeholder="Cevabınız..."
+                inputmode="none" readonly style="margin-bottom:4px;cursor:pointer;">
+            <div id="app2BigAreaKeyboard" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
+                ${['4','8','16','32','⌫'].map(k => `<button type="button" class="num-btn app2bakey" data-key="${k}" style="min-width:44px;padding:6px 10px;font-size:1em;">${k}</button>`).join('')}
+            </div>
+            <div id="app2BigAreaFeedback" style="margin-top:4px;"></div>
+        </div>
+        <div style="text-align:center;margin-top:10px;">
+            <button class="action-button" id="app2BigAreaCheckBtn" disabled style="opacity:.4;">Kontrol Et</button>
+            <div id="app2Step5NextArea" style="display:none;margin-top:8px;">
+                <button class="action-button" id="app2Step5NextBtn" style="background:var(--success-bg);border-color:var(--success-bg);">Devam Et ✓</button>
+            </div>
+        </div>`;
+                $('#boardHint').text('📐 Büyük karenin alanını hesaplayın (kenar = 4 birim)');
+                break;
+
+            case 6:
+                html += `<div class="instruction-box">
+            <h3>📊 Şekillerin Alanlarını Sıralayalım</h3>
+            <p>Oluşturduğunuz şekillerin alanlarını eşitsizlik kullanarak sıralayınız:</p>
+            <div style="margin-top:10px;padding:12px;background:rgba(0,212,255,.07);border:2px solid var(--border-color);border-radius:10px;">
+                <p style="font-size:.92em;margin-bottom:6px;">Hesapladığınız alanlar:</p>
+                <ul style="line-height:2;font-size:.93em;">
+                    <li>Küçük kare: <strong>8 birim²</strong></li>
+                    <li>Büyük daire (yeşil, $r=2$): <strong>$4\\pi$ birim²</strong></li>
+                    <li>Büyük kare: <strong>16 birim²</strong></li>
+                </ul>
+            </div>
+            <p style="margin-top:10px;">Eşitsizlikle sıralamayı yazınız:<br>
+            <span style="font-size:.9em;color:var(--text-secondary);">Alan (küçük kare) ___ Alan (büyük daire) ___ Alan (büyük kare)</span></p>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;">
+                ${['8 < 4π < 16','8 > 4π > 16','4π < 8 < 16','8 < 16 < 4π'].map((opt,i) =>
+                    `<button class="num-btn app2sortbtn" data-val="${opt}" style="flex:1;min-width:140px;padding:8px;font-size:.92em;white-space:nowrap;">${opt}</button>`
+                ).join('')}
+            </div>
+            <div id="app2SortFeedback" style="margin-top:8px;"></div>
+        </div>
+        <div id="app2PiRangeSection" style="display:none;" class="instruction-box" style="margin-top:8px;">
+            <p style="margin-top:4px;"><strong>$8 &lt; 4\\pi &lt; 16$</strong> eşitsizliğinin her tarafını 4'e bölünüz. π için ne elde edersiniz?</p>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;">
+                ${['2 < π < 4','1 < π < 4','2 < π < 8','0 < π < 4'].map(opt =>
+                    `<button class="num-btn app2pibtn" data-val="${opt}" style="flex:1;min-width:120px;padding:8px;font-size:.92em;">${opt}</button>`
+                ).join('')}
+            </div>
+            <div id="app2PiFeedback" style="margin-top:8px;"></div>
+            <div id="app2Step6NextArea" style="display:none;margin-top:8px;text-align:center;">
+                <button class="action-button" id="app2Step6NextBtn" style="background:var(--success-bg);border-color:var(--success-bg);">Devam Et ✓</button>
+            </div>
+        </div>`;
+                $('#boardHint').text('📊 Şekillerin alanlarını eşitsizlikle sıralayın');
+                if (window.MathJax) setTimeout(() => MathJax.typesetPromise(), 200);
+                break;
+
+            case 7:
+                html += `<div class="instruction-box">
+            <h3>📏 Ölçme ve Değerlendirme</h3>
+            <p>Aşağıdaki soruyu cevaplayınız.</p>
+        </div>`;
+                $('#boardHint').text('🔢 Yarıçap=5 birim → Alan hangi tam sayılar arasında?');
+                setTimeout(() => {
+                    const dialogHtml = `
+                    <div class="dialog-overlay" id="app2AssessDialog" style="display:flex;">
+                        <div class="dialog-content" style="max-width:560px;">
+                            <h2>📏 Değerlendirme Sorusu</h2>
+                            <img src="images/istenen.png" alt="Değerlendirme Görseli"
+                                style="max-width:100%;max-height:220px;border-radius:10px;border:2px solid var(--border-color);object-fit:contain;display:block;margin:10px auto;">
+                            <p style="margin-top:10px;">Yarıçap uzunluğu <strong>5 birim</strong> olan dairenin alanı hangi <strong>tam sayılar arasında</strong> yer almalıdır?</p>
+                            <p style="font-size:.9em;color:var(--text-secondary);margin-top:4px;">Cevabınızı "küçük sayı-büyük sayı" formatında yazınız.</p>
+                            <input type="text" id="app2AssessInput" class="input-field" placeholder="Örn: 50-100" style="margin-top:10px;">
+                            <div id="app2AssessFeedback" style="margin-top:6px;"></div>
+                            <div id="app2AssessNextArea" style="display:none;margin-top:10px;">
+                                <div class="explain-box">
+                                    <p>✓ <strong>Çözüm:</strong><br>
+                                    $A = \\pi r^2 = 25\\pi$<br>
+                                    $2 &lt; \\pi &lt; 4$ eşitsizliği kullanılarak:<br>
+                                    $50 &lt; 25\\pi &lt; 100$<br>
+                                    Alan <strong>50 ile 100</strong> arasında yer alır.</p>
+                                </div>
+                            </div>
+                            <div class="dialog-btn-row" style="margin-top:12px;">
+                                <button class="action-button" id="app2AssessCheckBtn">Kontrol Et</button>
+                                <button class="action-button" id="app2AssessFinishBtn" style="display:none;background:var(--success-bg);border-color:var(--success-bg);">Devam Et ✓</button>
+                            </div>
+                        </div>
+                    </div>`;
+                    $('body').append(dialogHtml);
+                    if (window.MathJax) setTimeout(() => MathJax.typesetPromise(), 100);
+                    $('#app2AssessInput').on('input', function () {
+                        // klavye girişi için boş bırakma
+                    });
+                    $('#app2AssessCheckBtn').on('click', function () {
+                        const raw = $('#app2AssessInput').val().replace(/\s/g, '');
+                        const ok = raw === '50,100' || raw === '50-100' || raw === '50ile100' || (raw.includes('50') && raw.includes('100'));
+                        if (ok) {
+                            $('#app2AssessFeedback').html('<div class="success-message">✓ Doğru! Alan=25π, 2&lt;π&lt;4 → 50&lt;25π&lt;100</div>');
+                            $('#app2AssessNextArea').show();
+                            $('#app2AssessCheckBtn').hide();
+                            $('#app2AssessFinishBtn').show();
+                            if (window.MathJax) setTimeout(() => MathJax.typesetPromise(), 100);
+                        } else {
+                            $('#app2AssessFeedback').html('<div class="error-message">✗ Yanlış. Alan=πr²=25π. 2&lt;π&lt;4 kullanarak sınırları bul.</div>');
+                        }
+                    });
+                    $('#app2AssessFinishBtn').on('click', function () {
+                        $('#app2AssessDialog').remove();
+                        renderApp2Step(8);
+                    });
+                }, 300);
+                break;
+
+            case 8:    
                 html += `<div class="success-message" style="padding:16px;text-align:center;">
             Uygulama 2 Tamamlandı!
+
         </div>
         <div class="instruction-box" style="margin-top:10px;">
             <h3>Bu Uygulamada Neler Öğrendik?</h3>
             <ul style="margin-top:8px;line-height:1.9;">
                 <li>Geometri tahtasının arka yüzündeki <strong>12 ve 24 pinli çemberleri</strong> inceledik.</li>
-                <li><strong>Daire alanı formülünü</strong> (A = πr²) hatırladık ve uyguladık.</li>
-                <li>Büyük kare, içten teğet daire ve köşeleri daire üzerinde olan küçük kare oluşturarak <strong>2 &lt; π &lt; 4</strong> eşitsizliğine ulaştık.</li>
-                <li>Alan eşitsizliği ile daire alanının sınırlarını hesapladık: <strong>50 &lt; 25π &lt; 100</strong>.</li>
+                <li><strong>Daire alanı formülünü</strong> ($A = \\pi r^2$) hatırladık ve uyguladık.</li>
+                <li>Büyük dairenin alanının <strong>$4\\pi$ birim²</strong> olduğunu hesapladık.</li>
+                <li>Küçük karenin kenar uzunluğunun <strong>$2\\sqrt{2}$ birim</strong>, alanının <strong>8 birim²</strong> olduğunu bulduk.</li>
+                <li>Büyük karenin alanının <strong>16 birim²</strong> olduğunu hesapladık.</li>
+                <li>Şekillerin alanlarını karşılaştırarak <strong>$8 &lt; 4\\pi &lt; 16$</strong> eşitsizliğine ulaştık.</li>
+                <li>Bu eşitsizliği 4'e bölerek <strong>$2 &lt; \\pi &lt; 4$</strong> sonucuna geometrik olarak ulaştık.</li>
+                <li>π sayısının 2 ile 4 tam sayıları arasında bulunduğunu geometri tahtası ile görülmüştür.</li>
                 <li>π gibi irrasyonel sayıların <strong>geometrik yorumunu</strong> yapabildik.</li>
             </ul>
         </div>
@@ -1948,6 +2085,7 @@ $(document).ready(function () {
         </div>`;
                 $('#boardHint').text('Uygulama 2 tamamlandı!');
                 break;
+       
         }
 
         $('#contentArea').html(html);
@@ -2082,22 +2220,30 @@ $(document).ready(function () {
                 // Tahta kilitli kalacak — pin tıklamaları engelle
                 window.app2BoardLocked = true;
 
-                $('#app2RadiusInput').on('input', function () {
-                    const val = $(this).val().trim();
+                $(document).off('click.app2key').on('click.app2key', '.app2key', function () {
+                    const k = $(this).data('key');
+                    const $inp = $('#app2RadiusInput');
+                    if (k === '⌫') {
+                        $inp.val($inp.val().slice(0, -1));
+                    } else {
+                        $inp.val($inp.val() + k);
+                    }
+                    const val = $inp.val().trim();
                     $('#app2RadiusCheckBtn').prop('disabled', val === '').css('opacity', val === '' ? '0.4' : '1');
                 });
+
                 $('#app2RadiusCheckBtn').on('click', function () {
-                    const val = $('#app2RadiusInput').val().trim().replace(',', '.');
-                    if (val === '2') {
-                        $('#app2RadiusFeedback').html('<div class="success-message">✓ Doğru! Büyük dairenin yarıçapı 2 birimdir.</div>');
+                    const raw = $('#app2RadiusInput').val().trim().replace(/\s/g, '').toLowerCase();
+                    // Kabul: 4π, 4pi, π4, pi4, 4*π, 4·π vb.
+                    const ok = ['4π','4pi','π4','pi4','4*π','4*pi','π*4','pi*4','4·π','4·pi'].includes(raw);
+                    if (ok) {
+                        $('#app2RadiusFeedback').html('<div class="success-message">✓ Doğru! $A = \\pi \\times 2^2 = 4\\pi$ birim²</div>');
                         $(this).hide();
                         $('#app2RadiusNextArea').show();
-                        // 1 birim göstergesini kaldır
-                        backGroup && backGroup.children
-                            .filter(c => c.userData && c.userData.isUnitGuide)
-                            .forEach(g => backGroup.remove(g));
+                        if (window.MathJax) setTimeout(() => MathJax.typesetPromise(), 100);
                     } else {
-                        $('#app2RadiusFeedback').html('<div class="error-message">✗ Tekrar dene. İpucu: Büyük karenin kenar uzunluğu 4 birimdir ve daire tam ortaya değmektedir.</div>');
+                        $('#app2RadiusFeedback').html('<div class="error-message">✗ Tekrar dene. İpucu: $A = \\pi r^2$, $r = 2$. Cevabı "4π" şeklinde yazın.</div>');
+                        if (window.MathJax) setTimeout(() => MathJax.typesetPromise(), 100);
                     }
                 });
                 $('#app2s3Btn').on('click', () => {
@@ -2107,26 +2253,112 @@ $(document).ready(function () {
                 break;
 
             case 4:
-                $('#app2AssessCheckBtn').on('click', function () {
-                    const raw = $('#app2AssessInput').val().replace(/\s/g, '');
-                    const ok = raw === '50,100' || raw === '50-100' || raw === '50ile100' || (raw.includes('50') && raw.includes('100'));
+                $(document).off('click.app2skey').on('click.app2skey', '.app2skey', function () {
+                    const k = $(this).data('key');
+                    const $inp = $('#app2SmallSideInput');
+                    $inp.val(k === '⌫' ? $inp.val().slice(0, -1) : $inp.val() + k);
+                    $('#app2SmallSideCheckBtn').prop('disabled', $inp.val().trim() === '').css('opacity', $inp.val().trim() === '' ? '0.4' : '1');
+                });
+                $(document).off('click.app2sakey').on('click.app2sakey', '.app2sakey', function () {
+                    const k = $(this).data('key');
+                    const $inp = $('#app2SmallAreaInput');
+                    $inp.val(k === '⌫' ? $inp.val().slice(0, -1) : $inp.val() + k);
+                    $('#app2SmallAreaCheckBtn').prop('disabled', $inp.val().trim() === '').css('opacity', $inp.val().trim() === '' ? '0.4' : '1');
+                });
+                $('#app2SmallSideCheckBtn').on('click', function () {
+                    const raw = $('#app2SmallSideInput').val().trim().replace(/\s/g, '');
+                    // Doğru: 2√2
+                    const ok = raw === '2√2' || raw === '2√2' || raw === '2*√2';
                     if (ok) {
-                        $('#app2AssessFeedback').html('<div class="success-message">✓ Doğru! Alan=25π, 2&lt;π&lt;4 → 50&lt;25π&lt;100</div>');
-                        $('#app2AssessNextArea').show();
-                        $('#app2FinishArea').show();
+                        $('#app2SmallSideFeedback').html('<div class="success-message">✓ Doğru! Küçük karenin kenar uzunluğu $2\\sqrt{2}$ birimdir.</div>');
                         $(this).hide();
+                        $('#app2SmallAreaSection').show();
+                        if (window.MathJax) setTimeout(() => MathJax.typesetPromise(), 100);
                     } else {
-                        $('#app2AssessFeedback').html('<div class="error-message">✗ Yanlış. Alan=πr²=25π. 2&lt;π&lt;4 kullanarak sınırları bul.</div>');
+                        $('#app2SmallSideFeedback').html('<div class="error-message">✗ Tekrar dene. İpucu: Köşeler çemberin üzerinde, yarıçap 2 birim. Pisagor teoremini kullan.</div>');
                     }
                 });
-                $('#app2FinishBtn').on('click', () => renderApp2Step(5));
+                $('#app2SmallAreaCheckBtn').on('click', function () {
+                    const raw = $('#app2SmallAreaInput').val().trim().replace(/\s/g, '');
+                    // Doğru: 8
+                    if (raw === '8') {
+                        $('#app2SmallAreaFeedback').html('<div class="success-message">✓ Doğru! $(2\\sqrt{2})^2 = 8$ birim²</div>');
+                        $(this).hide();
+                        $('#app2Step4NextArea').show();
+                        if (window.MathJax) setTimeout(() => MathJax.typesetPromise(), 100);
+                    } else {
+                        $('#app2SmallAreaFeedback').html('<div class="error-message">✗ Tekrar dene. Alan = kenar² = $(2\\sqrt{2})^2$ = ?</div>');
+                        if (window.MathJax) setTimeout(() => MathJax.typesetPromise(), 100);
+                    }
+                });
+                $('#app2Step4NextBtn').on('click', () => renderApp2Step(5));
                 break;
 
             case 5:
+                $(document).off('click.app2bakey').on('click.app2bakey', '.app2bakey', function () {
+                    const k = $(this).data('key');
+                    const $inp = $('#app2BigAreaInput');
+                    $inp.val(k === '⌫' ? $inp.val().slice(0, -1) : $inp.val() + k);
+                    $('#app2BigAreaCheckBtn').prop('disabled', $inp.val().trim() === '').css('opacity', $inp.val().trim() === '' ? '0.4' : '1');
+                });
+                $('#app2BigAreaCheckBtn').on('click', function () {
+                    const raw = $('#app2BigAreaInput').val().trim();
+                    if (raw === '16') {
+                        $('#app2BigAreaFeedback').html('<div class="success-message">✓ Doğru! $4^2 = 16$ birim²</div>');
+                        $(this).hide();
+                        $('#app2Step5NextArea').show();
+                        if (window.MathJax) setTimeout(() => MathJax.typesetPromise(), 100);
+                    } else {
+                        $('#app2BigAreaFeedback').html('<div class="error-message">✗ Tekrar dene. Alan = kenar² = $4^2$ = ?</div>');
+                        if (window.MathJax) setTimeout(() => MathJax.typesetPromise(), 100);
+                    }
+                });
+                $('#app2Step5NextBtn').on('click', () => renderApp2Step(6));
+                break;
+
+            case 6:
+                $(document).off('click.app2sort').on('click.app2sort', '.app2sortbtn', function () {
+                    $('.app2sortbtn').removeClass('correct incorrect');
+                    if ($(this).data('val') === '8 < 4π < 16') {
+                        $(this).addClass('correct');
+                        $('#app2SortFeedback').html('<div class="success-message">✓ Doğru! $8 &lt; 4\\pi &lt; 16$</div>');
+                        $('.app2sortbtn').prop('disabled', true);
+                        $('#app2PiRangeSection').show();
+                        if (window.MathJax) setTimeout(() => MathJax.typesetPromise(), 100);
+                    } else {
+                        $(this).addClass('incorrect');
+                        setTimeout(() => $(this).removeClass('incorrect'), 800);
+                        $('#app2SortFeedback').html('<div class="error-message">✗ Tekrar dene. Alan değerlerini karşılaştır.</div>');
+                    }
+                });
+                $(document).off('click.app2pi').on('click.app2pi', '.app2pibtn', function () {
+                    $('.app2pibtn').removeClass('correct incorrect');
+                    if ($(this).data('val') === '2 < π < 4') {
+                        $(this).addClass('correct');
+                        $('#app2PiFeedback').html('<div class="success-message">✓ Doğru! $2 &lt; \\pi &lt; 4$</div>');
+                        $('.app2pibtn').prop('disabled', true);
+                        $('#app2Step6NextArea').show();
+                        if (window.MathJax) setTimeout(() => MathJax.typesetPromise(), 100);
+                    } else {
+                        $(this).addClass('incorrect');
+                        setTimeout(() => $(this).removeClass('incorrect'), 800);
+                        $('#app2PiFeedback').html('<div class="error-message">✗ Tekrar dene. $8 &lt; 4\\pi &lt; 16$ eşitsizliğini 4\'e böl.</div>');
+                        if (window.MathJax) setTimeout(() => MathJax.typesetPromise(), 100);
+                    }
+                });
+                $('#app2Step6NextBtn').on('click', () => renderApp2Step(7));
+                break;
+
+            case 7:
+                // Diyalog kendi içinde yönetiliyor (setTimeout ile eklendi)
+                break;
+
+            case 8:
                 $('#app2ToApp3Btn').on('click', () => {
                     $('[data-tab="app3"]').prop('disabled', false).click();
                 });
                 break;
+
         }
     }
 
