@@ -44,7 +44,13 @@ Sol panelde adım adım ilerleyen etkinlik yapısı bulunur:
 
 - `index.html` — ana HTML yapısı ve sayfa düzeni
 - `styles.css` — tüm uygulama stilleri ve tema değişkenleri
-- `script.js` — tüm uygulama mantığı (3B tahta, lastik çizimi, yönlendirmeli etkinlikler)
+- `js/` — modüler uygulama betikleri:
+  - `state.js` — genel durum (state) değişkenleri, sabitler ve tema ayarları
+  - `helpers.js` — koordinat hesaplamaları, matematiksel eğriler ve dış lastik sarma algoritması
+  - `board2d.js` — 2B SVG tahta çizimi, pin olayları ve ölçümler
+  - `board3d.js` — Three.js yapılandırması, kamera, ışık kontrolleri ve 3B lastik model çizimi
+  - `apps.js` — adım adım yönlendirmeli uygulamalar, MathJax matematiksel hesaplamaları ve sekme yükleyiciler
+  - `main.js` — DOM olayları, araç çubukları, diyaloglar ve başlangıç tetikleyicileri
 - Harici kütüphaneler CDN ile yüklenir:
   - jQuery
   - MathJax
@@ -88,7 +94,7 @@ Uygulamayı yerelde çalıştırmak için:
 ---
 
 ## 📌 Notlar
-- Uygulama **standalone** bir HTML dosyasıdır; ayrıca build adımı yoktur.
+- Uygulama tamamen tarayıcı tarafında (client-side) çalışır, dolayısıyla herhangi bir build veya derleme adımı yoktur.
 - Tahta ile etkileşimi kolaylaştırmak için sağ tık menüsü devre dışı bırakılmıştır.
 - Lastikler, fiziksel materyali simüle etmek için **renk başına limit** ile sınırlandırılmıştır (max 7).
 

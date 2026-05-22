@@ -46,7 +46,13 @@ The left panel contains a structured learning flow:
 
 - `index.html` — the main HTML structure and page layout
 - `styles.css` — all application styles and theme variables
-- `script.js` — all application logic (3D board, elastic drawing, guided activities)
+- `js/` — modularized application scripts:
+  - `state.js` — global state variables, constants, and theme settings
+  - `helpers.js` — coordinate calculations, mathematical curves, and outer pin-wrapping algorithm
+  - `board2d.js` — 2D SVG board building, pin events, and measurements
+  - `board3d.js` — Three.js configuration, camera, light controls, and 3D tube mesh drawing
+  - `apps.js` — step-by-step guided instructions, interactive MathJax calculations, and tab loaders
+  - `main.js` — DOM events, toolbars, dialogs, and entry initialization
 - External libraries are loaded via CDN:
   - jQuery
   - MathJax
@@ -90,7 +96,7 @@ To run the app locally:
 ---
 
 ## 📌 Notes
-- The app is designed as a **standalone HTML file**, so there is no build step.
+- The app runs entirely in the browser client-side, so there is no build or compilation step.
 - Right-click context menu is disabled for smoother interaction on the board.
 - Elastic colors have a **usage limit** (max 7 per color) to simulate physical constraints.
 
