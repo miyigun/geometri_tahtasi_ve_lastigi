@@ -1562,7 +1562,7 @@ function renderApp3Step(step) {
     switch (step) {
         case 0:
             html += `<div class="instruction-box">
-                <h3>🔺 Konveks Çokgenlerde Açıların Gizemi</h3>
+                <h3>Konveks Çokgenlerde Açıların Gizemi</h3>
                 <p>Bu uygulamada geometri tahtasında farklı çokgenler oluşturarak iç açılarının toplamına yönelik genel bir formül keşfedeceksiniz.</p>
                 <p style="margin-top:8px;">Başlamak için lütfen diyalog penceresindeki <strong>Dikkat Çekme</strong> sorusunu cevaplayınız.</p>
             </div>
@@ -1580,7 +1580,7 @@ function renderApp3Step(step) {
 
         case 1:
             html += `<div class="instruction-box">
-                <h3>🔺 Adım 1 — Dar Açılı Üçgen Oluşturma</h3>
+                <h3>Adım 1 — Dar Açılı Üçgen Oluşturma</h3>
                 <p>Görsel 1'deki ilk adımı uygulayalım. Geometri tahtası üzerinde kesikli çizgilerle gösterilen <strong>dar açılı üçgeni</strong> lastik kullanarak oluşturunuz.</p>
                 <p style="margin-top:6px;font-size:0.88em;color:var(--text-secondary);">İpucu: Pinlere tıklayarak köşeleri belirleyin ve ilk tıkladığınız pine tekrar tıklayarak lastiği kapatın.</p>
             </div>
@@ -1605,7 +1605,7 @@ function renderApp3Step(step) {
 
         case 2:
             html += `<div class="instruction-box">
-                <h3>🔺 Adım 2 — Paralel Doğruların Çizimi</h3>
+                <h3>Adım 2 — Paralel Doğruların Çizimi</h3>
                 <p>Görsel 1'deki ikinci ve üçüncü adımları uygulayalım:</p>
                 <ul style="margin-top:6px; line-height:1.6; padding-left:16px;">
                     <li>Üçgenin bir kenarı (sol kenarı) ile çakışacak şekilde uzunca bir doğru parçası (sarı lastikle) oluşturunuz.</li>
@@ -1636,7 +1636,7 @@ function renderApp3Step(step) {
 
         case 3:
             html += `<div class="instruction-box">
-                <h3>⬜ Adım 3 — Dörtgenin İç Açıları Toplamı</h3>
+                <h3>Adım 3 — Dörtgenin İç Açıları Toplamı</h3>
                 <p>Geometri tahtasında gösterilen dörtgeni ve tek bir köşesinden geçen köşegeni lastiklerle oluşturunuz.</p>
                 <p style="margin-top:8px;">Oluşan şekle göre aşağıdaki soruları cevaplayınız:</p>
             </div>
@@ -1669,7 +1669,7 @@ function renderApp3Step(step) {
 
         case 4:
             html += `<div class="instruction-box">
-                <h3>🛑 Adım 4 — Beşgenin İç Açıları Toplamı</h3>
+                <h3>Adım 4 — Beşgenin İç Açıları Toplamı</h3>
                 <p>Geometri tahtasında gösterilen beşgeni ve tek bir köşesinden çizilebilecek tüm köşegenleri lastiklerle oluşturunuz.</p>
                 <p style="margin-top:8px;">Oluşan şekle göre aşağıdaki soruları cevaplayınız:</p>
             </div>
@@ -1704,7 +1704,7 @@ function renderApp3Step(step) {
 
         case 5:
             html += `<div class="instruction-box">
-                <h3>⬡ Adım 5 — Altıgenin İç Açıları Toplamı</h3>
+                <h3>Adım 5 — Altıgenin İç Açıları Toplamı</h3>
                 <p>Geometri tahtasında gösterilen altıgeni ve tek bir köşesinden çizilebilecek tüm köşegenleri lastiklerle oluşturunuz.</p>
                 <p style="margin-top:8px;">Oluşan şekle göre aşağıdaki soruları cevaplayınız:</p>
             </div>
@@ -1740,7 +1740,7 @@ function renderApp3Step(step) {
 
         case 6:
             html += `<div class="instruction-box">
-                <h3>📊 Adım 6 — Verileri Tabloya Aktaralım</h3>
+                <h3>Adım 6 — Verileri Tabloya Aktaralım</h3>
                 <p>Görsel 2'deki gibi elde ettiğimiz kenar sayıları ile iç açılarının ölçüleri toplamı arasındaki ilişkiyi gösteren tabloyu tamamlayınız.</p>
                 <table class="premium-table">
                     <thead>
@@ -1791,7 +1791,7 @@ function renderApp3Step(step) {
 
         case 7:
             html += `<div class="instruction-box">
-                <h3>📊 Adım 7 — Genel Açı Formülünü Bulalım</h3>
+                <h3>Adım 7 — Genel Açı Formülünü Bulalım</h3>
                 <p>Çokgenlerin kenar sayısı ($n$), içindeki üçgen sayısı ve iç açılarının toplamı arasındaki ilişkiyi özetleyelim:</p>
                 <ul style="margin-top:6px;line-height:1.7;font-size:.92em;padding-left:16px;">
                     <li>Üçgen ($n=3$): $1$ üçgen $\rightarrow 1 \times 180° = 180°$</li>
@@ -1824,7 +1824,7 @@ function renderApp3Step(step) {
 
         case 8:
             html += `<div class="instruction-box">
-                <h3>📝 Adım 8 — Değerlendirme Sorusu</h3>
+                <h3>Adım 8 — Değerlendirme Sorusu</h3>
                 <p>Aşağıdaki soruyu cevaplayınız.</p>
             </div>
             <div class="instruction-box" style="margin-top:8px;">
@@ -1948,15 +1948,15 @@ function renderApp3Step(step) {
                     $('#app3Step2Feedback').html(
                         `<div class="success-message" style="margin-bottom: 8px;">✓ Doğru! İki paralel doğruyu başarıyla oluşturdunuz.</div>
                         <div class="explain-box" style="line-height:1.5; font-size:0.92em; border-left:4px solid var(--success-bg); padding-left:10px; margin-top:8px; text-align:left;">
-                            <p><strong>📐 Üçgenin İç Açıları Toplamı İspatı:</strong></p>
+                            <p><strong>Üçgenin İç Açıları Toplamı İspatı:</strong></p>
                             <p style="margin-top:4px;">Tahta üzerinde iç açıları sırasıyla <strong>a (pembe)</strong>, <strong>b (mavi)</strong> ve <strong>c (yeşil)</strong> olan bir üçgenimiz var.</p>
                             <p style="margin-top:6px;">Çizdiğiniz paralel doğrular sayesinde:</p>
                             <ul style="margin-top:4px; padding-left:16px; list-style-type:disc;">
                                 <li><strong>a</strong> açısı, iç ters açılardan tepe noktasındaki <strong>a'</strong> açısına eşittir.</li>
                                 <li><strong>b</strong> açısı da yine iç ters açılardan tepe noktasındaki <strong>b'</strong> açısına eşittir.</li>
                             </ul>
-                            <p style="margin-top:6px;">Gördüğünüz gibi <strong>a', c, b'</strong> açıları paralel doğru üzerinde yan yana gelerek bir <strong>doğru açı ($180^\circ$)</strong> oluşturdu.</p>
-                            <p style="margin-top:6px; font-weight:bold;">Buradan hareketle, bir üçgenin iç açılarının toplamı:<br>$a + b + c = 180^\circ$ olur!</p>
+                            <p style="margin-top:6px;">Gördüğünüz gibi <strong>a', c, b'</strong> açıları paralel doğru üzerinde yan yana gelerek bir <strong>doğru açı ($180°$)</strong> oluşturdu.</p>
+                            <p style="margin-top:6px; font-weight:bold;">Buradan hareketle, bir üçgenin iç açılarının toplamı:<br>$a + b + c = 180°$ olur!</p>
                         </div>`
                     );
                     if (window.MathJax) MathJax.typesetPromise();
@@ -2127,7 +2127,7 @@ function openApp3s0Dialog() {
     const dlg = `
     <div class="dialog-overlay" id="app3s0Dialog" style="display:flex;">
         <div class="dialog-content" style="max-width:500px;">
-            <h2>💡 Dikkat Çekme</h2>
+            <h2>Dikkat Çekme</h2>
             <img src="images/besgen.png" alt="Beşgen Görseli"
                 style="max-width:100%;max-height:220px;display:block;margin:10px auto;object-fit:contain;">
             <p style="margin-top:10px;font-size:1.02em;line-height:1.6;font-weight:bold;text-align:center;">
@@ -2325,12 +2325,12 @@ function startApp3Step2AngleAnimation() {
     if (!frontGroup) return;
 
     // Animasyon yardımcıları (kapsüllenmiş)
-    function createSectorMesh(color, start, len) {
+    function createSectorMesh(color, start, len, opacity = 0.75) {
         const geo = new THREE.RingGeometry(0, 0.38, 32, 1, start, len);
         const mat = new THREE.MeshBasicMaterial({
             color: new THREE.Color(color),
             transparent: true,
-            opacity: 0.75,
+            opacity: opacity,
             side: THREE.DoubleSide,
             depthWrite: false
         });
@@ -2343,15 +2343,23 @@ function startApp3Step2AngleAnimation() {
 
     function createTextSprite(text, color) {
         const canvas = document.createElement('canvas');
-        canvas.width = 64;
-        canvas.height = 64;
+        canvas.width = 128;
+        canvas.height = 128;
         const ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, 64, 64);
-        ctx.font = 'Bold 42px Inter, sans-serif';
-        ctx.fillStyle = color;
+        ctx.clearRect(0, 0, 128, 128);
+        
+        ctx.font = 'Bold 64px Inter, system-ui, sans-serif';
+        // Beyaz gölge/kontur
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 10;
+        ctx.lineJoin = 'round';
+        ctx.miterLimit = 2;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(text, 32, 32);
+        ctx.strokeText(text, 64, 64);
+        
+        ctx.fillStyle = color;
+        ctx.fillText(text, 64, 64);
         
         const texture = new THREE.CanvasTexture(canvas);
         const mat = new THREE.SpriteMaterial({
@@ -2360,7 +2368,7 @@ function startApp3Step2AngleAnimation() {
             transparent: true
         });
         const sprite = new THREE.Sprite(mat);
-        sprite.scale.set(0.3, 0.3, 1);
+        sprite.scale.set(0.42, 0.42, 1);
         sprite.userData.isElastic = true; // clearBoard ile temizlensin
         sprite.userData.isAngleSprite = true;
         sprite.renderOrder = 2000;
@@ -2414,10 +2422,10 @@ function startApp3Step2AngleAnimation() {
     const colorB = '#0ea5e9'; // mavi (b)
     const colorC = '#84cc16'; // yeşil (c)
 
-    // Açı dilim mesh'lerini oluştur
-    const meshA = createSectorMesh(colorA, a_start_init, a_len_init);
-    const meshB = createSectorMesh(colorB, b_start_init, b_len_init);
-    const meshC = createSectorMesh(colorC, c_start, c_len);
+    // Orijinal açı dilimlerini oluştur (Üçgenin içinde sabit kalacaklar, yarı saydam)
+    const meshA = createSectorMesh(colorA, a_start_init, a_len_init, 0.45);
+    const meshB = createSectorMesh(colorB, b_start_init, b_len_init, 0.45);
+    const meshC = createSectorMesh(colorC, c_start, c_len, 0.8);
 
     meshA.position.copy(posA);
     meshB.position.copy(posB);
@@ -2427,18 +2435,35 @@ function startApp3Step2AngleAnimation() {
     frontGroup.add(meshB);
     frontGroup.add(meshC);
 
+    // Taşınacak açı dilimlerini oluştur (Daha opak, hareket edecekler)
+    const meshAPrime = createSectorMesh(colorA, a_start_init, a_len_init, 0.85);
+    const meshBPrime = createSectorMesh(colorB, b_start_init, b_len_init, 0.85);
+
+    meshAPrime.position.copy(posA);
+    meshBPrime.position.copy(posB);
+
+    frontGroup.add(meshAPrime);
+    frontGroup.add(meshBPrime);
+
     // Etiketleri oluştur
     const spriteA = createTextSprite('a', colorA);
     const spriteB = createTextSprite('b', colorB);
     const spriteC = createTextSprite('c', colorC);
+    const spriteAPrime = createTextSprite("a'", colorA);
+    const spriteBPrime = createTextSprite("b'", colorB);
+
+    // Sabit etiketleri yerleştir
+    spriteA.position.copy(posA).add(getLabelOffset(a_start_init, a_len_init));
+    spriteB.position.copy(posB).add(getLabelOffset(b_start_init, b_len_init));
+    spriteC.position.copy(posC).add(getLabelOffset(c_start, c_len));
 
     frontGroup.add(spriteA);
     frontGroup.add(spriteB);
     frontGroup.add(spriteC);
-
-    // Sabit olan C açısı etiketini yerleştir
-    const offsetC = getLabelOffset(c_start, c_len);
-    spriteC.position.copy(posC).add(offsetC);
+    
+    // Taşınan etiketleri ekle
+    frontGroup.add(spriteAPrime);
+    frontGroup.add(spriteBPrime);
 
     const duration = 2200; // 2.2 saniye sürsün
     const startTime = performance.now();
@@ -2451,33 +2476,31 @@ function startApp3Step2AngleAnimation() {
         // Easing: ease-in-out
         const ease = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
 
-        // 1. A açısını (pembe) güncelle
-        const currentPosA = new THREE.Vector3().lerpVectors(posA, posC, ease);
-        meshA.position.copy(currentPosA);
+        // 1. A' açısını (pembe) güncelle
+        const currentPosAPrime = new THREE.Vector3().lerpVectors(posA, posC, ease);
+        meshAPrime.position.copy(currentPosAPrime);
 
-        const currentStartA = a_start_init * (1 - ease) + a_start_final * ease;
-        const currentLenA = a_len_init * (1 - ease) + a_len_final * ease;
+        const currentStartAPrime = a_start_init * (1 - ease) + a_start_final * ease;
+        const currentLenAPrime = a_len_init * (1 - ease) + a_len_final * ease;
 
-        meshA.geometry.dispose();
-        meshA.geometry = new THREE.RingGeometry(0, 0.38, 32, 1, currentStartA, currentLenA);
+        meshAPrime.geometry.dispose();
+        meshAPrime.geometry = new THREE.RingGeometry(0, 0.38, 32, 1, currentStartAPrime, currentLenAPrime);
 
-        const offsetA = getLabelOffset(currentStartA, currentLenA);
-        spriteA.position.copy(currentPosA).add(offsetA);
-        spriteA.scale.set(0.3, 0.3, 1);
+        const offsetAPrime = getLabelOffset(currentStartAPrime, currentLenAPrime);
+        spriteAPrime.position.copy(currentPosAPrime).add(offsetAPrime);
 
-        // 2. B açısını (mavi) güncelle
-        const currentPosB = new THREE.Vector3().lerpVectors(posB, posC, ease);
-        meshB.position.copy(currentPosB);
+        // 2. B' açısını (mavi) güncelle
+        const currentPosBPrime = new THREE.Vector3().lerpVectors(posB, posC, ease);
+        meshBPrime.position.copy(currentPosBPrime);
 
-        const currentStartB = b_start_init * (1 - ease) + b_start_final * ease;
-        const currentLenB = b_len_init * (1 - ease) + b_len_final * ease;
+        const currentStartBPrime = b_start_init * (1 - ease) + b_start_final * ease;
+        const currentLenBPrime = b_len_init * (1 - ease) + b_len_final * ease;
 
-        meshB.geometry.dispose();
-        meshB.geometry = new THREE.RingGeometry(0, 0.38, 32, 1, currentStartB, currentLenB);
+        meshBPrime.geometry.dispose();
+        meshBPrime.geometry = new THREE.RingGeometry(0, 0.38, 32, 1, currentStartBPrime, currentLenBPrime);
 
-        const offsetB = getLabelOffset(currentStartB, currentLenB);
-        spriteB.position.copy(currentPosB).add(offsetB);
-        spriteB.scale.set(0.3, 0.3, 1);
+        const offsetBPrime = getLabelOffset(currentStartBPrime, currentLenBPrime);
+        spriteBPrime.position.copy(currentPosBPrime).add(offsetBPrime);
 
         if (t < 1.0) {
             currentStep2AnimationId = requestAnimationFrame(animate);
