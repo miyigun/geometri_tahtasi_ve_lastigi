@@ -1596,7 +1596,7 @@ function renderApp3Step(step) {
             setTimeout(() => {
                 const triGuide = [{ r: 2, c: 1 }, { r: 2, c: 4 }, { r: 4, c: 2 }];
                 if (typeof renderGuides3D === 'function') {
-                    renderGuides3D([{ pins: triGuide, color: '#eab308', closed: true }]);
+                    renderGuides3D([{ pins: triGuide, color: '#ef4444', closed: true }]);
                 }
                 rebuildBoard();
             }, 300);
@@ -1622,7 +1622,7 @@ function renderApp3Step(step) {
                 </div>
             </div>`;
             setTimeout(() => {
-                elastics.push({ pins: [{ r: 2, c: 1 }, { r: 2, c: 4 }, { r: 4, c: 2 }], color: '#eab308', closed: true });
+                elastics.push({ pins: [{ r: 2, c: 1 }, { r: 2, c: 4 }, { r: 4, c: 2 }], color: '#ef4444', closed: true });
                 if (typeof renderGuides3D === 'function') {
                     renderGuides3D([
                         { pins: [{ r: 0, c: 0 }, { r: 4, c: 2 }], color: '#ef4444', closed: false },
