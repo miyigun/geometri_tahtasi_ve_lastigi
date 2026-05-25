@@ -138,6 +138,7 @@ function buildFront() {
     }
 
     updateElastics3D();
+    if (typeof renderGuides3D === 'function') renderGuides3D(currentGuides3D);
 }
 
 function buildBack() {
@@ -313,6 +314,10 @@ function handleGridPinClick3D(r, c) {
 
     const existIdx = selected3DPinsAll.findIndex(p => p.type === 'grid' && p.r === r && p.c === c);
     if (existIdx >= 0) {
+        if (existIdx === 1 && selected3DPinsAll.length === 2) {
+            _commitGridPolygon(false); // commit as open line segment
+            return;
+        }
         selected3DPinsAll.splice(existIdx, 1);
         updatePinSelectionColors();
         updatePreview3D();
@@ -720,6 +725,60 @@ function updatePreview3D() {
     previewLine3D.computeLineDistances();
     previewLine3D.renderOrder = 999;
     if (frontGroup) frontGroup.add(previewLine3D);
+}
+
+function renderGuides3D(guides) {
+    currentGuides3D = guides; // save state globally
+    
+    // Clear old guide meshes
+    if (guideMeshes3D && guideMeshes3D.length > 0) {
+        if (frontGroup) {
+            guideMeshes3D.forEach(g => frontGroup.remove(g));
+        }
+    }
+    guideMeshes3D = [];
+
+    if (!guides || guides.length === 0) return;
+
+    const offset = -(GRID3D_N - 1) * PIN3D_GAP / 2;
+    const ez = BOARD3D_THICK / 2 + 0.14; // slightly above elastics
+
+    guides.forEach(gInfo => {
+        const { pins, color: colorHex, closed } = gInfo;
+        if (!pins || pins.length < 2) return;
+
+        let closedPins = [...pins];
+        if (closed) closedPins.push(pins[0]);
+
+        const pts = closedPins.map(p => new THREE.Vector3(
+            offset + p.c * PIN3D_GAP,
+            -(offset + p.r * PIN3D_GAP),
+            ez
+        ));
+
+        try {
+            const wrappedPoints = getWrappedPath(pts, PIN3D_R, closed);
+            const geo = new THREE.BufferGeometry().setFromPoints(wrappedPoints);
+            const color = new THREE.Color(colorHex || '#ffd700');
+            // LineDashedMaterial provides a dashed visual effect
+            const mat = new THREE.LineDashedMaterial({
+                color: color,
+                dashSize: 0.12,
+                gapSize: 0.08,
+                linewidth: 3.5,
+                depthTest: false
+            });
+            const line = new THREE.Line(geo, mat);
+            line.computeLineDistances();
+            line.renderOrder = 1000; // render on top of other elastics
+            if (frontGroup) {
+                frontGroup.add(line);
+                guideMeshes3D.push(line);
+            }
+        } catch (e) {
+            console.warn('renderGuides3D error:', e);
+        }
+    });
 }
 
 // 3D otomatik başlatma

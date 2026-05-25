@@ -241,6 +241,10 @@ function handlePinClick(r, c) {
     }
     const idx = selectedPins.findIndex(p => p.r === r && p.c === c);
     if (idx >= 0) {
+        if (idx === 1 && selectedPins.length === 2) {
+            addElasticFromSelected(false); // commit as open line segment
+            return;
+        }
         // Pin zaten seçili → elastiği kapat
         if (idx === 0 && selectedPins.length >= 3) {
             if (getElasticUseCount(currentElasticColor) >= ELASTIC_MAX_USE) { selectedPins = []; rebuildBoard(); return; }
@@ -342,6 +346,7 @@ function clearBoard() {
     // 3D seçim önizleme çizgisini de temizle
     if (typeof updatePreview3D === 'function') updatePreview3D();
     if (typeof updatePinSelectionColors === 'function') updatePinSelectionColors();
+    if (typeof renderGuides3D === 'function') renderGuides3D([]);
 }
 
 /* ÇEMBER ÇİZME YARDIMCısı (App2 için) */

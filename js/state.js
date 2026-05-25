@@ -104,3 +104,5 @@ const BOARD3D_THICK = 0.18;
 
 let selected3DPinsAll = []; // [{type:'grid',r,c,mesh,key} | {type:'circle',circleType,idx,mesh,key}]
 let previewLine3D = null;
+let guideMeshes3D = [];
+let currentGuides3D = [];
