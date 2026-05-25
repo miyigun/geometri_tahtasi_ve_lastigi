@@ -1584,19 +1584,19 @@ function renderApp3Step(step) {
                 <p>Görsel 1'deki ilk adımı uygulayalım. Geometri tahtası üzerinde kesikli çizgilerle gösterilen <strong>dar açılı üçgeni</strong> lastik kullanarak oluşturunuz.</p>
                 <p style="margin-top:6px;font-size:0.88em;color:var(--text-secondary);">İpucu: Pinlere tıklayarak köşeleri belirleyin ve ilk tıkladığınız pine tekrar tıklayarak lastiği kapatın.</p>
             </div>
-            <div class="instruction-box" style="margin-top:8px;" id="app3Step1FeedbackArea">
+            <div class="instruction-box" style="margin-top:8px; display:none;" id="app3Step1FeedbackArea">
                 <div id="app3Step1Feedback"></div>
             </div>
             <div style="text-align:center;margin-top:10px;">
                 <button class="action-button" id="app3Step1CheckBtn">Kontrol Et</button>
                 <div style="display:none;margin-top:8px;" id="app3Step1NextArea">
-                    <button class="action-button" id="app3Step1NextBtn" style="background:var(--success-bg);border-color:var(--success-bg);">Devam Et ✓</button>
+                    <button class="action-button" id="app3Step1NextBtn" style="background:var(--success-bg);border-color:var(--success-bg);width:100%;">Devam Et ✓</button>
                 </div>
             </div>`;
             setTimeout(() => {
-                const triGuide = [{ r: 4, c: 1 }, { r: 1, c: 2 }, { r: 4, c: 3 }];
+                const triGuide = [{ r: 2, c: 1 }, { r: 2, c: 4 }, { r: 4, c: 2 }];
                 if (typeof renderGuides3D === 'function') {
-                    renderGuides3D([{ pins: triGuide, color: '#ffd700', closed: true }]);
+                    renderGuides3D([{ pins: triGuide, color: '#eab308', closed: true }]);
                 }
                 rebuildBoard();
             }, 300);
@@ -1622,11 +1622,11 @@ function renderApp3Step(step) {
                 </div>
             </div>`;
             setTimeout(() => {
-                elastics.push({ pins: [{ r: 4, c: 1 }, { r: 1, c: 2 }, { r: 4, c: 3 }], color: '#ef4444', closed: true });
+                elastics.push({ pins: [{ r: 2, c: 1 }, { r: 2, c: 4 }, { r: 4, c: 2 }], color: '#eab308', closed: true });
                 if (typeof renderGuides3D === 'function') {
                     renderGuides3D([
-                        { pins: [{ r: 4, c: 1 }, { r: 1, c: 2 }], color: '#eab308', closed: false },
-                        { pins: [{ r: 4, c: 3 }, { r: 1, c: 4 }], color: '#22c55e', closed: false }
+                        { pins: [{ r: 0, c: 0 }, { r: 4, c: 2 }], color: '#ef4444', closed: false },
+                        { pins: [{ r: 0, c: 3 }, { r: 4, c: 5 }], color: '#ef4444', closed: false }
                     ]);
                 }
                 rebuildBoard();
@@ -1896,24 +1896,54 @@ function renderApp3Step(step) {
             });
             break;
 
-        case 1:
-            $('#app3Step1CheckBtn').on('click', function () {
-                const isTriangleDrawn = hasClosedElasticWithPins([{ r: 4, c: 1 }, { r: 1, c: 2 }, { r: 4, c: 3 }]);
+        case 1: {
+            const checkApp3Step1 = function () {
+                const isTriangleDrawn = hasClosedElasticWithPins([{ r: 2, c: 1 }, { r: 2, c: 4 }, { r: 4, c: 2 }]);
                 if (isTriangleDrawn) {
+                    $('#app3Step1FeedbackArea').show();
                     $('#app3Step1Feedback').html('<div class="success-message">✓ Harika! Dar açılı üçgeni başarıyla oluşturdunuz.</div>');
                     $('#app3Step1CheckBtn').hide();
                     $('#app3Step1NextArea').show();
+                    $('#app3Step1NextBtn').off('click').on('click', () => {
+                        $(document).off('.app3step1');
+                        renderApp3Step(2);
+                    });
                 } else {
-                    $('#app3Step1Feedback').html('<div class="error-message">✗ Yanlış. Lütfen tahtadaki kesikli çizgi şablonunu takip ederek üçgeni oluşturun. (Tüm köşeleri birleştirip elastiği kapatmayı unutmayın)</div>');
+                    $('#app3Step1CheckBtn').show();
+                    $('#app3Step1NextArea').hide();
+                }
+            };
+            
+            checkApp3Step1();
+
+            $('#app3Step1CheckBtn').off('click').on('click', function () {
+                const isTriangleDrawn = hasClosedElasticWithPins([{ r: 2, c: 1 }, { r: 2, c: 4 }, { r: 4, c: 2 }]);
+                if (isTriangleDrawn) {
+                    checkApp3Step1();
+                } else {
+                    $('#app3Step1FeedbackArea').show();
+                    $('#app3Step1Feedback').html('<div class="error-message">✗ Yanlış. Lütfen tahtadaki kesikli çizgilerle gösterilen dar açılı üçgeni kapalı bir lastik olarak oluşturun.</div>');
                 }
             });
-            $('#app3Step1NextBtn').on('click', () => renderApp3Step(2));
+
+            $(document).off('.app3step1');
+            $(document).on('elasticAdded.app3step1 boardRebuilt.app3step1', function () {
+                const isTriangleDrawn = hasClosedElasticWithPins([{ r: 2, c: 1 }, { r: 2, c: 4 }, { r: 4, c: 2 }]);
+                if (isTriangleDrawn) {
+                    checkApp3Step1();
+                } else {
+                    $('#app3Step1CheckBtn').show();
+                    $('#app3Step1NextArea').hide();
+                    $('#app3Step1FeedbackArea').hide();
+                }
+            });
             break;
+        }
 
         case 2:
             $('#app3Step2CheckBtn').on('click', function () {
-                const isLine1Drawn = hasOpenElasticWithPins({ r: 4, c: 1 }, { r: 1, c: 2 });
-                const isLine2Drawn = hasOpenElasticWithPins({ r: 4, c: 3 }, { r: 1, c: 4 });
+                const isLine1Drawn = hasOpenElasticWithPins({ r: 0, c: 0 }, { r: 4, c: 2 }) || hasOpenElasticWithPins({ r: 2, c: 1 }, { r: 4, c: 2 });
+                const isLine2Drawn = hasOpenElasticWithPins({ r: 0, c: 3 }, { r: 4, c: 5 }) || hasOpenElasticWithPins({ r: 2, c: 4 }, { r: 4, c: 5 }) || hasOpenElasticWithPins({ r: 0, c: 3 }, { r: 2, c: 4 });
                 if (isLine1Drawn && isLine2Drawn) {
                     $('#app3Step2Feedback').html('<div class="success-message">✓ Doğru! İki paralel doğruyu başarıyla oluşturdunuz.</div>');
                     $('#app3Step2CheckBtn').hide();
@@ -1930,7 +1960,10 @@ function renderApp3Step(step) {
                     $('#app3Step2Feedback').html(`<div class="error-message">✗ Yanlış. ${missingMsg} Lütfen kılavuz çizgilerine uygun olarak lastikleri çekin.</div>`);
                 }
             });
-            $('#app3Step2NextBtn').on('click', () => renderApp3Step(3));
+            $('#app3Step2NextBtn').on('click', () => {
+                $(document).off('.app3step1');
+                renderApp3Step(3);
+            });
             break;
 
         case 3:

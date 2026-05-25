@@ -210,6 +210,7 @@ function renderPreview(group) {
 function rebuildBoard() {
     if (frontGroup) updateElastics3D();
     if (typeof window._app2RebuildHook === 'function') window._app2RebuildHook();
+    $(document).trigger('boardRebuilt');
 }
 
 function bindPinEvents() {
