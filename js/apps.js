@@ -1945,9 +1945,24 @@ function renderApp3Step(step) {
                 const isLine1Drawn = hasOpenElasticWithPins({ r: 0, c: 0 }, { r: 4, c: 2 }) || hasOpenElasticWithPins({ r: 2, c: 1 }, { r: 4, c: 2 });
                 const isLine2Drawn = hasOpenElasticWithPins({ r: 0, c: 3 }, { r: 4, c: 5 }) || hasOpenElasticWithPins({ r: 2, c: 4 }, { r: 4, c: 5 }) || hasOpenElasticWithPins({ r: 0, c: 3 }, { r: 2, c: 4 });
                 if (isLine1Drawn && isLine2Drawn) {
-                    $('#app3Step2Feedback').html('<div class="success-message">✓ Doğru! İki paralel doğruyu başarıyla oluşturdunuz.</div>');
+                    $('#app3Step2Feedback').html(
+                        `<div class="success-message" style="margin-bottom: 8px;">✓ Doğru! İki paralel doğruyu başarıyla oluşturdunuz.</div>
+                        <div class="explain-box" style="line-height:1.5; font-size:0.92em; border-left:4px solid var(--success-bg); padding-left:10px; margin-top:8px; text-align:left;">
+                            <p><strong>📐 Üçgenin İç Açıları Toplamı İspatı:</strong></p>
+                            <p style="margin-top:4px;">Tahta üzerinde iç açıları sırasıyla <strong>a (pembe)</strong>, <strong>b (mavi)</strong> ve <strong>c (yeşil)</strong> olan bir üçgenimiz var.</p>
+                            <p style="margin-top:6px;">Çizdiğiniz paralel doğrular sayesinde:</p>
+                            <ul style="margin-top:4px; padding-left:16px; list-style-type:disc;">
+                                <li><strong>a</strong> açısı, iç ters açılardan tepe noktasındaki <strong>a'</strong> açısına eşittir.</li>
+                                <li><strong>b</strong> açısı da yine iç ters açılardan tepe noktasındaki <strong>b'</strong> açısına eşittir.</li>
+                            </ul>
+                            <p style="margin-top:6px;">Gördüğünüz gibi <strong>a', c, b'</strong> açıları paralel doğru üzerinde yan yana gelerek bir <strong>doğru açı ($180^\circ$)</strong> oluşturdu.</p>
+                            <p style="margin-top:6px; font-weight:bold;">Buradan hareketle, bir üçgenin iç açılarının toplamı:<br>$a + b + c = 180^\circ$ olur!</p>
+                        </div>`
+                    );
+                    if (window.MathJax) MathJax.typesetPromise();
                     $('#app3Step2CheckBtn').hide();
                     $('#app3Step2NextArea').show();
+                    startApp3Step2AngleAnimation();
                 } else {
                     let missingMsg = "";
                     if (!isLine1Drawn && !isLine2Drawn) {
@@ -2304,4 +2319,172 @@ function renderDeepStep(step) {
             });
             break;
     }
+}
+
+function startApp3Step2AngleAnimation() {
+    if (!frontGroup) return;
+
+    // Animasyon yardımcıları (kapsüllenmiş)
+    function createSectorMesh(color, start, len) {
+        const geo = new THREE.RingGeometry(0, 0.38, 32, 1, start, len);
+        const mat = new THREE.MeshBasicMaterial({
+            color: new THREE.Color(color),
+            transparent: true,
+            opacity: 0.75,
+            side: THREE.DoubleSide,
+            depthWrite: false
+        });
+        const mesh = new THREE.Mesh(geo, mat);
+        mesh.userData.isElastic = true; // clearBoard ile temizlensin
+        mesh.userData.isAngleSector = true;
+        mesh.renderOrder = 1500;
+        return mesh;
+    }
+
+    function createTextSprite(text, color) {
+        const canvas = document.createElement('canvas');
+        canvas.width = 64;
+        canvas.height = 64;
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, 64, 64);
+        ctx.font = 'Bold 42px Inter, sans-serif';
+        ctx.fillStyle = color;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(text, 32, 32);
+        
+        const texture = new THREE.CanvasTexture(canvas);
+        const mat = new THREE.SpriteMaterial({
+            map: texture,
+            depthTest: false,
+            transparent: true
+        });
+        const sprite = new THREE.Sprite(mat);
+        sprite.scale.set(0.3, 0.3, 1);
+        sprite.userData.isElastic = true; // clearBoard ile temizlensin
+        sprite.userData.isAngleSprite = true;
+        sprite.renderOrder = 2000;
+        return sprite;
+    }
+
+    function getLabelOffset(start, len) {
+        const bisector = start + len / 2;
+        return new THREE.Vector3(Math.cos(bisector) * 0.22, Math.sin(bisector) * 0.22, 0.02);
+    }
+
+    // Önceki animasyonu temizle
+    if (typeof currentStep2AnimationId !== 'undefined' && currentStep2AnimationId !== null) {
+        cancelAnimationFrame(currentStep2AnimationId);
+        currentStep2AnimationId = null;
+    }
+
+    // Önceki açı dilimleri ve etiketleri temizle
+    const oldObjects = frontGroup.children.filter(c => c.userData && (c.userData.isAngleSector || c.userData.isAngleSprite));
+    oldObjects.forEach(obj => frontGroup.remove(obj));
+
+    const offset = -(GRID3D_N - 1) * PIN3D_GAP / 2;
+    function get3DPos(r, c) {
+        return new THREE.Vector3(
+            offset + c * PIN3D_GAP,
+            -(offset + r * PIN3D_GAP),
+            BOARD3D_THICK / 2 + 0.21
+        );
+    }
+
+    const posA = get3DPos(2, 1);
+    const posB = get3DPos(4, 2);
+    const posC = get3DPos(2, 4);
+
+    // Başlangıç ve bitiş açı parametreleri (Radyan cinsinden)
+    const a_start_init = -1.107;
+    const a_len_init = 1.107;
+    const a_start_final = 2.034;
+    const a_len_final = 1.107;
+
+    const b_start_init = 0.785;
+    const b_len_init = 1.249;
+    const b_start_final = 3.927; // 5*pi/4
+    const b_len_final = 1.249;
+
+    const c_start = Math.PI;
+    const c_len = Math.PI / 4;
+
+    // Renk tanımları
+    const colorA = '#ec4899'; // pembe (a)
+    const colorB = '#0ea5e9'; // mavi (b)
+    const colorC = '#84cc16'; // yeşil (c)
+
+    // Açı dilim mesh'lerini oluştur
+    const meshA = createSectorMesh(colorA, a_start_init, a_len_init);
+    const meshB = createSectorMesh(colorB, b_start_init, b_len_init);
+    const meshC = createSectorMesh(colorC, c_start, c_len);
+
+    meshA.position.copy(posA);
+    meshB.position.copy(posB);
+    meshC.position.copy(posC);
+
+    frontGroup.add(meshA);
+    frontGroup.add(meshB);
+    frontGroup.add(meshC);
+
+    // Etiketleri oluştur
+    const spriteA = createTextSprite('a', colorA);
+    const spriteB = createTextSprite('b', colorB);
+    const spriteC = createTextSprite('c', colorC);
+
+    frontGroup.add(spriteA);
+    frontGroup.add(spriteB);
+    frontGroup.add(spriteC);
+
+    // Sabit olan C açısı etiketini yerleştir
+    const offsetC = getLabelOffset(c_start, c_len);
+    spriteC.position.copy(posC).add(offsetC);
+
+    const duration = 2200; // 2.2 saniye sürsün
+    const startTime = performance.now();
+
+    function animate(now) {
+        const elapsed = now - startTime;
+        let t = elapsed / duration;
+        if (t > 1.0) t = 1.0;
+
+        // Easing: ease-in-out
+        const ease = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+
+        // 1. A açısını (pembe) güncelle
+        const currentPosA = new THREE.Vector3().lerpVectors(posA, posC, ease);
+        meshA.position.copy(currentPosA);
+
+        const currentStartA = a_start_init * (1 - ease) + a_start_final * ease;
+        const currentLenA = a_len_init * (1 - ease) + a_len_final * ease;
+
+        meshA.geometry.dispose();
+        meshA.geometry = new THREE.RingGeometry(0, 0.38, 32, 1, currentStartA, currentLenA);
+
+        const offsetA = getLabelOffset(currentStartA, currentLenA);
+        spriteA.position.copy(currentPosA).add(offsetA);
+        spriteA.scale.set(0.3, 0.3, 1);
+
+        // 2. B açısını (mavi) güncelle
+        const currentPosB = new THREE.Vector3().lerpVectors(posB, posC, ease);
+        meshB.position.copy(currentPosB);
+
+        const currentStartB = b_start_init * (1 - ease) + b_start_final * ease;
+        const currentLenB = b_len_init * (1 - ease) + b_len_final * ease;
+
+        meshB.geometry.dispose();
+        meshB.geometry = new THREE.RingGeometry(0, 0.38, 32, 1, currentStartB, currentLenB);
+
+        const offsetB = getLabelOffset(currentStartB, currentLenB);
+        spriteB.position.copy(currentPosB).add(offsetB);
+        spriteB.scale.set(0.3, 0.3, 1);
+
+        if (t < 1.0) {
+            currentStep2AnimationId = requestAnimationFrame(animate);
+        } else {
+            currentStep2AnimationId = null;
+        }
+    }
+
+    currentStep2AnimationId = requestAnimationFrame(animate);
 }

@@ -106,3 +106,4 @@ let selected3DPinsAll = []; // [{type:'grid',r,c,mesh,key} | {type:'circle',circ
 let previewLine3D = null;
 let guideMeshes3D = [];
 let currentGuides3D = [];
+let currentStep2AnimationId = null;

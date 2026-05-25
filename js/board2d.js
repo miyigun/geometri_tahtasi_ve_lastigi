@@ -340,8 +340,19 @@ function clearBoard() {
     selected3DPinsAll = [];
     resetElasticUseCounts();
     updateSwatchBadges();
+
+    // Animasyonu durdur
+    if (typeof currentStep2AnimationId !== 'undefined' && currentStep2AnimationId !== null) {
+        cancelAnimationFrame(currentStep2AnimationId);
+        currentStep2AnimationId = null;
+    }
+
     // 3D elastikleri temizle
-    if (frontGroup) { frontGroup.children.filter(c => c.userData && c.userData.isElastic).forEach(c => frontGroup.remove(c)); elasticMeshes = []; }
+    if (frontGroup) { 
+        const oldObjects = frontGroup.children.filter(c => c.userData && (c.userData.isElastic || c.userData.isAngleSector || c.userData.isAngleSprite));
+        oldObjects.forEach(c => frontGroup.remove(c)); 
+        elasticMeshes = []; 
+    }
     if (backGroup) { backGroup.children.filter(c => c.userData && c.userData.isElastic).forEach(c => backGroup.remove(c)); }
     if (previewLine3D && frontGroup) { frontGroup.remove(previewLine3D); previewLine3D = null; }
     // 3D seçim önizleme çizgisini de temizle
