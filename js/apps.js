@@ -90,11 +90,26 @@ function _removeAreaOverlay() {
 function loadTab(name) {
     window.currentApp3Step = null;
     $('#contentArea').empty();
+
+    // Yüz seçimi ve kamera pozisyonlama
+    if (threeCamera && threeControls) {
+        const isMobile = window.innerWidth <= 640;
+        if (name === 'app2') {
+            threeCamera.position.set(0, 0, isMobile ? -13 : -9);
+        } else {
+            threeCamera.position.set(0, 0, isMobile ? 13 : 9);
+        }
+        threeCamera.lookAt(0, 0, 0);
+        threeControls.target.set(0, 0, 0);
+        threeControls.update();
+    }
+
     if (name === 'intro') loadIntro();
     else if (name === 'app1') loadApp1();
     else if (name === 'app2') loadApp2();
     else if (name === 'app3') loadApp3();
     else if (name === 'deep') loadDeep();
+    else if (name === 'free') loadFree();
 }
 
 /* ── Tanıtım Sekmesi ── */
@@ -2207,6 +2222,7 @@ function loadDeep() {
         const isShapeCorrect = has5x4Rectangle();
 
         if (isShapeCorrect && isAnswerCorrect) {
+            $('#freeTabBtn').prop('disabled', false);
             $('#deepFeedback').html(
                 `<div class="success-message" style="margin-bottom: 8px;">✓ Tebrikler! Doğru Cevap: 40</div>
                 <div class="explain-box" style="line-height:1.6; font-size:0.92em; border-left:4px solid var(--success-bg); padding-left:10px; text-align:left; background:var(--bg-secondary); border-radius:6px; padding:12px; margin-top:8px;">
@@ -2219,14 +2235,20 @@ function loadDeep() {
                         Toplam <strong>40</strong> tane kare oluşturulabilmektedir.
                     </p>
                     <p style="font-weight:bold; margin-bottom: 4px;">II. YOL</p>
-                    <p>
+                    <p style="margin-bottom: 8px;">
                         $2 \\left( \\binom{2}{2} + \\binom{3}{2} + \\binom{4}{2} + \\binom{5}{2} \\right) = 40$
                     </p>
+                    <button class="action-button" id="goToFreeBtn" style="margin-top:12px; width:100%; background:var(--button-bg); box-shadow: 0 0 10px var(--border-glow); border-color:var(--border-color);">Serbest Mod'a Git →</button>
                 </div>`
             );
             if (window.MathJax) MathJax.typesetPromise();
             $('#deepCheckBtn').hide();
             $('#deepResetBtn').show();
+
+            $('#goToFreeBtn').off('click').on('click', function () {
+                $('#freeTabBtn').removeClass('active');
+                $('#freeTabBtn').prop('disabled', false).click();
+            });
         } else {
             let errMsg = "";
             if (!isShapeCorrect && !isAnswerCorrect) {
@@ -2268,6 +2290,23 @@ function has5x4Rectangle() {
         ];
         return corners.every(c => el.pins.some(p => p.r === c.r && p.c === c.c));
     });
+}
+
+function loadFree() {
+    clearBoard();
+    boardMode = 'draw';
+    let html = `<div class="instruction-box">
+    <h3>🎨 Serbest Mod</h3>
+    <p>Tebrikler! Tüm uygulamaları ve derinleştirme bölümünü tamamlayarak <strong>Serbest Mod</strong>'u açtınız.</p>
+    <p style="margin-top:8px;">Bu modda geometri tahtasını tamamen özgürce kullanabilirsiniz. İstediğiniz geometrik şekilleri oluşturabilir, sol taraftaki araçlar çubuğunu kullanarak:</p>
+    <ul style="margin-top:6px; line-height:1.7; padding-left:18px;">
+        <li>Farklı renklerde lastikler çekebilir,</li>
+        <li>Mesafe ölçümü yapabilir (Ölçüm modu 📏),</li>
+        <li>Açıları hesaplayabilirsiniz (Açı modu 📐).</li>
+    </ul>
+</div>`;
+    $('#contentArea').html(html);
+    $('#boardHint').text('📌 Serbest Mod — pinlere tıklayarak istediğiniz şekilleri oluşturun');
 }
 
 function startApp3Step2AngleAnimation() {
