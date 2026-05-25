@@ -2296,9 +2296,8 @@ function loadFree() {
     clearBoard();
     boardMode = 'draw';
     let html = `<div class="instruction-box">
-    <h3>🎨 Serbest Mod</h3>
-    <p>Tebrikler! Tüm uygulamaları ve derinleştirme bölümünü tamamlayarak <strong>Serbest Mod</strong>'u açtınız.</p>
-    <p style="margin-top:8px;">Bu modda geometri tahtasını tamamen özgürce kullanabilirsiniz. İstediğiniz geometrik şekilleri oluşturabilir, sol taraftaki araçlar çubuğunu kullanarak:</p>
+    <h3>Serbest Mod</h3>
+    <p>Bu modda geometri tahtasını tamamen özgürce kullanabilirsiniz. İstediğiniz geometrik şekilleri oluşturabilir, sol taraftaki araçlar çubuğunu kullanarak:</p>
     <ul style="margin-top:6px; line-height:1.7; padding-left:18px;">
         <li>Farklı renklerde lastikler çekebilir,</li>
         <li>Mesafe ölçümü yapabilir (Ölçüm modu 📏),</li>
