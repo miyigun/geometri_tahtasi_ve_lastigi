@@ -2170,162 +2170,104 @@ function openApp3s0Dialog() {
 function loadDeep() {
     clearBoard();
     boardMode = 'draw';
+    
     let html = `<div class="instruction-box">
-    <h3>🔍 Derinleştirme</h3>
-    <h4>Serbest Keşif</h4>
-    <p>Aşağıdaki soruları araştırın ve geometri tahtasını kullanarak modeller oluşturun.</p>
+    <h3>Derinleştirme</h3>
+    <p>Geometri tahtası üzerinde kesikli çizgilerle gösterilen <strong>5x4'lük bir dikdörtgen</strong> belirleyiniz.</p>
 </div>
-<div style="display:flex;flex-direction:column;gap:10px;margin-top:6px;">
-    <button class="option-button" id="deepQ1Btn">1. $(a-b)^2$ özdeşliğini geometri tahtasında gösterin.</button>
-    <button class="option-button" id="deepQ2Btn">2. Bir 10-genin iç açılar toplamı ve köşegen sayısını hesaplayın.</button>
-    <button class="option-button" id="deepQ3Btn">3. Çapı 10 birim olan dairenin alanı kaç ile kaç arasındadır?</button>
+<div class="instruction-box" style="margin-top:10px;">
+    <p style="font-weight:bold;">Bu şeklin üzerinde oluşturulabilecek kare sayısı kaçtır?</p>
+    <label style="font-size:.9em;color:var(--text-secondary);display:block;margin-top:8px;margin-bottom:6px;">Cevabınız:</label>
+    <input type="text" id="deepSquareCount" class="input-field" placeholder="Cevabınızı yazınız..." style="width:100%;">
 </div>
-<div id="deepAnswer" style="margin-top:12px;"></div>`;
-
-    $('#contentArea').html(html);
-    if (window.MathJax) MathJax.typesetPromise();
-
-    $('#deepQ1Btn').on('click', function () {
-        clearBoard();
-        setTimeout(() => {
-            drawSquare(0, 0, 3, '#3b82f6');
-            drawSquare(0, 2, 1, '#ef4444');
-            elastics.push({ pins: [{ r: 0, c: 0 }, { r: 0, c: 2 }, { r: 2, c: 2 }, { r: 2, c: 0 }], color: '#22c55e', closed: true });
-            rebuildBoard();
-        }, 300);
-        $('#deepAnswer').html(`<div class="explain-box"><p>
-        $(a-b)^2 = a^2 - 2ab + b^2$<br>
-        Büyük kare $a^2$'den dikdörtgenler çıkartılınca küçük kare kalır.<br>
-        a=3, b=1 → $(3-1)^2 = 4 = 2^2$ ✓
-    </p></div>`);
-        if (window.MathJax) MathJax.typesetPromise();
-    });
-    $('#deepQ2Btn').on('click', function () {
-        clearBoard();
-        $('#deepAnswer').html(`<div class="explain-box"><p>
-        <strong>10-gen:</strong><br>
-        İç açılar toplamı = $(10-2) \\times 180° = 1440°$<br>
-        Köşegen sayısı = $\\dfrac{10 \\times (10-3)}{2} = \\dfrac{70}{2} = 35$
-    </p></div>`);
-        if (window.MathJax) MathJax.typesetPromise();
-    });
-    $('#deepQ3Btn').on('click', function () {
-        clearBoard();
-        setTimeout(() => {
-            const cp = [];
-            for (let i = 0; i < 8; i++) {
-                const a = i * Math.PI / 4;
-                const r = Math.round(2 + 2 * Math.sin(a)), c = Math.round(2 + 2 * Math.cos(a));
-                if (r >= 0 && r < GRID_N && c >= 0 && c < GRID_N) cp.push({ r, c });
-            }
-            if (cp.length >= 4) elastics.push({ pins: cp, color: '#a855f7', closed: true });
-            rebuildBoard();
-        }, 300);
-        $('#deepAnswer').html(`<div class="explain-box"><p>
-        Çap = 10 birim → yarıçap r = 5 birim<br>
-        Alan = $\\pi r^2 = 25\\pi$<br>
-        $2 &lt; \\pi &lt; 4$ olduğundan: $50 &lt; 25\\pi &lt; 100$<br>
-        <strong>Alan 50 ile 100 arasındadır.</strong>
-    </p></div>`);
-        if (window.MathJax) MathJax.typesetPromise();
-    });
-
-    $('#boardHint').text('📌 Serbest keşif — pinlere tıklayarak şekil oluşturun');
-}
-
-function renderDeepStep(step) {
-    clearBoard();
-    const totalSteps = 3;
-    const pct = Math.round(((step + 1) / totalSteps) * 100);
-    let html = `<div class="progress-container">
-    <div class="progress-label"><span>Derinleştirme</span><span>${step + 1}/${totalSteps}</span></div>
-    <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+<div id="deepFeedback" style="margin-top:10px;"></div>
+<div style="text-align:center;margin-top:12px;">
+    <button class="action-button" id="deepCheckBtn">Kontrol Et</button>
+    <button class="action-button" id="deepResetBtn" style="display:none;background:var(--success-bg);border-color:var(--success-bg);width:100%;margin-top:10px;">Başa Dön</button>
 </div>`;
 
-    switch (step) {
-        case 0:
-            html += `<div class="instruction-box">
-        <h3>🔬 Derinleştirme</h3>
-        <p>Öğrencilerin öğrenmiş oldukları kazanımları kullanarak <strong>alt kazanımlar</strong> elde etmeleri, kavramsal anlama yeteneklerini geliştirmeleri ve pekiştirmeleri hedeflenir.</p>
-        <h4>Öneriler</h4>
-        <ul>
-            <li>Farklı çokgenler deneyin</li>
-            <li>$(a-b)^2$ özdeşliğini modelleyin</li>
-            <li>π\'yi farklı çemberlerle doğrulayın</li>
-        </ul>
-        <p style="margin-top:8px;font-size:.88em;color:var(--text-secondary);">Sağ paneldeki tahta <strong>serbesttir</strong> — istediğiniz şekli oluşturabilirsiniz.</p>
-    </div>
-    <div style="text-align:center;"><button class="action-button" id="deepS0Btn">Başla</button></div>`;
-            $('#boardHint').text('📌 Serbest keşif — istediğiniz şekli çizin');
-            break;
-        case 1:
-            html += `<div class="instruction-box">
-        <h3>🎨 Serbest Keşif</h3>
-        <p>Geometri tahtası üzerinde <strong>istediğiniz şekli</strong> oluşturun.</p>
-        <p style="margin-top:8px;">Pinlere tıklayarak şekil oluşturabilir, lastik rengini sol araç çubuğundan seçebilirsiniz.</p>
-        <div style="margin-top:12px;padding:8px;background:var(--bg-tertiary);border-radius:7px;">
-            <strong>Dene:</strong> $(a-b)^2 = a^2 - 2ab + b^2$
-            <br><span style="font-size:.85em;color:var(--text-secondary);">Büyük bir kareden iki dikdörtgen çıkarıp küçük kare ekleyin.</span>
-        </div>
-    </div>
-    <div style="text-align:center;"><button class="action-button" id="deepS1Btn">Devam Et</button></div>`;
-            boardMode = 'draw';
-            if (window.MathJax) setTimeout(() => MathJax.typesetPromise(), 200);
-            break;
-        case 2:
-            html += `<div class="instruction-box">
-        <h3>Ek Soru</h3>
-        <p>$(a + b)^2 - 4ab$ ifadesinin eşiti nedir?</p>
-    </div>
-    <div id="deepChoices" style="margin-top:8px;">
-        <button class="option-button" data-dc="1">$(a - b)^2$</button>
-        <button class="option-button" data-dc="2">$(a + b)^2$</button>
-        <button class="option-button" data-dc="3">$4ab$</button>
-        <button class="option-button" data-dc="4">$a^2 + b^2$</button>
-    </div>
-    <div id="deepFeedback" style="margin-top:8px;"></div>
-    <div style="display:none;text-align:center;" id="deepFinishArea">
-        <div class="success-message" style="margin-top:12px;">Tüm etkinlikler tamamlandı!</div>
-        <button class="action-button" id="deepFinishBtn" style="margin-top:10px;">Başa Dön</button>
-    </div>`;
-            if (window.MathJax) setTimeout(() => MathJax.typesetPromise(), 200);
-            break;
-    }
-
     $('#contentArea').html(html);
     if (window.MathJax) MathJax.typesetPromise();
 
-    switch (step) {
-        case 0: $('#deepS0Btn').on('click', () => renderDeepStep(1)); break;
-        case 1: $('#deepS1Btn').on('click', () => renderDeepStep(2)); break;
-        case 2:
-            $(document).off('click.dc').on('click.dc', '[data-dc]', function () {
-                if ($(this).prop('disabled')) return;
-                const dc = parseInt($(this).data('dc'));
-                if (dc === 1) {
-                    $(this).addClass('correct');
-                    $('[data-dc]').prop('disabled', true);
-                    $('#deepFeedback').html('<div class="explain-box"><p>✓ Doğru!<br>$(a+b)^2 - 4ab = a^2 + 2ab + b^2 - 4ab = a^2 - 2ab + b^2 = (a-b)^2$</p></div>');
-                    if (window.MathJax) MathJax.typesetPromise();
-                    $('#deepFinishArea').show();
-                    $(document).off('click.dc');
-                } else {
-                    $(this).addClass('incorrect');
-                    setTimeout(() => $(this).removeClass('incorrect'), 800);
-                    $('#deepFeedback').html('<div class="error-message">✗ İpucu: $(a+b)^2$ açıp $4ab$ çıkarın.</div>');
-                    if (window.MathJax) MathJax.typesetPromise();
-                }
-            });
-            $('#deepFinishBtn').on('click', function () {
-                $(document).off('click.dc');
-                clearBoard();
-                boardMode = 'draw';
-                $('.tab-button').removeClass('active');
-                $('[data-tab="intro"]').addClass('active');
-                loadTab('intro');
-            });
-            break;
-    }
+    // 5x4 kılavuz çizgisini göster
+    setTimeout(() => {
+        if (typeof renderGuides3D === 'function') {
+            renderGuides3D([
+                { pins: [{ r: 0, c: 0 }, { r: 0, c: 5 }, { r: 4, c: 5 }, { r: 4, c: 0 }], color: '#eab308', closed: true }
+            ]);
+        }
+        rebuildBoard();
+    }, 300);
+    $('#boardHint').text('Kesikli çizgilerle gösterilen 5x4\'lük dikdörtgeni çizin');
+
+    // Kontrol mekanizması
+    $('#deepCheckBtn').on('click', function () {
+        const inputVal = $('#deepSquareCount').val().trim().replace(/\s/g, '');
+        const isAnswerCorrect = inputVal === '40';
+        const isShapeCorrect = has5x4Rectangle();
+
+        if (isShapeCorrect && isAnswerCorrect) {
+            $('#deepFeedback').html(
+                `<div class="success-message" style="margin-bottom: 8px;">✓ Tebrikler! Doğru Cevap: 40</div>
+                <div class="explain-box" style="line-height:1.6; font-size:0.92em; border-left:4px solid var(--success-bg); padding-left:10px; text-align:left; background:var(--bg-secondary); border-radius:6px; padding:12px; margin-top:8px;">
+                    <p style="font-weight:bold; margin-bottom: 4px;">I. YOL</p>
+                    <p style="margin-bottom: 8px;">
+                        $1 \\cdot 1 = 1 \\text{ birimkare} \\quad \\rightarrow \\quad 5 \\cdot 4 = 20 \\text{ tane},$<br>
+                        $2 \\cdot 2 = 4 \\text{ birimkare} \\quad \\rightarrow \\quad 4 \\cdot 3 = 12 \\text{ tane},$<br>
+                        $3 \\cdot 3 = 9 \\text{ birimkare} \\quad \\rightarrow \\quad 3 \\cdot 2 = 6 \\text{ tane},$<br>
+                        $4 \\cdot 4 = 16 \\text{ birimkare} \\quad \\rightarrow \\quad 2 \\cdot 1 = 2 \\text{ tane}.$<br>
+                        Toplam <strong>40</strong> tane kare oluşturulabilmektedir.
+                    </p>
+                    <p style="font-weight:bold; margin-bottom: 4px;">II. YOL</p>
+                    <p>
+                        $2 \\left( \\binom{2}{2} + \\binom{3}{2} + \\binom{4}{2} + \\binom{5}{2} \\right) = 40$
+                    </p>
+                </div>`
+            );
+            if (window.MathJax) MathJax.typesetPromise();
+            $('#deepCheckBtn').hide();
+            $('#deepResetBtn').show();
+        } else {
+            let errMsg = "";
+            if (!isShapeCorrect && !isAnswerCorrect) {
+                errMsg = "Geometri tahtasında 5x4'lük dikdörtgeni çiziniz ve kare sayısını doğru hesaplayınız.";
+            } else if (!isShapeCorrect) {
+                errMsg = "Cevabınız doğru (40)! Ancak geometri tahtasında 5x4'lük dikdörtgeni henüz çizmediniz. Lütfen kesikli çizgilerle gösterilen dikdörtgeni kapalı bir lastik olarak oluşturun.";
+            } else {
+                errMsg = "Çiziminiz doğru! Ancak bulduğunuz kare sayısı hatalı. Lütfen tekrar hesaplayınız.";
+            }
+            $('#deepFeedback').html(`<div class="error-message">✗ Yanlış. ${errMsg}</div>`);
+            if (window.MathJax) MathJax.typesetPromise();
+        }
+    });
+
+    $('#deepResetBtn').on('click', function () {
+        loadDeep();
+    });
+}
+
+function has5x4Rectangle() {
+    return elastics.some(el => {
+        if (!el.closed || el.pins.length !== 4) return false;
+        const rows = el.pins.map(p => p.r);
+        const cols = el.pins.map(p => p.c);
+        const minR = Math.min(...rows), maxR = Math.max(...rows);
+        const minC = Math.min(...cols), maxC = Math.max(...cols);
+        
+        const height = maxR - minR;
+        const width = maxC - minC;
+        
+        const isSizeOk = (height === 5 && width === 4) || (height === 4 && width === 5);
+        if (!isSizeOk) return false;
+        
+        const corners = [
+            { r: minR, c: minC },
+            { r: minR, c: maxC },
+            { r: maxR, c: maxC },
+            { r: maxR, c: minC }
+        ];
+        return corners.every(c => el.pins.some(p => p.r === c.r && p.c === c.c));
+    });
 }
 
 function startApp3Step2AngleAnimation() {
