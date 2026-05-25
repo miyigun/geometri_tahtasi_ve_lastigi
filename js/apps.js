@@ -1761,22 +1761,22 @@ function renderApp3Step(step) {
                         <tr>
                             <td>Üçgen</td>
                             <td>3</td>
-                            <td><input type="text" id="tableTri" class="table-input" placeholder="180"></td>
+                            <td><input type="text" id="tableTri" class="table-input"></td>
                         </tr>
                         <tr>
                             <td>Dörtgen</td>
                             <td>4</td>
-                            <td><input type="text" id="tableQuad" class="table-input" placeholder="360"></td>
+                            <td><input type="text" id="tableQuad" class="table-input"></td>
                         </tr>
                         <tr>
                             <td>Beşgen</td>
                             <td>5</td>
-                            <td><input type="text" id="tablePent" class="table-input" placeholder="540"></td>
+                            <td><input type="text" id="tablePent" class="table-input"></td>
                         </tr>
                         <tr>
                             <td>Altıgen</td>
                             <td>6</td>
-                            <td><input type="text" id="tableHex" class="table-input" placeholder="720"></td>
+                            <td><input type="text" id="tableHex" class="table-input"></td>
                         </tr>
                     </tbody>
                 </table>
