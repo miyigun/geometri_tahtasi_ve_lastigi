@@ -88,6 +88,7 @@ function _removeAreaOverlay() {
 
 /* ── Sekme Yükleyici ── */
 function loadTab(name) {
+    window.currentApp3Step = null;
     $('#contentArea').empty();
     if (name === 'intro') loadIntro();
     else if (name === 'app1') loadApp1();
@@ -1550,6 +1551,7 @@ function loadApp3() {
 }
 
 function renderApp3Step(step) {
+    window.currentApp3Step = step;
     clearBoard();
     boardMode = 'draw';
     const totalSteps = 10;
@@ -1623,6 +1625,7 @@ function renderApp3Step(step) {
             </div>`;
             setTimeout(() => {
                 elastics.push({ pins: [{ r: 2, c: 1 }, { r: 2, c: 4 }, { r: 4, c: 2 }], color: '#ef4444', closed: true });
+                incrementElasticUse('#ef4444');
                 if (typeof renderGuides3D === 'function') {
                     renderGuides3D([
                         { pins: [{ r: 0, c: 0 }, { r: 4, c: 2 }], color: '#ef4444', closed: false },
@@ -1656,6 +1659,7 @@ function renderApp3Step(step) {
                 </div>
             </div>`;
             setTimeout(() => {
+                elastics.push({ pins: [{ r: 0, c: 0 }, { r: 0, c: 4 }, { r: 4, c: 4 }, { r: 4, c: 0 }], color: '#3b82f6', closed: true });
                 if (typeof renderGuides3D === 'function') {
                     renderGuides3D([
                         { pins: [{ r: 0, c: 0 }, { r: 0, c: 4 }, { r: 4, c: 4 }, { r: 4, c: 0 }], color: '#3b82f6', closed: true },
@@ -1690,6 +1694,8 @@ function renderApp3Step(step) {
             </div>`;
             setTimeout(() => {
                 const pent = [{ r: 0, c: 2 }, { r: 1, c: 4 }, { r: 3, c: 4 }, { r: 4, c: 1 }, { r: 2, c: 0 }];
+                elastics.push({ pins: pent, color: '#22c55e', closed: true });
+                incrementElasticUse('#22c55e');
                 if (typeof renderGuides3D === 'function') {
                     renderGuides3D([
                         { pins: pent, color: '#22c55e', closed: true },
@@ -1725,6 +1731,7 @@ function renderApp3Step(step) {
             </div>`;
             setTimeout(() => {
                 const hex = [{ r: 0, c: 2 }, { r: 0, c: 4 }, { r: 2, c: 5 }, { r: 4, c: 4 }, { r: 4, c: 2 }, { r: 2, c: 0 }];
+                elastics.push({ pins: hex, color: '#a855f7', closed: true });
                 if (typeof renderGuides3D === 'function') {
                     renderGuides3D([
                         { pins: hex, color: '#a855f7', closed: true },

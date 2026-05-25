@@ -332,6 +332,15 @@ function handleGridPinClick3D(r, c) {
 
     const mesh = pinMeshes.find(m => m.userData.r === r && m.userData.c === c);
     selected3DPinsAll.push({ type: 'grid', r, c, mesh, key });
+
+    // App 3, Adım 2, 3, 4, 5 için 2-pin seçildiğinde otomatik lastik geçirme
+    const isApp3Active = $('.tab-button[data-tab="app3"]').hasClass('active');
+    const isApp3StepAutoCommit = isApp3Active && [2, 3, 4, 5].includes(window.currentApp3Step);
+    if (isApp3StepAutoCommit && selected3DPinsAll.length === 2) {
+        _commitGridPolygon(false);
+        return;
+    }
+
     updatePinSelectionColors();
     updatePreview3D();
     $(document).trigger('pinSelected', { r, c, count: selected3DPinsAll.length });

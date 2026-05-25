@@ -258,6 +258,15 @@ function handlePinClick(r, c) {
         return;
     }
     selectedPins.push({ r, c });
+
+    // App 3, Adım 2, 3, 4, 5 için 2-pin seçildiğinde otomatik lastik geçirme
+    const isApp3Active = $('.tab-button[data-tab="app3"]').hasClass('active');
+    const isApp3StepAutoCommit = isApp3Active && [2, 3, 4, 5].includes(window.currentApp3Step);
+    if (isApp3StepAutoCommit && selectedPins.length === 2) {
+        addElasticFromSelected(false);
+        return;
+    }
+
     rebuildBoard();
     // Elastik tamamla butonu
     onPinSelected(r, c);
