@@ -1596,12 +1596,7 @@ function renderApp3Step(step) {
             break;
 
         case 1:
-            html += `<div class="instruction-box">
-                <h3>Adım 1 — Dar Açılı Üçgen Oluşturma</h3>
-                <p>Görsel 1'deki ilk adımı uygulayalım. Geometri tahtası üzerinde kesikli çizgilerle gösterilen <strong>dar açılı üçgeni</strong> lastik kullanarak oluşturunuz.</p>
-                <p style="margin-top:6px;font-size:0.88em;color:var(--text-secondary);">İpucu: Pinlere tıklayarak köşeleri belirleyin ve ilk tıkladığınız pine tekrar tıklayarak lastiği kapatın.</p>
-            </div>
-            <div class="instruction-box" style="margin-top:8px; display:none;" id="app3Step1FeedbackArea">
+            html += `<div class="instruction-box" style="margin-top:8px; display:none;" id="app3Step1FeedbackArea">
                 <div id="app3Step1Feedback"></div>
             </div>
             <div style="text-align:center;margin-top:10px;">
