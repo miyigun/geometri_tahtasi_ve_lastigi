@@ -2061,7 +2061,7 @@ function renderApp3Step(step) {
                 const isAnswersOk = (triCount === '2' || triCount === 'iki') && angleSum === '360';
 
                 if (isShapeOk && isAnswersOk) {
-                    $('#app3Step3Feedback').html('<div class="success-message">✓ Mükemmel! Dörtgeni çizdiniz ve iç açılar toplamını (2 × 180° = 360°) doğru hesapladınız.</div>');
+                    $('#app3Step3Feedback').html('<div class="success-message">✓ Mükemmel! Köşegeni çizdiniz ve iç açılar toplamını (2 × 180° = 360°) doğru hesapladınız.</div>');
                     $('#app3Step3CheckBtn').hide();
                     $('#app3Step3NextArea').show();
                     if (window.MathJax) setTimeout(() => MathJax.typesetPromise(), 100);
