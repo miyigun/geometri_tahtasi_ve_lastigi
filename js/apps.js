@@ -1622,7 +1622,7 @@ function renderApp3Step(step) {
 
         case 2:
             html += `<div class="instruction-box">
-                <h3>Adım 2 - Paralel Doğruların Çizimi</h3>
+                <h3>Paralel Doğruların Çizimi</h3>
                 <p>Üçgenin sol kenarı ile çakışacak şekilde uzunca bir doğru parçasını sarı lastikle oluşturunuz.</p>
                 <p style="margin-top:6px;">Bu doğru parçasına paralel olan ve üçgenin sağ köşesinden geçen başka bir doğru parçasını yeşil lastikle oluşturunuz.</p>
             </div>
@@ -1959,11 +1959,12 @@ function renderApp3Step(step) {
             break;
         }
 
-        case 2:
-            $('#app3Step2CheckBtn').on('click', function () {
+        case 2: {
+            const checkApp3Step2 = function () {
                 const isLine1Drawn = hasOpenElasticWithPins({ r: 0, c: 0 }, { r: 4, c: 2 }) || hasOpenElasticWithPins({ r: 2, c: 1 }, { r: 4, c: 2 });
                 const isLine2Drawn = hasOpenElasticWithPins({ r: 0, c: 3 }, { r: 4, c: 5 }) || hasOpenElasticWithPins({ r: 2, c: 4 }, { r: 4, c: 5 }) || hasOpenElasticWithPins({ r: 0, c: 3 }, { r: 2, c: 4 });
                 if (isLine1Drawn && isLine2Drawn) {
+                    $('#app3Step2FeedbackArea').show();
                     $('#app3Step2Feedback').html(
                         `<div class="success-message" style="margin-bottom: 8px;">✓ Doğru! İki paralel doğruyu başarıyla oluşturdunuz.</div>
                         <div class="explain-box" style="line-height:1.5; font-size:0.92em; border-left:4px solid var(--success-bg); padding-left:10px; margin-top:8px; text-align:left;">
@@ -1983,6 +1984,19 @@ function renderApp3Step(step) {
                     $('#app3Step2NextArea').show();
                     startApp3Step2AngleAnimation();
                 } else {
+                    $('#app3Step2CheckBtn').show();
+                    $('#app3Step2NextArea').hide();
+                }
+            };
+
+            checkApp3Step2();
+
+            $('#app3Step2CheckBtn').off('click').on('click', function () {
+                const isLine1Drawn = hasOpenElasticWithPins({ r: 0, c: 0 }, { r: 4, c: 2 }) || hasOpenElasticWithPins({ r: 2, c: 1 }, { r: 4, c: 2 });
+                const isLine2Drawn = hasOpenElasticWithPins({ r: 0, c: 3 }, { r: 4, c: 5 }) || hasOpenElasticWithPins({ r: 2, c: 4 }, { r: 4, c: 5 }) || hasOpenElasticWithPins({ r: 0, c: 3 }, { r: 2, c: 4 });
+                if (isLine1Drawn && isLine2Drawn) {
+                    checkApp3Step2();
+                } else {
                     let missingMsg = "";
                     if (!isLine1Drawn && !isLine2Drawn) {
                         missingMsg = "İki doğru parçası da eksik.";
@@ -1991,14 +2005,30 @@ function renderApp3Step(step) {
                     } else {
                         missingMsg = "Diğer köşeden geçen yeşil paralel doğru parçası eksik.";
                     }
+                    $('#app3Step2FeedbackArea').show();
                     $('#app3Step2Feedback').html(`<div class="error-message">✗ Yanlış. ${missingMsg} Lütfen kılavuz çizgilerine uygun olarak lastikleri çekin.</div>`);
                 }
             });
-            $('#app3Step2NextBtn').on('click', () => {
-                $(document).off('.app3step1');
+
+            $(document).off('.app3step2');
+            $(document).on('elasticAdded.app3step2 boardRebuilt.app3step2', function () {
+                const isLine1Drawn = hasOpenElasticWithPins({ r: 0, c: 0 }, { r: 4, c: 2 }) || hasOpenElasticWithPins({ r: 2, c: 1 }, { r: 4, c: 2 });
+                const isLine2Drawn = hasOpenElasticWithPins({ r: 0, c: 3 }, { r: 4, c: 5 }) || hasOpenElasticWithPins({ r: 2, c: 4 }, { r: 4, c: 5 }) || hasOpenElasticWithPins({ r: 0, c: 3 }, { r: 2, c: 4 });
+                if (isLine1Drawn && isLine2Drawn) {
+                    checkApp3Step2();
+                } else {
+                    $('#app3Step2CheckBtn').show();
+                    $('#app3Step2NextArea').hide();
+                    $('#app3Step2FeedbackArea').hide();
+                }
+            });
+
+            $('#app3Step2NextBtn').off('click').on('click', () => {
+                $(document).off('.app3step2');
                 renderApp3Step(3);
             });
             break;
+        }
 
         case 3:
             $('#app3Step3CheckBtn').on('click', function () {
