@@ -1651,16 +1651,16 @@ function renderApp3Step(step) {
 
         case 3:
             html += `<div class="instruction-box">
-                <h3>Adım 3 — Dörtgenin İç Açıları Toplamı</h3>
-                <p>Geometri tahtasında gösterilen dörtgeni ve tek bir köşesinden geçen köşegeni lastiklerle oluşturunuz.</p>
-                <p style="margin-top:8px;">Oluşan şekle göre aşağıdaki soruları cevaplayınız:</p>
+                <h3>Dörtgenin İç Açıları Toplamı</h3>
+                <p>Geometri tahtasında gösterilen dörtgenin köşegenini bir lastikle oluşturunuz.</p>
+                <p style="margin-top:8px;font-weight:bold;">Oluşan şekle göre aşağıdaki soruları cevaplayınız:</p>
             </div>
             <div class="instruction-box" style="margin-top:8px;">
-                <label style="font-size:.9em;color:var(--text-secondary);display:block;margin-bottom:6px;">Dörtgen bir köşegenle kaç üçgene ayrılmıştır?</label>
+                <label style="font-size:.9em;color:var(--text-secondary);display:block;margin-bottom:6px;font-weight:bold;">Dörtgen bir köşegenle kaç üçgene ayrılmıştır?</label>
                 <input type="text" id="quadTriCount" class="input-field" placeholder="Cevabınızı yazınız..." style="width:100%;">
             </div>
             <div class="instruction-box" style="margin-top:8px;">
-                <label style="font-size:.9em;color:var(--text-secondary);display:block;margin-bottom:6px;">Dörtgenin iç açılar toplamı kaç derecedir? (°)</label>
+                <label style="font-size:.9em;color:var(--text-secondary);display:block;margin-bottom:6px;font-weight:bold;">Dörtgenin iç açılar toplamı kaç derecedir?</label>
                 <input type="text" id="quadAngleSum" class="input-field" placeholder="Cevabınızı yazınız..." style="width:100%;">
             </div>
             <div id="app3Step3Feedback" style="margin-top:8px;"></div>
