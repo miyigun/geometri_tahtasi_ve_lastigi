@@ -1944,7 +1944,7 @@ function renderApp3Step(step) {
                     checkApp3Step1();
                 } else {
                     $('#app3Step1FeedbackArea').show();
-                    $('#app3Step1Feedback').html('<div class="error-message">✗ Yanlış. Lütfen tahtadaki kesikli çizgilerle gösterilen dar açılı üçgeni kapalı bir lastik olarak oluşturun.</div>');
+                    $('#app3Step1Feedback').html('<div class="error-message">✗ Yanlış.. Lütfen tahtadaki kesikli çizgilerle gösterilen dar açılı üçgeni kapalı bir lastikle oluşturunuz.</div>');
                 }
             });
 
