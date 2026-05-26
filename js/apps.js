@@ -1653,21 +1653,25 @@ function renderApp3Step(step) {
             html += `<div class="instruction-box">
                 <h3>Dörtgenin İç Açıları Toplamı</h3>
                 <p>Geometri tahtasında gösterilen dörtgenin köşegenini bir lastikle oluşturunuz.</p>
-                <p style="margin-top:8px;font-weight:bold;">Oluşan şekle göre aşağıdaki soruları cevaplayınız:</p>
             </div>
-            <div class="instruction-box" style="margin-top:8px;">
-                <label style="font-size:.9em;color:var(--text-secondary);display:block;margin-bottom:6px;font-weight:bold;">Dörtgen bir köşegenle kaç üçgene ayrılmıştır?</label>
-                <input type="text" id="quadTriCount" class="input-field" placeholder="Cevabınızı yazınız..." style="width:100%;">
-            </div>
-            <div class="instruction-box" style="margin-top:8px;">
-                <label style="font-size:.9em;color:var(--text-secondary);display:block;margin-bottom:6px;font-weight:bold;">Dörtgenin iç açılar toplamı kaç derecedir?</label>
-                <input type="text" id="quadAngleSum" class="input-field" placeholder="Cevabınızı yazınız..." style="width:100%;">
-            </div>
-            <div id="app3Step3Feedback" style="margin-top:8px;"></div>
-            <div style="text-align:center;margin-top:10px;">
-                <button class="action-button" id="app3Step3CheckBtn">Kontrol Et</button>
-                <div style="display:none;margin-top:8px;" id="app3Step3NextArea">
-                    <button class="action-button" id="app3Step3NextBtn" style="background:var(--success-bg);border-color:var(--success-bg);">Devam Et ✓</button>
+            <div id="app3Step3Questions" style="display:none;">
+                <div class="instruction-box" style="margin-top:8px;">
+                    <p style="font-weight:bold;">Oluşan şekle göre aşağıdaki soruları cevaplayınız:</p>
+                </div>
+                <div class="instruction-box" style="margin-top:8px;">
+                    <label style="font-size:.9em;color:var(--text-secondary);display:block;margin-bottom:6px;font-weight:bold;">Dörtgen bir köşegenle kaç üçgene ayrılmıştır?</label>
+                    <input type="text" id="quadTriCount" class="input-field" placeholder="Cevabınızı yazınız..." style="width:100%;">
+                </div>
+                <div class="instruction-box" style="margin-top:8px;">
+                    <label style="font-size:.9em;color:var(--text-secondary);display:block;margin-bottom:6px;font-weight:bold;">Dörtgenin iç açılar toplamı kaç derecedir?</label>
+                    <input type="text" id="quadAngleSum" class="input-field" placeholder="Cevabınızı yazınız..." style="width:100%;">
+                </div>
+                <div id="app3Step3Feedback" style="margin-top:8px;"></div>
+                <div style="text-align:center;margin-top:10px;">
+                    <button class="action-button" id="app3Step3CheckBtn">Kontrol Et</button>
+                    <div style="display:none;margin-top:8px;" id="app3Step3NextArea">
+                        <button class="action-button" id="app3Step3NextBtn" style="background:var(--success-bg);border-color:var(--success-bg);">Devam Et ✓</button>
+                    </div>
                 </div>
             </div>`;
             setTimeout(() => {
@@ -2030,8 +2034,24 @@ function renderApp3Step(step) {
             break;
         }
 
-        case 3:
-            $('#app3Step3CheckBtn').on('click', function () {
+        case 3: {
+            const checkDiagDrawn = function () {
+                const isDiagDrawn = hasOpenElasticWithPins({ r: 0, c: 0 }, { r: 4, c: 4 });
+                if (isDiagDrawn) {
+                    $('#app3Step3Questions').show();
+                } else {
+                    $('#app3Step3Questions').hide();
+                }
+            };
+
+            checkDiagDrawn();
+
+            $(document).off('.app3step3');
+            $(document).on('elasticAdded.app3step3 boardRebuilt.app3step3', function () {
+                checkDiagDrawn();
+            });
+
+            $('#app3Step3CheckBtn').off('click').on('click', function () {
                 const isQuadDrawn = hasClosedElasticWithPins([{ r: 0, c: 0 }, { r: 0, c: 4 }, { r: 4, c: 4 }, { r: 4, c: 0 }]);
                 const isDiagDrawn = hasOpenElasticWithPins({ r: 0, c: 0 }, { r: 4, c: 4 });
                 const triCount = $('#quadTriCount').val().trim();
@@ -2053,8 +2073,12 @@ function renderApp3Step(step) {
                     if (window.MathJax) setTimeout(() => MathJax.typesetPromise(), 100);
                 }
             });
-            $('#app3Step3NextBtn').on('click', () => renderApp3Step(4));
+            $('#app3Step3NextBtn').off('click').on('click', () => {
+                $(document).off('.app3step3');
+                renderApp3Step(4);
+            });
             break;
+        }
 
         case 4:
             $('#app3Step4CheckBtn').on('click', function () {
