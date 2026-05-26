@@ -2153,7 +2153,7 @@ function openApp3s0Dialog() {
             <img src="images/besgen.png" alt="Beşgen Görseli"
                 style="max-width:100%;max-height:220px;display:block;margin:10px auto;object-fit:contain;">
             <p style="margin-top:10px;font-size:1.02em;line-height:1.6;font-weight:bold;text-align:center;">
-                Bir beşgenin bir köşesinden çizilebilecek en çok kaç köşegen vardır?
+                Bir beşgenin bir köşesinden çizilebilecek <u>en çok</u> kaç köşegen vardır?
             </p>
             <input type="text" id="app3s0Input" class="input-field" placeholder="Cevabınızı yazınız..." style="margin-top:12px;width:100%;text-align:center;font-size:1.05em;">
             <div id="app3s0Feedback" style="margin-top:8px;text-align:center;"></div>
