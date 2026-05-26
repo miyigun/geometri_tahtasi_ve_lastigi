@@ -1652,7 +1652,7 @@ function renderApp3Step(step) {
         case 3:
             html += `<div class="instruction-box">
                 <h3>Dörtgenin İç Açıları Toplamı</h3>
-                <p>Geometri tahtasında gösterilen dörtgenin köşegenini bir lastikle oluşturunuz.</p>
+                <p>Geometri tahtasında kesikli çizgi ile gösterilen dörtgenin köşegenini bir lastikle oluşturunuz.</p>
             </div>
             <div id="app3Step3Questions" style="display:none;">
                 <div class="instruction-box" style="margin-top:8px;">
