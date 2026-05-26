@@ -2068,7 +2068,7 @@ function renderApp3Step(step) {
                 } else {
                     let errMsg = "Tekrar deneyiniz. ";
                     if (!isShapeOk) errMsg += "Lütfen dörtgeni ve köşegenini kılavuza göre oluşturun. ";
-                    if (!isAnswersOk) errMsg += "Soruları kontrol ediniz (Dörtgen 2 üçgene bölünür ve iç açılar toplamı 360°'dir).";
+                    if (!isAnswersOk) errMsg += "Soruları tekrar gözden geçiriniz. Köşegenin dörtgeni kaç üçgen bölgeye ayırdığını sayınız. Bir üçgenin iç açıları toplamının $180^\\circ$ olmasından yararlanarak dörtgenin iç açıları toplamını hesaplayabilirsiniz.";
                     $('#app3Step3Feedback').html(`<div class="error-message">✗ ${errMsg}</div>`);
                     if (window.MathJax) setTimeout(() => MathJax.typesetPromise(), 100);
                 }
