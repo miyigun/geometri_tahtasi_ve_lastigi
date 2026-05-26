@@ -1622,12 +1622,9 @@ function renderApp3Step(step) {
 
         case 2:
             html += `<div class="instruction-box">
-                <h3>Adım 2 — Paralel Doğruların Çizimi</h3>
-                <p>Görsel 1'deki ikinci ve üçüncü adımları uygulayalım:</p>
-                <ul style="margin-top:6px; line-height:1.6; padding-left:16px;">
-                    <li>Üçgenin bir kenarı (sol kenarı) ile çakışacak şekilde uzunca bir doğru parçası (sarı lastikle) oluşturunuz.</li>
-                    <li>Bu doğru parçasına paralel olan ve üçgenin diğer köşesinden (sağ köşe) geçen başka bir doğru parçası (yeşil lastikle) oluşturunuz.</li>
-                </ul>
+                <h3>Adım 2 - Paralel Doğruların Çizimi</h3>
+                <p>Üçgenin sol kenarı ile çakışacak şekilde uzunca bir doğru parçasını sarı lastikle oluşturunuz.</p>
+                <p style="margin-top:6px;">Bu doğru parçasına paralel olan ve üçgenin sağ köşesinden geçen başka bir doğru parçasını yeşil lastikle oluşturunuz.</p>
             </div>
             <div class="instruction-box" style="margin-top:8px;" id="app3Step2FeedbackArea">
                 <div id="app3Step2Feedback"></div>
