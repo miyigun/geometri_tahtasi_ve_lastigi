@@ -1623,8 +1623,8 @@ function renderApp3Step(step) {
         case 2:
             html += `<div class="instruction-box">
                 <h3>Paralel Doğruların Çizimi</h3>
-                <p>Üçgenin sol kenarı ile çakışacak şekilde uzunca bir doğru parçasını sarı lastikle oluşturunuz.</p>
-                <p style="margin-top:6px;">Bu doğru parçasına paralel olan ve üçgenin sağ köşesinden geçen başka bir doğru parçasını yeşil lastikle oluşturunuz.</p>
+                <p>Üçgenin sol kenarıyla çakışacak şekilde, lastik kullanarak uzun bir doğru parçası oluşturunuz.</p>
+                <p style="margin-top:6px;">Bu doğru parçasına paralel olan ve üçgenin sağ köşesinden geçen başka bir doğru parçasını lastik kullanarak oluşturunuz.</p>
             </div>
             <div class="instruction-box" style="margin-top:8px;" id="app3Step2FeedbackArea">
                 <div id="app3Step2Feedback"></div>
@@ -1689,23 +1689,27 @@ function renderApp3Step(step) {
 
         case 4:
             html += `<div class="instruction-box">
-                <h3>Adım 4 — Beşgenin İç Açıları Toplamı</h3>
-                <p>Geometri tahtasında gösterilen beşgeni ve tek bir köşesinden çizilebilecek tüm köşegenleri lastiklerle oluşturunuz.</p>
-                <p style="margin-top:8px;">Oluşan şekle göre aşağıdaki soruları cevaplayınız:</p>
+                <h3>Beşgenin İç Açıları Toplamı</h3>
+                <p>Geometri tahtasında gösterilen beşgenin, kesikli çizgilerle belirtilen bir köşesinden çizilebilecek tüm köşegenleri lastik kullanarak oluşturunuz.</p>
             </div>
-            <div class="instruction-box" style="margin-top:8px;">
-                <label style="font-size:.9em;color:var(--text-secondary);display:block;margin-bottom:6px;">Beşgen tek köşeden çizilen köşegenlerle kaç üçgene ayrılmıştır?</label>
-                <input type="text" id="pentTriCount" class="input-field" placeholder="Cevabınızı yazınız..." style="width:100%;">
-            </div>
-            <div class="instruction-box" style="margin-top:8px;">
-                <label style="font-size:.9em;color:var(--text-secondary);display:block;margin-bottom:6px;">Beşgenin iç açılar toplamı kaç derecedir? (°)</label>
-                <input type="text" id="pentAngleSum" class="input-field" placeholder="Cevabınızı yazınız..." style="width:100%;">
-            </div>
-            <div id="pentAngleFeedback" style="margin-top:8px;"></div>
-            <div style="text-align:center;margin-top:10px;">
-                <button class="action-button" id="app3Step4CheckBtn">Kontrol Et</button>
-                <div style="display:none;margin-top:8px;" id="app3Step4NextArea">
-                    <button class="action-button" id="app3Step4NextBtn" style="background:var(--success-bg);border-color:var(--success-bg);">Devam Et ✓</button>
+            <div id="app3Step4Questions" style="display:none;">
+                <div class="instruction-box" style="margin-top:8px;">
+                    <p style="font-weight:bold;">Oluşan şekle göre aşağıdaki soruları cevaplayınız:</p>
+                </div>
+                <div class="instruction-box" style="margin-top:8px;">
+                    <label style="font-size:.9em;color:var(--text-secondary);display:block;margin-bottom:6px;"><b>Beşgen tek köşeden çizilen köşegenlerle kaç üçgene ayrılmıştır?</b></label>
+                    <input type="text" id="pentTriCount" class="input-field" placeholder="Cevabınızı yazınız..." style="width:100%;">
+                </div>
+                <div class="instruction-box" style="margin-top:8px;">
+                    <label style="font-size:.9em;color:var(--text-secondary);display:block;margin-bottom:6px;"><b>Beşgenin iç açılar toplamı kaç derecedir?</b></label>
+                    <input type="text" id="pentAngleSum" class="input-field" placeholder="Cevabınızı yazınız..." style="width:100%;">
+                </div>
+                <div id="pentAngleFeedback" style="margin-top:8px;"></div>
+                <div style="text-align:center;margin-top:10px;">
+                    <button class="action-button" id="app3Step4CheckBtn">Kontrol Et</button>
+                    <div style="display:none;margin-top:8px;" id="app3Step4NextArea">
+                        <button class="action-button" id="app3Step4NextBtn" style="background:var(--success-bg);border-color:var(--success-bg);">Devam Et ✓</button>
+                    </div>
                 </div>
             </div>`;
             setTimeout(() => {
@@ -1726,23 +1730,27 @@ function renderApp3Step(step) {
 
         case 5:
             html += `<div class="instruction-box">
-                <h3>Adım 5 — Altıgenin İç Açıları Toplamı</h3>
-                <p>Geometri tahtasında gösterilen altıgeni ve tek bir köşesinden çizilebilecek tüm köşegenleri lastiklerle oluşturunuz.</p>
-                <p style="margin-top:8px;">Oluşan şekle göre aşağıdaki soruları cevaplayınız:</p>
+                <h3>Altıgenin İç Açıları Toplamı</h3>
+                <p>Geometri tahtasında gösterilen altıgenin, kesikli çizgilerle belirtilen bir köşesinden çizilebilecek tüm köşegenleri lastik kullanarak oluşturunuz.</p>
             </div>
-            <div class="instruction-box" style="margin-top:8px;">
-                <label style="font-size:.9em;color:var(--text-secondary);display:block;margin-bottom:6px;">Altıgen tek köşeden çizilen köşegenlerle kaç üçgene ayrılmıştır?</label>
-                <input type="text" id="hexTriCount" class="input-field" placeholder="Cevabınızı yazınız..." style="width:100%;">
-            </div>
-            <div class="instruction-box" style="margin-top:8px;">
-                <label style="font-size:.9em;color:var(--text-secondary);display:block;margin-bottom:6px;">Altıgenin iç açılar toplamı kaç derecedir? (°)</label>
-                <input type="text" id="hexAngleSum" class="input-field" placeholder="Cevabınızı yazınız..." style="width:100%;">
-            </div>
-            <div id="hexAngleFeedback" style="margin-top:8px;"></div>
-            <div style="text-align:center;margin-top:10px;">
-                <button class="action-button" id="app3Step5CheckBtn">Kontrol Et</button>
-                <div style="display:none;margin-top:8px;" id="app3Step5NextArea">
-                    <button class="action-button" id="app3Step5NextBtn" style="background:var(--success-bg);border-color:var(--success-bg);">Devam Et ✓</button>
+            <div id="app3Step5Questions" style="display:none;">
+                <div class="instruction-box" style="margin-top:8px;">
+                    <p style="font-weight:bold;">Oluşan şekle göre aşağıdaki soruları cevaplayınız:</p>
+                </div>
+                <div class="instruction-box" style="margin-top:8px;">
+                    <label style="font-size:.9em;color:var(--text-secondary);display:block;margin-bottom:6px;"><b>Altıgen tek köşeden çizilen köşegenlerle kaç üçgene ayrılmıştır?</b></label>
+                    <input type="text" id="hexTriCount" class="input-field" placeholder="Cevabınızı yazınız..." style="width:100%;">
+                </div>
+                <div class="instruction-box" style="margin-top:8px;">
+                    <label style="font-size:.9em;color:var(--text-secondary);display:block;margin-bottom:6px;"><b>Altıgenin iç açılar toplamı kaç derecedir?</b></label>
+                    <input type="text" id="hexAngleSum" class="input-field" placeholder="Cevabınızı yazınız..." style="width:100%;">
+                </div>
+                <div id="hexAngleFeedback" style="margin-top:8px;"></div>
+                <div style="text-align:center;margin-top:10px;">
+                    <button class="action-button" id="app3Step5CheckBtn">Kontrol Et</button>
+                    <div style="display:none;margin-top:8px;" id="app3Step5NextArea">
+                        <button class="action-button" id="app3Step5NextBtn" style="background:var(--success-bg);border-color:var(--success-bg);">Devam Et ✓</button>
+                    </div>
                 </div>
             </div>`;
             setTimeout(() => {
@@ -1763,8 +1771,8 @@ function renderApp3Step(step) {
 
         case 6:
             html += `<div class="instruction-box">
-                <h3>Adım 6 — Verileri Tabloya Aktaralım</h3>
-                <p>Görsel 2'deki gibi elde ettiğimiz kenar sayıları ile iç açılarının ölçüleri toplamı arasındaki ilişkiyi gösteren tabloyu tamamlayınız.</p>
+                <h3>Verileri Tabloya Aktaralım</h3>
+                <p><b>Elde ettiğimiz kenar sayıları ile iç açı ölçüleri toplamları arasındaki ilişkiyi gösteren tabloyu tamamlayınız.</b></p>
                 <table class="premium-table">
                     <thead>
                         <tr>
@@ -1805,8 +1813,11 @@ function renderApp3Step(step) {
                 </div>
             </div>`;
             setTimeout(() => {
-                const oct = [{ r: 0, c: 2 }, { r: 0, c: 3 }, { r: 2, c: 5 }, { r: 3, c: 5 }, { r: 5, c: 3 }, { r: 5, c: 2 }, { r: 3, c: 0 }, { r: 2, c: 0 }];
-                elastics.push({ pins: oct, color: '#ffd700', closed: true });
+                const hex = [{ r: 0, c: 2 }, { r: 0, c: 4 }, { r: 2, c: 5 }, { r: 4, c: 4 }, { r: 4, c: 2 }, { r: 2, c: 0 }];
+                elastics.push({ pins: hex, color: '#a855f7', closed: true });
+                elastics.push({ pins: [{ r: 2, c: 0 }, { r: 0, c: 4 }], color: '#ef4444', closed: false });
+                elastics.push({ pins: [{ r: 2, c: 0 }, { r: 2, c: 5 }], color: '#ef4444', closed: false });
+                elastics.push({ pins: [{ r: 2, c: 0 }, { r: 4, c: 4 }], color: '#ef4444', closed: false });
                 rebuildBoard();
             }, 300);
             $('#boardHint').text('Tablodaki boşlukları doldurun');
@@ -1814,16 +1825,16 @@ function renderApp3Step(step) {
 
         case 7:
             html += `<div class="instruction-box">
-                <h3>Adım 7 — Genel Açı Formülünü Bulalım</h3>
+                <h3>Genel Açı Formülünü Bulalım</h3>
                 <p>Çokgenlerin kenar sayısı ($n$), içindeki üçgen sayısı ve iç açılarının toplamı arasındaki ilişkiyi özetleyelim:</p>
                 <ul style="margin-top:6px;line-height:1.7;font-size:.92em;padding-left:16px;">
-                    <li>Üçgen ($n=3$): $1$ üçgen $\rightarrow 1 \times 180° = 180°$</li>
-                    <li>Dörtgen ($n=4$): $2$ üçgen $\rightarrow 2 \times 180° = 360°$</li>
-                    <li>Beşgen ($n=5$): $3$ üçgen $\rightarrow 3 \times 180° = 540°$</li>
-                    <li>Altıgen ($n=6$): $4$ üçgen $\rightarrow 4 \times 180° = 720°$</li>
+                    <li>Üçgen ($n=3$): $1$ üçgen $\\implies 1 \\times 180° = 180°$</li>
+                    <li>Dörtgen ($n=4$): $2$ üçgen $\\implies 2 \\times 180° = 360°$</li>
+                    <li>Beşgen ($n=5$): $3$ üçgen $\\implies 3 \\times 180° = 540°$</li>
+                    <li>Altıgen ($n=6$): $4$ üçgen $\\implies 4 \\times 180° = 720°$</li>
                 </ul>
-                <p style="margin-top:10px;">Gördüğünüz gibi, oluşan üçgen sayısı her zaman kenar sayısının ($n$) **2 eksiğidir** (yani $n - 2$ adet üçgen).</p>
-                <p style="margin-top:8px;">Buna göre konveks bir $n$-genin iç açılarının toplamını veren formül hangisidir?</p>
+                <p style="margin-top:10px;">Gördüğünüz gibi, oluşan üçgen sayısı her zaman kenar sayısının ($n$) 2 eksiğidir yani $n-2$ adettir.</p>
+                <p style="margin-top:8px;"><b>Buna göre konveks bir $n$-genin iç açılarının toplamını veren formül aşağıdakilerden hangisidir?</b></p>
             </div>
             <div class="instruction-box" style="margin-top:8px;">
                 <div style="display:flex;flex-direction:column;gap:8px;">
@@ -1838,8 +1849,11 @@ function renderApp3Step(step) {
                 <button class="action-button" id="app3s6Btn" disabled style="opacity:.4;">Devam Et</button>
             </div>`;
             setTimeout(() => {
-                const oct = [{ r: 0, c: 2 }, { r: 0, c: 3 }, { r: 2, c: 5 }, { r: 3, c: 5 }, { r: 5, c: 3 }, { r: 5, c: 2 }, { r: 3, c: 0 }, { r: 2, c: 0 }];
-                elastics.push({ pins: oct, color: '#ffd700', closed: true });
+                const hex = [{ r: 0, c: 2 }, { r: 0, c: 4 }, { r: 2, c: 5 }, { r: 4, c: 4 }, { r: 4, c: 2 }, { r: 2, c: 0 }];
+                elastics.push({ pins: hex, color: '#a855f7', closed: true });
+                elastics.push({ pins: [{ r: 2, c: 0 }, { r: 0, c: 4 }], color: '#ef4444', closed: false });
+                elastics.push({ pins: [{ r: 2, c: 0 }, { r: 2, c: 5 }], color: '#ef4444', closed: false });
+                elastics.push({ pins: [{ r: 2, c: 0 }, { r: 4, c: 4 }], color: '#ef4444', closed: false });
                 rebuildBoard();
             }, 300);
             $('#boardHint').text('Çokgen iç açıları genel formülü');
@@ -1847,12 +1861,10 @@ function renderApp3Step(step) {
 
         case 8:
             html += `<div class="instruction-box">
-                <h3>Adım 8 — Değerlendirme Sorusu</h3>
-                <p>Aşağıdaki soruyu cevaplayınız.</p>
+                <h3>Değerlendirme Sorusu</h3>
             </div>
             <div class="instruction-box" style="margin-top:8px;">
-                <p><strong>Soru:</strong> Konveks bir sekizgenin ($n=8$) iç açılarının toplamı kaç derecedir?</p>
-                <label style="font-size:.9em;color:var(--text-secondary);display:block;margin-top:8px;margin-bottom:6px;">Cevabınız (°):</label>
+                <p><strong>Soru:</strong> <b>Konveks bir sekizgenin</b> ($n=8$) <b>iç açılarının toplamı kaç derecedir?</b></p>
                 <input type="text" id="app3AssessInput" class="input-field" placeholder="Cevabınızı yazınız..." style="width:100%;">
                 <div id="app3AssessFeedback" style="margin-top:8px;"></div>
             </div>
@@ -1877,15 +1889,15 @@ function renderApp3Step(step) {
 
         case 9:
             html += `<div class="success-message" style="padding:18px;font-size:1.05em;text-align:center;">
-                Tebrikler! Uygulama 3 Tamamlandı!
+                Tebrikler! Uygulama 3 tamamlandı!
             </div>
             <div class="instruction-box" style="margin-top:10px;">
                 <h3>Bu Uygulamada Neler Öğrendik?</h3>
                 <ul style="margin-top:8px;line-height:1.9;padding-left:16px;">
                     <li>Üçgenin iç açılarının toplamının her zaman <strong>180°</strong> olduğunu kanıtladık.</li>
-                    <li>Konveks çokgenlerde bir köşeden köşegenler çizildiğinde oluşan üçgen sayısının, kenar sayısının ($n$) 2 eksiği (yani **$n - 2$**) olduğunu keşfettik.</li>
-                    <li>Çokgenlerin iç açılarının toplamını veren genel formülün **$(n - 2) \\times 180°$** olduğunu ispatladık.</li>
-                    <li>Formülü kullanarak sekizgenin iç açılarının toplamının **$1080°$** olduğunu hesapladık.</li>
+                    <li>Konveks çokgenlerde bir köşeden köşegenler çizildiğinde oluşan üçgen sayısının, kenar sayısının ($n$) 2 eksiği yani $n - 2$ olduğunu keşfettik.</li>
+                    <li>Çokgenlerin iç açılarının toplamını veren genel formülün $(n - 2) \\times 180°$ olduğunu ispatladık.</li>
+                    <li>Formülü kullanarak sekizgenin iç açılarının toplamının $1080°$ olduğunu hesapladık.</li>
                 </ul>
             </div>
             <div style="text-align:center;margin-top:12px;">
@@ -2080,7 +2092,24 @@ function renderApp3Step(step) {
             break;
         }
 
-        case 4:
+        case 4: {
+            const checkDiagDrawn = function () {
+                const isDiag1Drawn = hasOpenElasticWithPins({ r: 2, c: 0 }, { r: 1, c: 4 });
+                const isDiag2Drawn = hasOpenElasticWithPins({ r: 2, c: 0 }, { r: 3, c: 4 });
+                if (isDiag1Drawn && isDiag2Drawn) {
+                    $('#app3Step4Questions').show();
+                } else {
+                    $('#app3Step4Questions').hide();
+                }
+            };
+
+            checkDiagDrawn();
+
+            $(document).off('.app3step4');
+            $(document).on('elasticAdded.app3step4 boardRebuilt.app3step4', function () {
+                checkDiagDrawn();
+            });
+
             $('#app3Step4CheckBtn').on('click', function () {
                 const pent = [{ r: 0, c: 2 }, { r: 1, c: 4 }, { r: 3, c: 4 }, { r: 4, c: 1 }, { r: 2, c: 0 }];
                 const isPentDrawn = hasClosedElasticWithPins(pent);
@@ -2093,22 +2122,44 @@ function renderApp3Step(step) {
                 const isAnswersOk = (triCount === '3' || triCount === 'üç') && angleSum === '540';
 
                 if (isShapeOk && isAnswersOk) {
-                    $('#pentAngleFeedback').html('<div class="success-message">✓ Harika! Beşgen ve köşegenlerini çizdiniz. İç açılar toplamı: 3 × 180° = 540°.</div>');
+                    $('#pentAngleFeedback').html('<div class="success-message">✓ Harika! Beşgenin köşegenlerini çizdiniz. İç açılar toplamı: 3 × 180° = 540°.</div>');
                     $('#app3Step4CheckBtn').hide();
                     $('#app3Step4NextArea').show();
                     if (window.MathJax) setTimeout(() => MathJax.typesetPromise(), 100);
                 } else {
                     let errMsg = "Tekrar deneyiniz. ";
                     if (!isShapeOk) errMsg += "Lütfen beşgeni ve tek köşeden çıkan 2 köşegeni kılavuza göre çizin. ";
-                    if (!isAnswersOk) errMsg += "Soruları kontrol ediniz (Beşgen 3 üçgene bölünür ve açılar toplamı 540°'dir).";
+                    if (!isAnswersOk) errMsg += "Soruları kontrol ediniz. <br><b>İpucu:</b> Çizdiğiniz köşegenler beşgeni kaç üçgensel bölgeye ayırdı? Bir üçgenin iç açılarının toplamının $180^\\circ$ olduğunu hatırlayarak beşgenin toplam iç açısını hesaplamayı deneyin.";
                     $('#pentAngleFeedback').html(`<div class="error-message">✗ ${errMsg}</div>`);
                     if (window.MathJax) setTimeout(() => MathJax.typesetPromise(), 100);
                 }
             });
-            $('#app3Step4NextBtn').on('click', () => renderApp3Step(5));
+            $('#app3Step4NextBtn').off('click').on('click', () => {
+                $(document).off('.app3step4');
+                renderApp3Step(5);
+            });
             break;
+        }
 
-        case 5:
+        case 5: {
+            const checkDiagDrawn = function () {
+                const isDiag1Drawn = hasOpenElasticWithPins({ r: 2, c: 0 }, { r: 0, c: 4 });
+                const isDiag2Drawn = hasOpenElasticWithPins({ r: 2, c: 0 }, { r: 2, c: 5 });
+                const isDiag3Drawn = hasOpenElasticWithPins({ r: 2, c: 0 }, { r: 4, c: 4 });
+                if (isDiag1Drawn && isDiag2Drawn && isDiag3Drawn) {
+                    $('#app3Step5Questions').show();
+                } else {
+                    $('#app3Step5Questions').hide();
+                }
+            };
+
+            checkDiagDrawn();
+
+            $(document).off('.app3step5');
+            $(document).on('elasticAdded.app3step5 boardRebuilt.app3step5', function () {
+                checkDiagDrawn();
+            });
+
             $('#app3Step5CheckBtn').on('click', function () {
                 const hex = [{ r: 0, c: 2 }, { r: 0, c: 4 }, { r: 2, c: 5 }, { r: 4, c: 4 }, { r: 4, c: 2 }, { r: 2, c: 0 }];
                 const isHexDrawn = hasClosedElasticWithPins(hex);
@@ -2122,20 +2173,24 @@ function renderApp3Step(step) {
                 const isAnswersOk = (triCount === '4' || triCount === 'dört') && angleSum === '720';
 
                 if (isShapeOk && isAnswersOk) {
-                    $('#hexAngleFeedback').html('<div class="success-message">✓ Harika! Altıgen ve köşegenlerini çizdiniz. İç açılar toplamı: 4 × 180° = 720°.</div>');
+                    $('#hexAngleFeedback').html('<div class="success-message">✓ Harika! Altıgenin köşegenlerini çizdiniz. İç açılar toplamı: 4 × 180° = 720°.</div>');
                     $('#app3Step5CheckBtn').hide();
                     $('#app3Step5NextArea').show();
                     if (window.MathJax) setTimeout(() => MathJax.typesetPromise(), 100);
                 } else {
                     let errMsg = "Tekrar deneyiniz. ";
                     if (!isShapeOk) errMsg += "Lütfen altıgeni ve tek köşeden çıkan 3 köşegeni kılavuza göre çizin. ";
-                    if (!isAnswersOk) errMsg += "Soruları kontrol ediniz (Altıgen 4 üçgene bölünür ve açılar toplamı 720°'dir).";
+                    if (!isAnswersOk) errMsg += "Soruları kontrol ediniz. <br><b>İpucu:</b> Çizdiğiniz köşegenler altıgeni kaç üçgensel bölgeye ayırdı? Bir üçgenin iç açılarının toplamının $180^\\circ$ olduğunu hatırlayarak altıgenin toplam iç açısını hesaplamayı deneyin.";
                     $('#hexAngleFeedback').html(`<div class="error-message">✗ ${errMsg}</div>`);
                     if (window.MathJax) setTimeout(() => MathJax.typesetPromise(), 100);
                 }
             });
-            $('#app3Step5NextBtn').on('click', () => renderApp3Step(6));
+            $('#app3Step5NextBtn').off('click').on('click', () => {
+                $(document).off('.app3step5');
+                renderApp3Step(6);
+            });
             break;
+        }
 
         case 6:
             $('#app3Step6CheckBtn').on('click', function () {
@@ -2176,12 +2231,13 @@ function renderApp3Step(step) {
             $('#app3AssessCheckBtn').on('click', function () {
                 const rawSum = $('#app3AssessInput').val().trim().replace(/\s/g, '');
                 if (rawSum === '1080') {
-                    $('#app3AssessFeedback').html('<div class="success-message">✓ Tebrikler! Doğru cevap. $(8-2) \\times 180° = 6 \\times 180° = 1080°$ olur.</div>');
+                    $('#app3AssessFeedback').html('<div class="success-message">✓ Tebrikler! Doğru cevap. \\((8-2) \\times 180^\\circ = 6 \\times 180^\\circ = 1080^\\circ\\) olur.</div>');
                     $('#app3AssessCheckBtn').hide();
                     $('#app3Step8NextArea').show();
                     if (window.MathJax) setTimeout(() => MathJax.typesetPromise(), 100);
                 } else {
-                    $('#app3AssessFeedback').html('<div class="error-message">✗ Yanlış. İpucu: Formülü kullanınız: $(n-2) \\times 180^\\circ$. Sekizgen için $n = 8$ değerini formülde yerine yazınız.</div>');
+                    $('#app3AssessFeedback').html('<div class="error-message">✗ Yanlış. İpucu: Formülü kullanınız: \\((n-2) \\times 180^\\circ\\). Sekizgen için \\(n = 8\\) değerini formülde yerine yazınız.</div>');
+                    if (window.MathJax) setTimeout(() => MathJax.typesetPromise(), 100);
                 }
             });
             $('#app3s7Btn').on('click', () => renderApp3Step(9));
@@ -2239,17 +2295,18 @@ function loadDeep() {
     
     let html = `<div class="instruction-box">
     <h3>Derinleştirme</h3>
-    <p>Geometri tahtası üzerinde kesikli çizgilerle gösterilen <strong>5x4'lük bir dikdörtgen</strong> belirleyiniz.</p>
+    <p>Geometri tahtası üzerinde kesikli çizgilerle gösterilen <strong>5x4'lük bir dikdörtgeni</strong> lastikle oluşturunuz.</p>
 </div>
-<div class="instruction-box" style="margin-top:10px;">
-    <p style="font-weight:bold;">Bu şeklin üzerinde oluşturulabilecek kare sayısı kaçtır?</p>
-    <label style="font-size:.9em;color:var(--text-secondary);display:block;margin-top:8px;margin-bottom:6px;">Cevabınız:</label>
-    <input type="text" id="deepSquareCount" class="input-field" placeholder="Cevabınızı yazınız..." style="width:100%;">
-</div>
-<div id="deepFeedback" style="margin-top:10px;"></div>
-<div style="text-align:center;margin-top:12px;">
-    <button class="action-button" id="deepCheckBtn">Kontrol Et</button>
-    <button class="action-button" id="deepResetBtn" style="display:none;background:var(--success-bg);border-color:var(--success-bg);width:100%;margin-top:10px;">Başa Dön</button>
+<div id="deepQuestionsArea" style="display:none;">
+    <div class="instruction-box" style="margin-top:10px;">
+        <p style="font-weight:bold;">Bu şeklin üzerinde oluşturulabilecek kare sayısı kaçtır?</p>
+        <input type="text" id="deepSquareCount" class="input-field" placeholder="Cevabınızı yazınız..." style="width:100%;">
+    </div>
+    <div id="deepFeedback" style="margin-top:10px;"></div>
+    <div style="text-align:center;margin-top:12px;">
+        <button class="action-button" id="deepCheckBtn">Kontrol Et</button>
+        <button class="action-button" id="deepResetBtn" style="display:none;background:var(--success-bg);border-color:var(--success-bg);width:100%;margin-top:10px;">Başa Dön</button>
+    </div>
 </div>`;
 
     $('#contentArea').html(html);
@@ -2265,6 +2322,21 @@ function loadDeep() {
         rebuildBoard();
     }, 300);
     $('#boardHint').text('Kesikli çizgilerle gösterilen 5x4\'lük dikdörtgeni çizin');
+
+    const checkRectDrawn = function () {
+        if (has5x4Rectangle()) {
+            $('#deepQuestionsArea').show();
+        } else {
+            $('#deepQuestionsArea').hide();
+        }
+    };
+
+    checkRectDrawn();
+
+    $(document).off('.deepstep');
+    $(document).on('elasticAdded.deepstep boardRebuilt.deepstep', function () {
+        checkRectDrawn();
+    });
 
     // Kontrol mekanizması
     $('#deepCheckBtn').on('click', function () {
@@ -2315,6 +2387,7 @@ function loadDeep() {
     });
 
     $('#deepResetBtn').on('click', function () {
+        $(document).off('.deepstep');
         loadDeep();
     });
 }
@@ -2348,13 +2421,8 @@ function loadFree() {
     boardMode = 'draw';
     let html = `<div class="instruction-box">
     <h3>Serbest Mod</h3>
-    <p>Bu modda geometri tahtasını tamamen özgürce kullanabilirsiniz. İstediğiniz geometrik şekilleri oluşturabilir, sol taraftaki araçlar çubuğunu kullanarak:</p>
-    <ul style="margin-top:6px; line-height:1.7; padding-left:18px;">
-        <li>Farklı renklerde lastikler çekebilir,</li>
-        <li>Mesafe ölçümü yapabilir (Ölçüm modu 📏),</li>
-        <li>Açıları hesaplayabilirsiniz (Açı modu 📐).</li>
-    </ul>
-</div>`;
+        <p>Bu modda geometri tahtasını tamamen özgürce kullanabilirsiniz. İstediğiniz geometrik şekilleri oluşturabilirsiniz. Bunun için sağ taraftaki araçlar çubuğunu kullanabilirsiniz.</p>
+    </div>`;
     $('#contentArea').html(html);
     $('#boardHint').text('📌 Serbest Mod — pinlere tıklayarak istediğiniz şekilleri oluşturun');
 }
