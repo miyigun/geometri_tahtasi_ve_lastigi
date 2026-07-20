@@ -2052,8 +2052,8 @@ function renderApp3Step(step) {
                                 <li><strong>a</strong> açısı, iç ters açılar (Z kuralı) gereği tepe noktasındaki <strong>a'</strong> açısına eşittir (yani $a = a'$ dir).</li>
                                 <li><strong>b</strong> açısı da benzer şekilde iç ters açılar gereği tepe noktasındaki <strong>b'</strong> açısına eşittir (yani $b = b'$ dir).</li>
                             </ul>
-                            <p style="margin-top:6px;">Böylece, tepe noktasında oluşan <strong>a', c ve b'</strong> açıları paralel doğru üzerinde yan yana gelerek bir <strong>doğru açı ($180^\circ$)</strong> oluşturur.</p>
-                            <p style="margin-top:6px; font-weight:bold;">Sonuç olarak, bir üçgenin iç açılarının toplamı:<br>$a + b + c = 180^\circ$ olarak ispatlanır!</p>
+                            <p style="margin-top:6px;">Böylece, tepe noktasında oluşan <strong>a', c ve b'</strong> açıları paralel doğru üzerinde yan yana gelerek bir <strong>doğru açı ($180^\\circ$)</strong> oluşturur.</p>
+                            <p style="margin-top:6px; font-weight:bold;">Sonuç olarak, bir üçgenin iç açılarının toplamı:<br>$a + b + c = 180^\\circ$ olarak ispatlanır!</p>
                         </div>`
                     );
                     if (window.MathJax) MathJax.typesetPromise();
