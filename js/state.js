@@ -1,7 +1,7 @@
 /* ══ GEOMETRİ TAHTASI GLOBAL STATE VE SABİTLER ════════════════════════ */
 
 /* ── Tema ── */
-let currentTheme = 'dark';
+let currentTheme = 'light';
 
 /* ── Renk Paleti ve Limitler ── */
 const ELASTIC_COLORS = [
