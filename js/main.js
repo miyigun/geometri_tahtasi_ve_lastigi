@@ -154,7 +154,29 @@ $(document).ready(function () {
         if (activeTab === 'app1' && typeof renderApp1Step === 'function' && window.currentApp1Step !== undefined) {
             renderApp1Step(window.currentApp1Step);
         } else if (activeTab === 'app2' && typeof renderApp2Step === 'function' && window.currentApp2Step !== undefined) {
-            renderApp2Step(window.currentApp2Step);
+            if (window.currentApp2Step === 2 && window.app2subStep === 2) {
+                // Sadece dış kareyi koru, iç kare çizimini kaldır
+                if (elastics.length > 1) {
+                    elastics = [elastics[0]];
+                }
+                if (backGroup) {
+                    const backEls = backGroup.children.filter(c => c.userData && c.userData.isElastic);
+                    for (let i = 1; i < backEls.length; i++) {
+                        backGroup.remove(backEls[i]);
+                    }
+                }
+                // Seçimleri sıfırla
+                selected3DPinsAll = [];
+                if (typeof updatePinSelectionColors === 'function') updatePinSelectionColors();
+                if (typeof updatePreview3D === 'function') updatePreview3D();
+                
+                // Kılavuzları geri yükle
+                if (typeof rebuildApp2Step2Guides3D === 'function') {
+                    rebuildApp2Step2Guides3D();
+                }
+            } else {
+                renderApp2Step(window.currentApp2Step);
+            }
         } else if (activeTab === 'app3' && typeof renderApp3Step === 'function' && window.currentApp3Step !== undefined) {
             renderApp3Step(window.currentApp3Step);
         } else if (activeTab === 'deep' && typeof loadDeep === 'function') {
@@ -171,6 +193,9 @@ $(document).ready(function () {
         } else {
             rebuildBoard();
         }
+        if (typeof rebuildApp2Step2Guides3D === 'function') {
+            rebuildApp2Step2Guides3D();
+        }
     });
 
     $('#undoBtn').on('click', function () {
@@ -181,11 +206,26 @@ $(document).ready(function () {
             if (typeof updatePreview3D === 'function') updatePreview3D();
             
             // 3B arka yüz çemberinde pin seçimi geri alındığında geçici çizgileri de güncelle
+            if (typeof rebuildApp2Step2Guides3D === 'function') {
+                rebuildApp2Step2Guides3D();
+            }
             if (backGroup) {
-                const guides = backGroup.children.filter(c => c.userData && (c.userData.isCornerGuide || c.userData.isGuide));
-                guides.forEach(g => backGroup.remove(g));
-                
                 const cornerPins = selected3DPinsAll.filter(p => p.type === 'circle' && p.circleType === 'corner');
+                
+                // Seçilmiş olan segmentlerin kılavuz çizgilerini gizle
+                if (cornerPins.length >= 2) {
+                    for (let i = 0; i < cornerPins.length - 1; i++) {
+                        const prevPin = cornerPins[i];
+                        const newPin = cornerPins[i + 1];
+                        const segA = `${prevPin.key}-${newPin.key}`;
+                        const segB = `${newPin.key}-${prevPin.key}`;
+                        backGroup.children
+                            .filter(c => c.userData && c.userData.isGuide &&
+                                (c.userData.segKey === segA || c.userData.segKey === segB))
+                            .forEach(g => backGroup.remove(g));
+                    }
+                }
+
                 if (cornerPins.length >= 2) {
                     const positions = cornerPins.map(p => p.mesh.position);
                     const rc = parseInt(currentElasticColor.slice(1, 3), 16) / 255;
@@ -246,6 +286,9 @@ $(document).ready(function () {
                     if (backEls.length > 0) {
                         backGroup.remove(backEls[backEls.length - 1]);
                     }
+                }
+                if (typeof rebuildApp2Step2Guides3D === 'function') {
+                    rebuildApp2Step2Guides3D();
                 }
             }
             return;

@@ -425,11 +425,26 @@ function handleCirclePinClick3D(pinMesh) {
             updatePinSelectionColors();
             
             // Kılavuz çizgilerini yeniden güncelle
+            if (typeof rebuildApp2Step2Guides3D === 'function') {
+                rebuildApp2Step2Guides3D();
+            }
             if (backGroup) {
-                const guides = backGroup.children.filter(c => c.userData && (c.userData.isCornerGuide || c.userData.isGuide));
-                guides.forEach(g => backGroup.remove(g));
-                
                 const cornerPins = selected3DPinsAll.filter(p => p.type === 'circle' && p.circleType === 'corner');
+                
+                // Seçilmiş olan segmentlerin kılavuz çizgilerini gizle
+                if (cornerPins.length >= 2) {
+                    for (let i = 0; i < cornerPins.length - 1; i++) {
+                        const prevPin = cornerPins[i];
+                        const newPin = cornerPins[i + 1];
+                        const segA = `${prevPin.key}-${newPin.key}`;
+                        const segB = `${newPin.key}-${prevPin.key}`;
+                        backGroup.children
+                            .filter(c => c.userData && c.userData.isGuide &&
+                                (c.userData.segKey === segA || c.userData.segKey === segB))
+                            .forEach(g => backGroup.remove(g));
+                    }
+                }
+
                 if (cornerPins.length >= 2) {
                     const positions = cornerPins.map(p => p.mesh.position);
                     const rc = parseInt(currentElasticColor.slice(1, 3), 16) / 255;
@@ -866,6 +881,67 @@ function renderGuides3D(guides) {
             console.warn('renderGuides3D error:', e);
         }
     });
+}
+
+function rebuildApp2Step2Guides3D() {
+    if (!backGroup || typeof THREE === 'undefined') return;
+
+    // Kopyalanmış dizi üzerinden güvenli silme
+    const toRemove = backGroup.children.filter(c => c.userData && (c.userData.isCornerGuide || c.userData.isGuide));
+    toRemove.forEach(g => backGroup.remove(g));
+
+    const activeTab = typeof $ !== 'undefined' ? ($('.tab-button.active').data('tab') || 'intro') : 'intro';
+    if (activeTab !== 'app2' || window.currentApp2Step !== 2) return;
+
+    // Alt adım 1: Büyük kare kılavuzu
+    if (window.app2subStep === 1) {
+        if (elastics.length === 0) {
+            const bz = -(BOARD3D_THICK / 2 + 0.22);
+            const corners = [
+                new THREE.Vector3(-2.2,  2.2, bz),
+                new THREE.Vector3( 2.2,  2.2, bz),
+                new THREE.Vector3( 2.2, -2.2, bz),
+                new THREE.Vector3(-2.2, -2.2, bz)
+            ];
+            const cornerKeys = ['circle-corner-0','circle-corner-6','circle-corner-12','circle-corner-18'];
+            const mat = new THREE.LineDashedMaterial({ color: 0xffd700, dashSize: 0.18, gapSize: 0.10, linewidth: 2 });
+            for (let i = 0; i < 4; i++) {
+                const geo = new THREE.BufferGeometry().setFromPoints([
+                    corners[i], corners[(i + 1) % 4]
+                ]);
+                const seg = new THREE.Line(geo, mat.clone());
+                seg.computeLineDistances();
+                seg.userData.isGuide = true;
+                seg.userData.segKey = `${cornerKeys[i]}-${cornerKeys[(i + 1) % 4]}`;
+                backGroup.add(seg);
+            }
+        }
+    } 
+    // Alt adım 2: İç kare kılavuzu
+    else if (window.app2subStep === 2) {
+        if (elastics.length === 1) {
+            const bz = -(BOARD3D_THICK / 2 + 0.22);
+            const inset = 2.2 / Math.sqrt(2);
+            const innerCorners = [
+                new THREE.Vector3(-inset,  inset, bz),
+                new THREE.Vector3( inset,  inset, bz),
+                new THREE.Vector3( inset, -inset, bz),
+                new THREE.Vector3(-inset, -inset, bz)
+            ];
+            const cornerKeys2 = ['circle-corner-0','circle-corner-1','circle-corner-2','circle-corner-3'];
+            const mat2 = new THREE.LineDashedMaterial({ color: 0xffd700, dashSize: 0.18, gapSize: 0.10, linewidth: 2 });
+            for (let i = 0; i < 4; i++) {
+                const geo = new THREE.BufferGeometry().setFromPoints([
+                    innerCorners[i], innerCorners[(i + 1) % 4]
+                ]);
+                const seg = new THREE.Line(geo, mat2.clone());
+                seg.computeLineDistances();
+                seg.userData.isGuide = true;
+                seg.userData.segKey = `${cornerKeys2[i]}-${cornerKeys2[(i + 1) % 4]}`;
+                backGroup.add(seg);
+            }
+        }
+    }
 }
 
 function setLockedFace(face) {
