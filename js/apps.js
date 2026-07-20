@@ -1964,9 +1964,7 @@ function renderApp3Step(step) {
             $(document).off('.app3step1');
             $(document).on('elasticAdded.app3step1 boardRebuilt.app3step1', function () {
                 const isTriangleDrawn = hasClosedElasticWithPins([{ r: 2, c: 1 }, { r: 2, c: 4 }, { r: 4, c: 2 }]);
-                if (isTriangleDrawn) {
-                    checkApp3Step1();
-                } else {
+                if (!isTriangleDrawn) {
                     $('#app3Step1CheckBtn').show();
                     $('#app3Step1NextArea').hide();
                     $('#app3Step1FeedbackArea').hide();
@@ -1988,8 +1986,8 @@ function renderApp3Step(step) {
                             <p style="margin-top:4px;">Tahta üzerinde iç açıları sırasıyla <strong>a (pembe)</strong>, <strong>b (mavi)</strong> ve <strong>c (yeşil)</strong> olan bir üçgenimiz var.</p>
                             <p style="margin-top:6px;">Çizdiğiniz paralel doğrular sayesinde:</p>
                             <ul style="margin-top:4px; padding-left:16px; list-style-type:disc;">
-                                <li><strong>a</strong> açısı, iç ters açılardan tepe noktasındaki <strong>a'</strong> açısına eşittir.</li>
-                                <li><strong>b</strong> açısı da yine iç ters açılardan tepe noktasındaki <strong>b'</strong> açısına eşittir.</li>
+                                <li><strong>a</strong> açısı, iç ters açılardan tepe noktasındaki <strong>a'</strong> açısına eşittir (yani $a = a'$ dir).</li>
+                                <li><strong>b</strong> açısı da yine iç ters açılardan tepe noktasındaki <strong>b'</strong> açısına eşittir (yani $b = b'$ dir).</li>
                             </ul>
                             <p style="margin-top:6px;">Gördüğünüz gibi <strong>a', c, b'</strong> açıları paralel doğru üzerinde yan yana gelerek bir <strong>doğru açı ($180°$)</strong> oluşturdu.</p>
                             <p style="margin-top:6px; font-weight:bold;">Buradan hareketle, bir üçgenin iç açılarının toplamı:<br>$a + b + c = 180°$ olur!</p>
@@ -2030,9 +2028,7 @@ function renderApp3Step(step) {
             $(document).on('elasticAdded.app3step2 boardRebuilt.app3step2', function () {
                 const isLine1Drawn = hasOpenElasticWithPins({ r: 0, c: 0 }, { r: 4, c: 2 }) || hasOpenElasticWithPins({ r: 2, c: 1 }, { r: 4, c: 2 });
                 const isLine2Drawn = hasOpenElasticWithPins({ r: 0, c: 3 }, { r: 4, c: 5 }) || hasOpenElasticWithPins({ r: 2, c: 4 }, { r: 4, c: 5 }) || hasOpenElasticWithPins({ r: 0, c: 3 }, { r: 2, c: 4 });
-                if (isLine1Drawn && isLine2Drawn) {
-                    checkApp3Step2();
-                } else {
+                if (!isLine1Drawn || !isLine2Drawn) {
                     $('#app3Step2CheckBtn').show();
                     $('#app3Step2NextArea').hide();
                     $('#app3Step2FeedbackArea').hide();
