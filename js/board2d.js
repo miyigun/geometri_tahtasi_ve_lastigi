@@ -362,7 +362,10 @@ function clearBoard() {
         oldObjects.forEach(c => frontGroup.remove(c)); 
         elasticMeshes = []; 
     }
-    if (backGroup) { backGroup.children.filter(c => c.userData && c.userData.isElastic).forEach(c => backGroup.remove(c)); }
+    if (backGroup) { 
+        const oldBackObjects = backGroup.children.filter(c => c.userData && (c.userData.isElastic || c.userData.isGuide || c.userData.isCornerGuide));
+        oldBackObjects.forEach(c => backGroup.remove(c)); 
+    }
     if (previewLine3D && frontGroup) { frontGroup.remove(previewLine3D); previewLine3D = null; }
     // 3D seçim önizleme çizgisini de temizle
     if (typeof updatePreview3D === 'function') updatePreview3D();

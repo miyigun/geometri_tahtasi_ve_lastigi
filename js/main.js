@@ -140,27 +140,92 @@ $(document).ready(function () {
 
     $('#clearBoardBtn').on('click', function () {
         clearBoard();
-        if (current2DFace === 'back') {
+        if (current2DFace === 'back' || currentFace === 'back') {
             rebuildBackBoard();
+        } else {
+            rebuildBoard();
         }
     });
 
     $('#undoBtn').on('click', function () {
+        // 1. Son seçilen pini geri al (3B Seçim)
         if (selected3DPinsAll.length > 0) {
             selected3DPinsAll.pop();
             if (typeof updatePinSelectionColors === 'function') updatePinSelectionColors();
             if (typeof updatePreview3D === 'function') updatePreview3D();
-            return;
-        }
-        if (current2DFace === 'back' && backElastics.length > 0) {
-            backElastics.pop();
-            renderBackElastics();
-            const backEls = backGroup ? backGroup.children.filter(c => c.userData && c.userData.isElastic) : [];
-            if (backEls.length > 0) {
-                backGroup.remove(backEls[backEls.length - 1]);
+            
+            // 3B arka yüz çemberinde pin seçimi geri alındığında geçici çizgileri de güncelle
+            if (backGroup) {
+                const guides = backGroup.children.filter(c => c.userData && (c.userData.isCornerGuide || c.userData.isGuide));
+                guides.forEach(g => backGroup.remove(g));
+                
+                const cornerPins = selected3DPinsAll.filter(p => p.type === 'circle' && p.circleType === 'corner');
+                if (cornerPins.length >= 2) {
+                    const positions = cornerPins.map(p => p.mesh.position);
+                    const rc = parseInt(currentElasticColor.slice(1, 3), 16) / 255;
+                    const gc = parseInt(currentElasticColor.slice(3, 5), 16) / 255;
+                    const bc = parseInt(currentElasticColor.slice(5, 7), 16) / 255;
+                    try {
+                        const wrappedPoints = getWrappedPath(positions, 0.07, false);
+                        if (wrappedPoints.length >= 2) {
+                            const pathCurve = new PointListCurve(wrappedPoints);
+                            const tubularSegments = Math.max(20, wrappedPoints.length * 3);
+                            const tubeGeo = new THREE.TubeGeometry(pathCurve, tubularSegments, 0.025, 8, false);
+                            const tube = new THREE.Mesh(tubeGeo,
+                                new THREE.MeshPhongMaterial({ color: new THREE.Color(rc, gc, bc), shininess: 80, specular: 0x444444 })
+                            );
+                            tube.userData.isCornerGuide = true;
+                            backGroup.add(tube);
+                        }
+                    } catch (e) { console.warn(e); }
+                }
             }
             return;
         }
+
+        // 2. Son seçilen pini geri al (2D Seçim)
+        if (selectedPins.length > 0) {
+            selectedPins.pop();
+            rebuildBoard();
+            return;
+        }
+        if (backSelectedPins.length > 0) {
+            const popped = backSelectedPins.pop();
+            if (popped && popped.el) {
+                popped.el.setAttribute('fill', currentTheme === 'dark' ? '#4a9fd4' : '#93c5fd');
+                popped.el.setAttribute('r', PIN_R);
+            }
+            renderBackElastics();
+            return;
+        }
+
+        // 3. Aktif yüzeyin arka (çember) yüzü olması durumunda lastik geri al (2D veya 3D)
+        const isBackActive = (current2DFace === 'back' || currentFace === 'back');
+        if (isBackActive) {
+            if (current2DFace === 'back') {
+                if (backElastics.length > 0) {
+                    backElastics.pop();
+                    renderBackElastics();
+                }
+            } else {
+                if (elastics.length > 0) {
+                    const last = elastics.pop();
+                    if (elasticUseCounts[last.color] !== undefined && elasticUseCounts[last.color] > 0) {
+                        elasticUseCounts[last.color]--;
+                        updateSwatchBadges();
+                    }
+                }
+                if (backGroup) {
+                    const backEls = backGroup.children.filter(c => c.userData && c.userData.isElastic);
+                    if (backEls.length > 0) {
+                        backGroup.remove(backEls[backEls.length - 1]);
+                    }
+                }
+            }
+            return;
+        }
+
+        // 4. Ön yüz lastik geri al
         if (elastics.length > 0) {
             const last = elastics.pop();
             if (elasticUseCounts[last.color] !== undefined && elasticUseCounts[last.color] > 0) {

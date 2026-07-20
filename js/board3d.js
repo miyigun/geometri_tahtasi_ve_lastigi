@@ -392,8 +392,11 @@ function handleCirclePinClick3D(pinMesh) {
             closed: true
         });
 
+        incrementElasticUse(currentElasticColor);
+        updateSwatchBadges();
+
         selected3DPinsAll = selected3DPinsAll.filter(p => p.circleType !== 'corner');
-        $(document).trigger('elasticAdded', { count: 1, source: 'corner' });
+        $(document).trigger('elasticAdded', { count: elastics.length, source: 'corner' });
         if (window.app2subStep === 2) {
             $('#app2s2Btn').prop('disabled', false).css('opacity', '1');
             $('#boardHint').text('✅ Harika! İç kare oluşturuldu. Devam edebilirsiniz.');
@@ -491,8 +494,20 @@ function handleCirclePinClick3D(pinMesh) {
             p.mesh.scale.setScalar(1.0);
         });
 
+        elastics.push({
+            pins: uniquePins.map(p => {
+                const ud = p.mesh.userData;
+                return { r: ud.r !== undefined ? ud.r : p.idx, c: ud.c !== undefined ? ud.c : p.idx };
+            }),
+            color: currentElasticColor,
+            closed: true
+        });
+
+        incrementElasticUse(currentElasticColor);
+        updateSwatchBadges();
+
         selected3DPinsAll = selected3DPinsAll.filter(p => p.circleType !== 'corner');
-        $(document).trigger('elasticAdded', { count: 1, source: 'corner' });
+        $(document).trigger('elasticAdded', { count: elastics.length, source: 'corner' });
         if (window.app2subStep === 2) {
             $('#app2s2Btn').prop('disabled', false).css('opacity', '1');
             $('#boardHint').text('✅ Harika! İç kare oluşturuldu. Devam edebilirsiniz.');
@@ -527,6 +542,18 @@ function handleCirclePinClick3D(pinMesh) {
             );
             tube.userData.isElastic = true;
             backGroup.add(tube);
+
+            elastics.push({
+                pins: [pinA, pinB].map(p => {
+                    const ud = p.mesh ? p.mesh.userData : (p.userData || p);
+                    return { r: ud.r !== undefined ? ud.r : p.idx, c: ud.c !== undefined ? ud.c : p.idx };
+                }),
+                color: currentElasticColor,
+                closed: false
+            });
+            incrementElasticUse(currentElasticColor);
+            updateSwatchBadges();
+            $(document).trigger('elasticAdded', { count: elastics.length });
         } catch (e) { console.warn(e); }
 
         selected3DPinsAll = [];
@@ -638,6 +665,18 @@ function _commitCirclePolygon(closed) {
             const tube = new THREE.Mesh(tubeGeo, mat);
             tube.userData.isElastic = true;
             backGroup.add(tube);
+
+            elastics.push({
+                pins: circlePins.map(p => {
+                    const ud = p.mesh ? p.mesh.userData : (p.userData || p);
+                    return { r: ud.r !== undefined ? ud.r : p.idx, c: ud.c !== undefined ? ud.c : p.idx };
+                }),
+                color: currentElasticColor,
+                closed
+            });
+            incrementElasticUse(currentElasticColor);
+            updateSwatchBadges();
+            $(document).trigger('elasticAdded', { count: elastics.length });
         }
     } catch (e) { console.warn('_commitCirclePolygon error:', e); }
 
