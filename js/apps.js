@@ -759,7 +759,7 @@ function renderApp2Step(step) {
     switch (step) {
         case 0:
             html += `<div class="instruction-box">
-                    <h3>🔵 π'yi Görelim</h3>
+                    <h3>π'yi Görelim</h3>
                     <p>Bu uygulamada geometri tahtasının <strong>çember yüzünü</strong> kullanarak π sayısının ne anlama geldiğini geometrik olarak keşfedeceksiniz.</p>
                     <p style="margin-top:8px;">Çemberin çevresi ile çapı arasındaki ilişkiyi inceleyerek <strong>π ≈ 3,14…</strong> değerine nasıl ulaşıldığını göreceksiniz.</p>
                 </div>
@@ -780,7 +780,7 @@ function renderApp2Step(step) {
 
         case 1:
             html += `<div class="instruction-box">
-        <h3>⭕ Çember İnceleme</h3>
+        <h3>Çember İnceleme</h3>
         <p>Geometri tahtasının <strong>arka yüzünde</strong> 12 ve 24 pinli çemberler bulunmaktadır.</p>
         <p style="margin-top:8px;">Sağ panelde iki farklı çember gösterilmektedir. Her birini seçerek inceleyebilirsiniz.</p>
         <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
@@ -805,7 +805,7 @@ function renderApp2Step(step) {
 
             if (window.app2subStep === 0) {
                 html += `<div class="instruction-box">
-            <h3>🔵 Büyük Kare ve Çember</h3>
+            <h3>Büyük Kare ve Çember</h3>
             <p>Hazırlanıyor...</p>
         </div>`;
                 setTimeout(() => {
@@ -938,7 +938,7 @@ function renderApp2Step(step) {
 
              } else if (window.app2subStep === 2) {
                 html += `<div class="instruction-box">
-                    <h3>🟡 Adım 2 — İçten Teğet Kareyi Lastikle Çizin</h3>
+                    <h3>Adım 2 — İçten Teğet Kareyi Lastikle Çizin</h3>
                     <p>Sarı kesikli çizgiyle gösterilen <strong>iç kareyi</strong> lastikle çeviriniz.</p>
                     <p style="margin-top:8px;font-size:.92em;color:var(--text-secondary);">Yalnızca kesikli karenin <strong>dört köşesindeki pinler</strong> seçilebilir. Sırasıyla seçip başlangıç pinine dönerek kareyi kapatınız.</p>
                 </div>
@@ -997,7 +997,7 @@ function renderApp2Step(step) {
                 $('#boardHint').text('📐 Sarı kesikli çizgideki küçük kareyi lastikle oluşturun');
             } else {
                 html += `<div class="instruction-box">
-            <h3>🔷 Adım 3 — İç Kareyi Ekleyin</h3>
+            <h3>Adım 3 — İç Kareyi Ekleyin</h3>
             <p>Büyük çember içinde <strong>köşeleri çemberin üzerinde olan kareyi</strong> lastikle çeviriniz.</p>
             <p style="margin-top:8px;font-size:.92em;color:var(--text-secondary);">İc karenin köşeleri tam olarak çember üzerindedir.</p>
         </div>
@@ -1013,7 +1013,7 @@ function renderApp2Step(step) {
 
         case 3:
             html += `<div class="instruction-box">
-            <h3>📐 Adım 3 — Büyük Dairenin Alanını Bulalım</h3>
+            <h3>Adım 3 — Büyük Dairenin Alanını Bulalım</h3>
             <p>Geometri tahtasındaki <strong>yeşil (büyük) dairenin yarıçapı 2 birimdir.</strong></p>
             <p style="margin-top:8px;"><strong>Büyük dairenin alanını</strong> hesaplayınız.</p>
         </div>
@@ -1148,7 +1148,7 @@ function renderApp2Step(step) {
 
         case 4:
             html += `<div class="instruction-box">
-        <h3>📐 Küçük Karenin Kenar Uzunluğu</h3>
+        <h3>Küçük Karenin Kenar Uzunluğu</h3>
         <p>Geometri tahtasında oluşturduğunuz <strong>küçük karenin kenar uzunluğu</strong> kaç birimdir?</p>
         <p style="margin-top:6px;font-size:.9em;color:var(--text-secondary);">İpucu: Küçük karenin köşeleri büyük dairenin üzerindedir. Büyük dairenin yarıçapı 2 birimdir.</p>
     </div>
@@ -1194,7 +1194,7 @@ function renderApp2Step(step) {
 
         case 5:
             html += `<div class="instruction-box">
-        <h3>📐 Büyük Karenin Alanı</h3>
+        <h3>Büyük Karenin Alanı</h3>
         <p style="margin-top:8px;"><strong>Yeşil renkle belirtilen büyük çembere dıştan teğet olan büyük karenin alanını</strong> hesaplayınız.</p>
     </div>
     <div class="instruction-box" style="margin-top:8px;">
@@ -1217,7 +1217,7 @@ function renderApp2Step(step) {
 
         case 6:
             html += `<div class="instruction-box">
-        <h3>📊 Şekillerin Alanlarını Sıralayalım</h3>
+        <h3>Şekillerin Alanlarını Sıralayalım</h3>
         <p>Oluşturduğunuz şekillerin alanlarını eşitsizlik kullanarak sıralayınız:</p>
         <div style="margin-top:10px;padding:12px;background:rgba(0,212,255,.07);border:2px solid var(--border-color);border-radius:10px;">
             <p style="font-size:.92em;margin-bottom:6px;">Hesapladığınız alanlar:</p>
@@ -1254,7 +1254,7 @@ function renderApp2Step(step) {
 
         case 7:
             html += `<div class="instruction-box">
-        <h3>📏 Ölçme ve Değerlendirme</h3>
+        <h3>Ölçme ve Değerlendirme</h3>
         <p>Aşağıdaki soruyu cevaplayınız.</p>
     </div>`;
             $('#boardHint').text('🔢 Yarıçap=5 birim → Alan hangi tam sayılar arasında?');
@@ -1262,7 +1262,7 @@ function renderApp2Step(step) {
                 const dialogHtml = `
                 <div class="dialog-overlay" id="app2AssessDialog" style="display:flex;">
                     <div class="dialog-content" style="max-width:560px;">
-                        <h2>📏 Değerlendirme Sorusu</h2>
+                        <h2>Değerlendirme Sorusu</h2>
                         <img src="images/istenen.png" alt="Değerlendirme Görseli"
                             style="max-width:100%;max-height:220px;border-radius:10px;border:2px solid var(--border-color);object-fit:contain;display:block;margin:10px auto;">
                         <p style="margin-top:10px;">Yarıçap uzunluğu <strong>5 birim</strong> olan dairenin alanı hangi <strong>tam sayılar arasında</strong> yer almalıdır?</p>
