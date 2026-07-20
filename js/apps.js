@@ -1661,10 +1661,12 @@ function renderApp3Step(step) {
                 <div class="instruction-box" style="margin-top:8px;">
                     <label style="font-size:.9em;color:var(--text-secondary);display:block;margin-bottom:6px;font-weight:bold;">Dörtgen bir köşegenle kaç üçgene ayrılmıştır?</label>
                     <input type="text" id="quadTriCount" class="input-field" placeholder="Cevabınızı yazınız..." style="width:100%;">
+                    <div id="quadTriCountFeedback" style="margin-top:4px;"></div>
                 </div>
                 <div class="instruction-box" style="margin-top:8px;">
                     <label style="font-size:.9em;color:var(--text-secondary);display:block;margin-bottom:6px;font-weight:bold;">Dörtgenin iç açılar toplamı kaç derecedir?</label>
                     <input type="text" id="quadAngleSum" class="input-field" placeholder="Cevabınızı yazınız..." style="width:100%;">
+                    <div id="quadAngleSumFeedback" style="margin-top:4px;"></div>
                 </div>
                 <div id="app3Step3Feedback" style="margin-top:8px;"></div>
                 <div style="text-align:center;margin-top:10px;">
@@ -1699,10 +1701,12 @@ function renderApp3Step(step) {
                 <div class="instruction-box" style="margin-top:8px;">
                     <label style="font-size:.9em;color:var(--text-secondary);display:block;margin-bottom:6px;"><b>Beşgen tek köşeden çizilen köşegenlerle kaç üçgene ayrılmıştır?</b></label>
                     <input type="text" id="pentTriCount" class="input-field" placeholder="Cevabınızı yazınız..." style="width:100%;">
+                    <div id="pentTriCountFeedback" style="margin-top:4px;"></div>
                 </div>
                 <div class="instruction-box" style="margin-top:8px;">
                     <label style="font-size:.9em;color:var(--text-secondary);display:block;margin-bottom:6px;"><b>Beşgenin iç açılar toplamı kaç derecedir?</b></label>
                     <input type="text" id="pentAngleSum" class="input-field" placeholder="Cevabınızı yazınız..." style="width:100%;">
+                    <div id="pentAngleSumFeedback" style="margin-top:4px;"></div>
                 </div>
                 <div id="pentAngleFeedback" style="margin-top:8px;"></div>
                 <div style="text-align:center;margin-top:10px;">
@@ -1740,10 +1744,12 @@ function renderApp3Step(step) {
                 <div class="instruction-box" style="margin-top:8px;">
                     <label style="font-size:.9em;color:var(--text-secondary);display:block;margin-bottom:6px;"><b>Altıgen tek köşeden çizilen köşegenlerle kaç üçgene ayrılmıştır?</b></label>
                     <input type="text" id="hexTriCount" class="input-field" placeholder="Cevabınızı yazınız..." style="width:100%;">
+                    <div id="hexTriCountFeedback" style="margin-top:4px;"></div>
                 </div>
                 <div class="instruction-box" style="margin-top:8px;">
                     <label style="font-size:.9em;color:var(--text-secondary);display:block;margin-bottom:6px;"><b>Altıgenin iç açılar toplamı kaç derecedir?</b></label>
                     <input type="text" id="hexAngleSum" class="input-field" placeholder="Cevabınızı yazınız..." style="width:100%;">
+                    <div id="hexAngleSumFeedback" style="margin-top:4px;"></div>
                 </div>
                 <div id="hexAngleFeedback" style="margin-top:8px;"></div>
                 <div style="text-align:center;margin-top:10px;">
@@ -2115,20 +2121,37 @@ function renderApp3Step(step) {
                 const angleSum = $('#pentAngleSum').val().trim();
 
                 const isShapeOk = isPentDrawn && isDiag1Drawn && isDiag2Drawn;
-                const isAnswersOk = (triCount === '3' || triCount === 'üç') && angleSum === '540';
+                if (!isShapeOk) {
+                    $('#pentAngleFeedback').html('<div class="error-message">✗ Lütfen beşgeni ve tek köşeden çıkan 2 köşegeni kılavuza göre çizin.</div>');
+                    if (window.MathJax) setTimeout(() => MathJax.typesetPromise(), 100);
+                    return;
+                }
 
-                if (isShapeOk && isAnswersOk) {
+                $('#pentAngleFeedback').html('');
+
+                const isTriOk = triCount === '3' || triCount === 'üç';
+                const isAngleOk = angleSum === '540';
+
+                if (isTriOk) {
+                    $('#pentTriCount').prop('disabled', true).css({'border-color': 'var(--success-bg)', 'background': 'rgba(34, 197, 94, 0.1)'});
+                    $('#pentTriCountFeedback').html('<div class="success-message" style="margin:2px 0; padding:4px 8px; font-size:0.9em;">✓ Doğru</div>');
+                } else {
+                    $('#pentTriCountFeedback').html('<div class="error-message" style="margin:2px 0; padding:4px 8px; font-size:0.9em;">✗ Yanlış. Çizdiğiniz köşegenler beşgeni kaç üçgensel bölgeye ayırdı?</div>');
+                }
+
+                if (isAngleOk) {
+                    $('#pentAngleSum').prop('disabled', true).css({'border-color': 'var(--success-bg)', 'background': 'rgba(34, 197, 94, 0.1)'});
+                    $('#pentAngleSumFeedback').html('<div class="success-message" style="margin:2px 0; padding:4px 8px; font-size:0.9em;">✓ Doğru</div>');
+                } else {
+                    $('#pentAngleSumFeedback').html('<div class="error-message" style="margin:2px 0; padding:4px 8px; font-size:0.9em;">✗ Yanlış. Bir üçgenin iç açılarının toplamının $180^\\circ$ olduğunu hatırlayarak beşgenin toplam iç açısını hesaplamayı deneyin.</div>');
+                }
+
+                if (isTriOk && isAngleOk) {
                     $('#pentAngleFeedback').html('<div class="success-message">✓ Harika! Beşgenin köşegenlerini çizdiniz. İç açılar toplamı: 3 × 180° = 540°.</div>');
                     $('#app3Step4CheckBtn').hide();
                     $('#app3Step4NextArea').show();
-                    if (window.MathJax) setTimeout(() => MathJax.typesetPromise(), 100);
-                } else {
-                    let errMsg = "Tekrar deneyiniz. ";
-                    if (!isShapeOk) errMsg += "Lütfen beşgeni ve tek köşeden çıkan 2 köşegeni kılavuza göre çizin. ";
-                    if (!isAnswersOk) errMsg += "Soruları kontrol ediniz. <br><b>İpucu:</b> Çizdiğiniz köşegenler beşgeni kaç üçgensel bölgeye ayırdı? Bir üçgenin iç açılarının toplamının $180^\\circ$ olduğunu hatırlayarak beşgenin toplam iç açısını hesaplamayı deneyin.";
-                    $('#pentAngleFeedback').html(`<div class="error-message">✗ ${errMsg}</div>`);
-                    if (window.MathJax) setTimeout(() => MathJax.typesetPromise(), 100);
                 }
+                if (window.MathJax) setTimeout(() => MathJax.typesetPromise(), 100);
             });
             $('#app3Step4NextBtn').off('click').on('click', () => {
                 $(document).off('.app3step4');
@@ -2166,20 +2189,37 @@ function renderApp3Step(step) {
                 const angleSum = $('#hexAngleSum').val().trim();
 
                 const isShapeOk = isHexDrawn && isDiag1Drawn && isDiag2Drawn && isDiag3Drawn;
-                const isAnswersOk = (triCount === '4' || triCount === 'dört') && angleSum === '720';
+                if (!isShapeOk) {
+                    $('#hexAngleFeedback').html('<div class="error-message">✗ Lütfen altıgeni ve tek köşeden çıkan 3 köşegeni kılavuza göre çizin.</div>');
+                    if (window.MathJax) setTimeout(() => MathJax.typesetPromise(), 100);
+                    return;
+                }
 
-                if (isShapeOk && isAnswersOk) {
+                $('#hexAngleFeedback').html('');
+
+                const isTriOk = triCount === '4' || triCount === 'dört';
+                const isAngleOk = angleSum === '720';
+
+                if (isTriOk) {
+                    $('#hexTriCount').prop('disabled', true).css({'border-color': 'var(--success-bg)', 'background': 'rgba(34, 197, 94, 0.1)'});
+                    $('#hexTriCountFeedback').html('<div class="success-message" style="margin:2px 0; padding:4px 8px; font-size:0.9em;">✓ Doğru</div>');
+                } else {
+                    $('#hexTriCountFeedback').html('<div class="error-message" style="margin:2px 0; padding:4px 8px; font-size:0.9em;">✗ Yanlış. Çizdiğiniz köşegenler altıgeni kaç üçgensel bölgeye ayırdı?</div>');
+                }
+
+                if (isAngleOk) {
+                    $('#hexAngleSum').prop('disabled', true).css({'border-color': 'var(--success-bg)', 'background': 'rgba(34, 197, 94, 0.1)'});
+                    $('#hexAngleSumFeedback').html('<div class="success-message" style="margin:2px 0; padding:4px 8px; font-size:0.9em;">✓ Doğru</div>');
+                } else {
+                    $('#hexAngleSumFeedback').html('<div class="error-message" style="margin:2px 0; padding:4px 8px; font-size:0.9em;">✗ Yanlış. Bir üçgenin iç açılarının toplamının $180^\\circ$ olduğunu hatırlayarak altıgenin toplam iç açısını hesaplamayı deneyin.</div>');
+                }
+
+                if (isTriOk && isAngleOk) {
                     $('#hexAngleFeedback').html('<div class="success-message">✓ Harika! Altıgenin köşegenlerini çizdiniz. İç açılar toplamı: 4 × 180° = 720°.</div>');
                     $('#app3Step5CheckBtn').hide();
                     $('#app3Step5NextArea').show();
-                    if (window.MathJax) setTimeout(() => MathJax.typesetPromise(), 100);
-                } else {
-                    let errMsg = "Tekrar deneyiniz. ";
-                    if (!isShapeOk) errMsg += "Lütfen altıgeni ve tek köşeden çıkan 3 köşegeni kılavuza göre çizin. ";
-                    if (!isAnswersOk) errMsg += "Soruları kontrol ediniz. <br><b>İpucu:</b> Çizdiğiniz köşegenler altıgeni kaç üçgensel bölgeye ayırdı? Bir üçgenin iç açılarının toplamının $180^\\circ$ olduğunu hatırlayarak altıgenin toplam iç açısını hesaplamayı deneyin.";
-                    $('#hexAngleFeedback').html(`<div class="error-message">✗ ${errMsg}</div>`);
-                    if (window.MathJax) setTimeout(() => MathJax.typesetPromise(), 100);
                 }
+                if (window.MathJax) setTimeout(() => MathJax.typesetPromise(), 100);
             });
             $('#app3Step5NextBtn').off('click').on('click', () => {
                 $(document).off('.app3step5');
@@ -2195,12 +2235,47 @@ function renderApp3Step(step) {
                 const pent = $('#tablePent').val().trim();
                 const hex = $('#tableHex').val().trim();
 
-                if (tri === '180' && quad === '360' && pent === '540' && hex === '720') {
+                const isTriOk = tri === '180';
+                const isQuadOk = quad === '360';
+                const isPentOk = pent === '540';
+                const isHexOk = hex === '720';
+
+                let errorFields = [];
+
+                if (isTriOk) {
+                    $('#tableTri').prop('disabled', true).css({'border-color': 'var(--success-bg)', 'background': 'rgba(34, 197, 94, 0.1)'});
+                } else {
+                    $('#tableTri').css({'border-color': 'var(--error-bg)', 'background': 'rgba(239, 68, 68, 0.1)'});
+                    errorFields.push('Üçgen');
+                }
+
+                if (isQuadOk) {
+                    $('#tableQuad').prop('disabled', true).css({'border-color': 'var(--success-bg)', 'background': 'rgba(34, 197, 94, 0.1)'});
+                } else {
+                    $('#tableQuad').css({'border-color': 'var(--error-bg)', 'background': 'rgba(239, 68, 68, 0.1)'});
+                    errorFields.push('Dörtgen');
+                }
+
+                if (isPentOk) {
+                    $('#tablePent').prop('disabled', true).css({'border-color': 'var(--success-bg)', 'background': 'rgba(34, 197, 94, 0.1)'});
+                } else {
+                    $('#tablePent').css({'border-color': 'var(--error-bg)', 'background': 'rgba(239, 68, 68, 0.1)'});
+                    errorFields.push('Beşgen');
+                }
+
+                if (isHexOk) {
+                    $('#tableHex').prop('disabled', true).css({'border-color': 'var(--success-bg)', 'background': 'rgba(34, 197, 94, 0.1)'});
+                } else {
+                    $('#tableHex').css({'border-color': 'var(--error-bg)', 'background': 'rgba(239, 68, 68, 0.1)'});
+                    errorFields.push('Altıgen');
+                }
+
+                if (isTriOk && isQuadOk && isPentOk && isHexOk) {
                     $('#app3Step6Feedback').html('<div class="success-message">✓ Tebrikler! Tabloyu tamamen doğru doldurdunuz.</div>');
                     $('#app3Step6CheckBtn').hide();
                     $('#app3Step6NextArea').show();
                 } else {
-                    $('#app3Step6Feedback').html('<div class="error-message">✗ Yanlış veya eksik değerler var. Lütfen kenar sayısı ile üçgen sayısı çarpımından yararlanarak değerleri düzeltin.</div>');
+                    $('#app3Step6Feedback').html(`<div class="error-message">✗ Yanlış veya eksik değerler var (${errorFields.join(', ')}). Lütfen kenar sayısı ile üçgen sayısı çarpımından yararlanarak değerleri düzeltin.</div>`);
                 }
             });
             $('#app3Step6NextBtn').on('click', () => renderApp3Step(7));
