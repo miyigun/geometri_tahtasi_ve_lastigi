@@ -310,6 +310,7 @@ function onThreePinClick(e) {
 }
 
 function handleGridPinClick3D(r, c) {
+    if (typeof isDrawingAllowed === 'function' && !isDrawingAllowed()) return;
     if (window.app2BoardLocked) return;
     const key = `grid-${r}-${c}`;
 
@@ -356,6 +357,7 @@ function handleGridPinClick3D(r, c) {
 }
 
 function handleCirclePinClick3D(pinMesh) {
+    if (typeof isDrawingAllowed === 'function' && !isDrawingAllowed()) return;
     if (window.app2BoardLocked) return;
     const { circleType, idx } = pinMesh.userData;
     const key = `circle-${circleType}-${idx}`;

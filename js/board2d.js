@@ -222,6 +222,7 @@ function bindPinEvents() {
 }
 
 function handlePinClick(r, c) {
+    if (typeof isDrawingAllowed === 'function' && !isDrawingAllowed()) return;
     // Kilitli pinler seçilemesin (app2 büyük kare)
     if (window.app2LockedPins && window.app2LockedPins.some(p => p.r === r && p.c === c)) return;
 
@@ -539,6 +540,7 @@ function rebuildBackBoard() {
 }
 
 function handleBackPinClick(px, py, el) {
+    if (typeof isDrawingAllowed === 'function' && !isDrawingAllowed()) return;
     const idx = backSelectedPins.findIndex(p => Math.abs(p.x - px) < 2 && Math.abs(p.y - py) < 2);
     if (idx >= 0) {
         if (idx === 0 && backSelectedPins.length >= 3) {

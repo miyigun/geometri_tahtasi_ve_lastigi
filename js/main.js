@@ -130,10 +130,11 @@ $(document).ready(function () {
     });
 
     $('#resetBoardBtn').on('click', function () {
-        clearBoard();
+        const activeTab = $('.tab-button.active').data('tab');
+        
+        // 1. Kamerayı sıfırla
         if (threeCamera && threeControls) {
             const isMobile = window.innerWidth <= 640;
-            const activeTab = $('.tab-button.active').data('tab');
             if (activeTab === 'app2') {
                 threeCamera.position.set(0, 0, isMobile ? -13 : -9);
                 if (typeof setLockedFace === 'function') setLockedFace('back');
@@ -147,6 +148,19 @@ $(document).ready(function () {
             threeCamera.lookAt(0, 0, 0);
             threeControls.target.set(0, 0, 0);
             threeControls.update();
+        }
+
+        // 2. Aktif adımın başlangıç şablonunu/durumunu geri yükle
+        if (activeTab === 'app1' && typeof renderApp1Step === 'function' && window.currentApp1Step !== undefined) {
+            renderApp1Step(window.currentApp1Step);
+        } else if (activeTab === 'app2' && typeof renderApp2Step === 'function' && window.currentApp2Step !== undefined) {
+            renderApp2Step(window.currentApp2Step);
+        } else if (activeTab === 'app3' && typeof renderApp3Step === 'function' && window.currentApp3Step !== undefined) {
+            renderApp3Step(window.currentApp3Step);
+        } else if (activeTab === 'deep' && typeof loadDeep === 'function') {
+            loadDeep();
+        } else {
+            clearBoard();
         }
     });
 

@@ -81,14 +81,47 @@ function _buildAreaOverlay() {
     container.appendChild(wrap);
 }
 
-function _removeAreaOverlay() {
-    const el = document.getElementById('areaOverlayWrap');
-    if (el) el.remove();
+function isDrawingAllowed() {
+    const tab = typeof $ !== 'undefined' ? ($('.tab-button.active').data('tab') || 'intro') : 'intro';
+    
+    if (tab === 'intro') {
+        return false;
+    }
+    if (tab === 'app1') {
+        const step = window.currentApp1Step;
+        return (step === 2 || step === 3);
+    }
+    if (tab === 'app2') {
+        const step = window.currentApp2Step;
+        return (step === 2 && (window.app2subStep === 1 || window.app2subStep === 2));
+    }
+    if (tab === 'app3') {
+        const step = window.currentApp3Step;
+        return (step >= 1 && step <= 5);
+    }
+    if (tab === 'deep') {
+        return true;
+    }
+    if (tab === 'free') {
+        return true;
+    }
+    return false;
+}
+
+function updateToolbarStatus() {
+    if (typeof $ === 'undefined') return;
+    const drawAllowed = isDrawingAllowed();
+    $('#paletteToggleBtn, #clearBoardBtn, #undoBtn, #resetBoardBtn').prop('disabled', !drawAllowed).css({
+        'opacity': drawAllowed ? '1' : '0.35',
+        'pointer-events': drawAllowed ? 'auto' : 'none'
+    });
 }
 
 /* ── Sekme Yükleyici ── */
 function loadTab(name) {
     window.currentApp3Step = null;
+    window.currentApp1Step = 0;
+    window.currentApp2Step = 0;
     $('#contentArea').empty();
 
     // Yüz seçimi ve kamera pozisyonlama
@@ -126,6 +159,8 @@ function loadTab(name) {
     else if (name === 'app3') loadApp3();
     else if (name === 'deep') loadDeep();
     else if (name === 'free') loadFree();
+
+    updateToolbarStatus();
 }
 
 /* ── Tanıtım Sekmesi ── */
@@ -194,6 +229,8 @@ function loadApp1() {
 }
 
 function renderApp1Step(step) {
+    window.currentApp1Step = step;
+    updateToolbarStatus();
     if (step < 3) clearBoard();
     boardMode = 'draw';
     const totalSteps = 8;
@@ -703,6 +740,8 @@ function loadApp2() {
 }
 
 function renderApp2Step(step) {
+    window.currentApp2Step = step;
+    updateToolbarStatus();
     if (!(step === 2 && window.app2subStep === 2) && step < 3) {
         clearBoard();
     }
@@ -1583,6 +1622,7 @@ function loadApp3() {
 
 function renderApp3Step(step) {
     window.currentApp3Step = step;
+    updateToolbarStatus();
     clearBoard();
     boardMode = 'draw';
     const totalSteps = 10;
@@ -2378,6 +2418,7 @@ function openApp3s0Dialog() {
 
 /* ── Derinleştirme ── */
 function loadDeep() {
+    updateToolbarStatus();
     clearBoard();
     boardMode = 'draw';
     
@@ -2505,6 +2546,7 @@ function has5x4Rectangle() {
 }
 
 function loadFree() {
+    updateToolbarStatus();
     clearBoard();
     boardMode = 'draw';
     let html = `<div class="instruction-box">
