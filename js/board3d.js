@@ -328,9 +328,11 @@ function handleGridPinClick3D(r, c) {
             _commitGridPolygon(false); // commit as open line segment
             return;
         }
-        selected3DPinsAll.splice(existIdx, 1);
-        updatePinSelectionColors();
-        updatePreview3D();
+        if (existIdx === selected3DPinsAll.length - 1) {
+            selected3DPinsAll.pop();
+            updatePinSelectionColors();
+            updatePreview3D();
+        }
         return;
     }
 
@@ -418,11 +420,37 @@ function handleCirclePinClick3D(pinMesh) {
 
     const existIdx = selected3DPinsAll.findIndex(p => p.key === key);
     if (existIdx >= 0) {
-        selected3DPinsAll.splice(existIdx, 1);
-        pinMesh.material.color.setHex(pinMesh.userData.baseColor || 0xef4444);
-        pinMesh.material.emissive && pinMesh.material.emissive.setHex(0x000000);
-        pinMesh.material.emissiveIntensity = 0;
-        pinMesh.scale.setScalar(1.0);
+        if (existIdx === selected3DPinsAll.length - 1) {
+            selected3DPinsAll.pop();
+            updatePinSelectionColors();
+            
+            // Kılavuz çizgilerini yeniden güncelle
+            if (backGroup) {
+                const guides = backGroup.children.filter(c => c.userData && (c.userData.isCornerGuide || c.userData.isGuide));
+                guides.forEach(g => backGroup.remove(g));
+                
+                const cornerPins = selected3DPinsAll.filter(p => p.type === 'circle' && p.circleType === 'corner');
+                if (cornerPins.length >= 2) {
+                    const positions = cornerPins.map(p => p.mesh.position);
+                    const rc = parseInt(currentElasticColor.slice(1, 3), 16) / 255;
+                    const gc = parseInt(currentElasticColor.slice(3, 5), 16) / 255;
+                    const bc = parseInt(currentElasticColor.slice(5, 7), 16) / 255;
+                    try {
+                        const wrappedPoints = getWrappedPath(positions, 0.07, false);
+                        if (wrappedPoints.length >= 2) {
+                            const pathCurve = new PointListCurve(wrappedPoints);
+                            const tubularSegments = Math.max(20, wrappedPoints.length * 3);
+                            const tubeGeo = new THREE.TubeGeometry(pathCurve, tubularSegments, 0.025, 8, false);
+                            const tube = new THREE.Mesh(tubeGeo,
+                                new THREE.MeshPhongMaterial({ color: new THREE.Color(rc, gc, bc), shininess: 80, specular: 0x444444 })
+                            );
+                            tube.userData.isCornerGuide = true;
+                            backGroup.add(tube);
+                        }
+                    } catch (e) { console.warn(e); }
+                }
+            }
+        }
         return;
     }
 

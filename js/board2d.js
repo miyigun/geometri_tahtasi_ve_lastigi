@@ -256,6 +256,11 @@ function handlePinClick(r, c) {
             onElasticAdded();
             return;
         }
+        // En son seçilen pini geri kaldırabilme
+        if (idx === selectedPins.length - 1) {
+            selectedPins.pop();
+            rebuildBoard();
+        }
         return;
     }
     selectedPins.push({ r, c });
@@ -547,6 +552,13 @@ function handleBackPinClick(px, py, el) {
             backElastics.push({ points: [...backSelectedPins.map(p => ({ x: p.x, y: p.y }))], color: currentElasticColor, closed: true });
             backSelectedPins.forEach(p => { if (p.el) { p.el.setAttribute('fill', currentTheme === 'dark' ? '#4a9fd4' : '#93c5fd'); p.el.setAttribute('r', PIN_R); } });
             backSelectedPins = [];
+            renderBackElastics();
+        } else if (idx === backSelectedPins.length - 1) {
+            const popped = backSelectedPins.pop();
+            if (popped && popped.el) {
+                popped.el.setAttribute('fill', currentTheme === 'dark' ? '#4a9fd4' : '#93c5fd');
+                popped.el.setAttribute('r', PIN_R);
+            }
             renderBackElastics();
         }
         return;
