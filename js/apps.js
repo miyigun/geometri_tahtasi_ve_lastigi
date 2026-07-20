@@ -2128,20 +2128,37 @@ function renderApp3Step(step) {
                 const angleSum = $('#quadAngleSum').val().trim();
 
                 const isShapeOk = isQuadDrawn && isDiagDrawn;
-                const isAnswersOk = (triCount === '2' || triCount === 'iki') && angleSum === '360';
+                if (!isShapeOk) {
+                    $('#app3Step3Feedback').html('<div class="error-message">✗ Lütfen dörtgeni ve kılavuzda gösterilen köşegenini doğru biçimde oluşturduğunuzdan emin olunuz.</div>');
+                    if (window.MathJax) setTimeout(() => MathJax.typesetPromise(), 100);
+                    return;
+                }
 
-                if (isShapeOk && isAnswersOk) {
+                $('#app3Step3Feedback').html('');
+
+                const isTriOk = triCount === '2' || triCount === 'iki';
+                const isAngleOk = angleSum === '360';
+
+                if (isTriOk) {
+                    $('#quadTriCount').prop('disabled', true).css({'border-color': 'var(--success-bg)', 'background': 'rgba(34, 197, 94, 0.1)'});
+                    $('#quadTriCountFeedback').html('<div class="success-message" style="margin:2px 0; padding:4px 8px; font-size:0.9em;">✓ Doğru</div>');
+                } else {
+                    $('#quadTriCountFeedback').html('<div class="error-message" style="margin:2px 0; padding:4px 8px; font-size:0.9em;">✗ Tekrar deneyiniz. Çizdiğiniz köşegenin dörtgeni kaç adet üçgensel bölgeye ayırdığını tekrar sayabilirsiniz.</div>');
+                }
+
+                if (isAngleOk) {
+                    $('#quadAngleSum').prop('disabled', true).css({'border-color': 'var(--success-bg)', 'background': 'rgba(34, 197, 94, 0.1)'});
+                    $('#quadAngleSumFeedback').html('<div class="success-message" style="margin:2px 0; padding:4px 8px; font-size:0.9em;">✓ Doğru</div>');
+                } else {
+                    $('#quadAngleSumFeedback').html('<div class="error-message" style="margin:2px 0; padding:4px 8px; font-size:0.9em;">✗ Tekrar deneyiniz. Bir üçgenin iç açılarının toplamının $180^\\circ$ olduğunu hatırlayarak dörtgenin iç açılarının toplamını hesaplamayı deneyiniz.</div>');
+                }
+
+                if (isTriOk && isAngleOk) {
                     $('#app3Step3Feedback').html('<div class="success-message">✓ Harika! Köşegeni doğru çizdiniz ve iç açılarının toplamını ($2 \\times 180^\\circ = 360^\\circ$) başarıyla hesapladınız.</div>');
                     $('#app3Step3CheckBtn').hide();
                     $('#app3Step3NextArea').show();
-                    if (window.MathJax) setTimeout(() => MathJax.typesetPromise(), 100);
-                } else {
-                    let errMsg = "Lütfen cevaplarınızı kontrol edip tekrar deneyiniz. ";
-                    if (!isShapeOk) errMsg += "Lütfen dörtgeni ve kılavuzda gösterilen köşegenini doğru biçimde oluşturduğunuzdan emin olunuz. ";
-                    if (!isAnswersOk) errMsg += "Soruları lütfen tekrar gözden geçiriniz. Köşegenin dörtgeni kaç üçgensel bölgeye ayırdığına dikkat ediniz. Bir üçgenin iç açılarının toplamının $180^\\circ$ olduğunu kullanarak dörtgenin iç açılarının toplamını bulabilirsiniz.";
-                    $('#app3Step3Feedback').html(`<div class="error-message">✗ ${errMsg}</div>`);
-                    if (window.MathJax) setTimeout(() => MathJax.typesetPromise(), 100);
                 }
+                if (window.MathJax) setTimeout(() => MathJax.typesetPromise(), 100);
             });
             $('#app3Step3NextBtn').off('click').on('click', () => {
                 $(document).off('.app3step3');
