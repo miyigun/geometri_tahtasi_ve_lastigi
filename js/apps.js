@@ -1870,7 +1870,8 @@ function renderApp3Step(step) {
                 <h3>Değerlendirme Sorusu</h3>
             </div>
             <div class="instruction-box" style="margin-top:8px;">
-                <p><strong>Soru:</strong> <b>Konveks bir sekizgenin</b> ($n=8$) <b>iç açılarının toplamı kaç derecedir?</b></p>
+                <p><strong>Soru:</strong></p>
+                <p style="margin-top:4px;"><b>Konveks bir sekizgenin</b> ($n=8$) <b>iç açılarının toplamı kaç derecedir?</b></p>
                 <input type="text" id="app3AssessInput" class="input-field" placeholder="Cevabınızı yazınız..." style="width:100%;">
                 <div id="app3AssessFeedback" style="margin-top:8px;"></div>
             </div>
