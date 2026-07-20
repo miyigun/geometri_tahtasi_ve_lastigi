@@ -2518,7 +2518,7 @@ function loadDeep() {
 
     $('#deepResetBtn').on('click', function () {
         $(document).off('.deepstep');
-        loadDeep();
+        $('[data-tab="intro"]').click();
     });
 }
 
