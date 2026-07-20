@@ -1307,7 +1307,7 @@
 
 .premium-table th {
     background-color: var(--button-bg);
-    color: var(--text-accent);
+    color: #ffffff;
     font-weight: 700;
 }
 
