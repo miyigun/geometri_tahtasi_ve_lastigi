@@ -1692,8 +1692,7 @@ function renderApp3Step(step) {
                 </div>
             </div>`;
             setTimeout(() => {
-                elastics.push({ pins: [{ r: 2, c: 1 }, { r: 2, c: 4 }, { r: 4, c: 2 }], color: '#ef4444', closed: true });
-                incrementElasticUse('#ef4444');
+                elastics.push({ pins: [{ r: 2, c: 1 }, { r: 2, c: 4 }, { r: 4, c: 2 }], color: '#ff6b00', closed: true });
                 if (typeof renderGuides3D === 'function') {
                     renderGuides3D([
                         { pins: [{ r: 0, c: 0 }, { r: 4, c: 2 }], color: '#ef4444', closed: false },
