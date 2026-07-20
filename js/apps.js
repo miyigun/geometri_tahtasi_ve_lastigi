@@ -2424,11 +2424,11 @@ function loadDeep() {
     
     let html = `<div class="instruction-box">
     <h3>Derinleştirme</h3>
-    <p>Geometri tahtası üzerinde kesikli çizgilerle gösterilen <strong>5x4'lük bir dikdörtgeni</strong> lastikle oluşturunuz.</p>
+    <p>Geometri tahtası üzerinde sarı kesikli çizgilerle gösterilen <strong>5×4 boyutundaki dikdörtgeni</strong> lastik yardımıyla oluşturunuz.</p>
 </div>
 <div id="deepQuestionsArea" style="display:none;">
     <div class="instruction-box" style="margin-top:10px;">
-        <p style="font-weight:bold;">Bu şeklin üzerinde oluşturulabilecek kare sayısı kaçtır?</p>
+        <p style="font-weight:bold;">Oluşturduğunuz bu dikdörtgensel bölge içerisinde, köşeleri tahtanın pinleri üzerinde olacak şekilde çizilebilecek tüm karelerin toplam sayısı kaçtır?</p>
         <input type="text" id="deepSquareCount" class="input-field" placeholder="Cevabınızı yazınız..." style="width:100%;">
     </div>
     <div id="deepFeedback" style="margin-top:10px;"></div>
@@ -2476,19 +2476,20 @@ function loadDeep() {
         if (isShapeCorrect && isAnswerCorrect) {
             $('#freeTabBtn').prop('disabled', false);
             $('#deepFeedback').html(
-                `<div class="success-message" style="margin-bottom: 8px;">✓ Tebrikler! Doğru Cevap: 40</div>
+                `<div class="success-message" style="margin-bottom: 8px;">✓ Tebrikler! Doğru cevap: 40</div>
                 <div class="explain-box" style="line-height:1.6; font-size:0.92em; border-left:4px solid var(--success-bg); padding-left:10px; text-align:left; background:var(--bg-secondary); border-radius:6px; padding:12px; margin-top:8px;">
-                    <p style="font-weight:bold; margin-bottom: 4px;">I. YOL</p>
+                    <p style="font-weight:bold; margin-bottom: 4px;">1. Yöntem (Kare Boyutlarına Göre Sayma):</p>
                     <p style="margin-bottom: 8px;">
-                        $1 \\cdot 1 = 1 \\text{ birimkare} \\quad \\rightarrow \\quad 5 \\cdot 4 = 20 \\text{ tane},$<br>
-                        $2 \\cdot 2 = 4 \\text{ birimkare} \\quad \\rightarrow \\quad 4 \\cdot 3 = 12 \\text{ tane},$<br>
-                        $3 \\cdot 3 = 9 \\text{ birimkare} \\quad \\rightarrow \\quad 3 \\cdot 2 = 6 \\text{ tane},$<br>
-                        $4 \\cdot 4 = 16 \\text{ birimkare} \\quad \\rightarrow \\quad 2 \\cdot 1 = 2 \\text{ tane}.$<br>
-                        Toplam <strong>40</strong> tane kare oluşturulabilmektedir.
+                        $1 \\times 1$ boyutunda $1 \\text{ birimkarelik}$ kareler: $5 \\times 4 = 20 \\text{ adet}$,<br>
+                        $2 \\times 2$ boyutunda $4 \\text{ birimkarelik}$ kareler: $4 \\times 3 = 12 \\text{ adet}$,<br>
+                        $3 \\times 3$ boyutunda $9 \\text{ birimkarelik}$ kareler: $3 \\times 2 = 6 \\text{ adet}$,<br>
+                        $4 \\times 4$ boyutunda $16 \\text{ birimkarelik}$ kareler: $2 \\times 1 = 2 \\text{ adet}$.<br>
+                        Buna göre elde edilebilecek toplam kare sayısı: $20 + 12 + 6 + 2 = 40$ adettir.
                     </p>
-                    <p style="font-weight:bold; margin-bottom: 4px;">II. YOL</p>
+                    <p style="font-weight:bold; margin-bottom: 4px;">2. Yöntem (Kombinasyon Yoluyla Hesaplama):</p>
                     <p style="margin-bottom: 8px;">
-                        $2 \\left( \\binom{2}{2} + \\binom{3}{2} + \\binom{4}{2} + \\binom{5}{2} \\right) = 40$
+                        Kombinasyon formülü kullanılarak yatay ve dikey doğruların seçimiyle de aynı sonuca ulaşabiliriz:<br>
+                        $2 \\times \\left( \\binom{2}{2} + \\binom{3}{2} + \\binom{4}{2} + \\binom{5}{2} \\right) = 40$
                     </p>
                     <button class="action-button" id="goToFreeBtn" style="margin-top:12px; width:100%; background:var(--button-bg); box-shadow: 0 0 10px var(--border-glow); border-color:var(--border-color);">Serbest Mod'a Git →</button>
                 </div>`
@@ -2504,13 +2505,13 @@ function loadDeep() {
         } else {
             let errMsg = "";
             if (!isShapeCorrect && !isAnswerCorrect) {
-                errMsg = "Geometri tahtasında 5x4'lük dikdörtgeni çiziniz ve kare sayısını doğru hesaplayınız.";
+                errMsg = "Lütfen geometri tahtası üzerinde 5×4 boyutundaki dikdörtgeni oluşturunuz ve bu bölgedeki toplam kare sayısını yeniden hesaplayınız.";
             } else if (!isShapeCorrect) {
-                errMsg = "Cevabınız doğru (40)! Ancak geometri tahtasında 5x4'lük dikdörtgeni henüz çizmediniz. Lütfen kesikli çizgilerle gösterilen dikdörtgeni kapalı bir lastik olarak oluşturun.";
+                errMsg = "Cevabınız doğru (40)! Ancak geometri tahtasında 5×4 boyutundaki dikdörtgeni henüz çizmediniz. Lütfen sarı kesikli çizgilerle gösterilen dikdörtgeni kapalı bir lastik şeklinde oluşturunuz.";
             } else {
-                errMsg = "Çiziminiz doğru! Ancak bulduğunuz kare sayısı hatalı. Lütfen tekrar hesaplayınız.";
+                errMsg = "Çiziminiz doğru! Ancak hesapladığınız toplam kare sayısı hatalı. Lütfen kare boyutlarına dikkat ederek tekrar hesaplayınız.";
             }
-            $('#deepFeedback').html(`<div class="error-message">✗ Yanlış. ${errMsg}</div>`);
+            $('#deepFeedback').html(`<div class="error-message">✗ Tekrar deneyiniz. ${errMsg}</div>`);
             if (window.MathJax) MathJax.typesetPromise();
         }
     });
