@@ -131,10 +131,22 @@ $(document).ready(function () {
 
     $('#resetBoardBtn').on('click', function () {
         clearBoard();
-        if (threeCamera) {
+        if (threeCamera && threeControls) {
             const isMobile = window.innerWidth <= 640;
-            threeCamera.position.set(0, 0, isMobile ? 13 : 9);
-            if (threeControls) threeControls.reset();
+            const activeTab = $('.tab-button.active').data('tab');
+            if (activeTab === 'app2') {
+                threeCamera.position.set(0, 0, isMobile ? -13 : -9);
+                if (typeof setLockedFace === 'function') setLockedFace('back');
+            } else if (activeTab === 'free') {
+                threeCamera.position.set(0, 0, isMobile ? 13 : 9);
+                if (typeof setLockedFace === 'function') setLockedFace(null);
+            } else {
+                threeCamera.position.set(0, 0, isMobile ? 13 : 9);
+                if (typeof setLockedFace === 'function') setLockedFace('front');
+            }
+            threeCamera.lookAt(0, 0, 0);
+            threeControls.target.set(0, 0, 0);
+            threeControls.update();
         }
     });
 

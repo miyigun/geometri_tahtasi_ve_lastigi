@@ -53,6 +53,15 @@ function initThreeJS() {
     threeControls.addEventListener('start', () => { dragStarted = false; });
     threeControls.addEventListener('change', () => { dragStarted = true; });
 
+    if (typeof window.lockedFace !== 'undefined') {
+        setLockedFace(window.lockedFace);
+    } else {
+        const activeTab = typeof $ !== 'undefined' ? $('.tab-button.active').data('tab') : 'intro';
+        if (activeTab === 'app2') setLockedFace('back');
+        else if (activeTab === 'free') setLockedFace(null);
+        else setLockedFace('front');
+    }
+
     // Board groups
     frontGroup = new THREE.Group();
     backGroup = new THREE.Group();
@@ -827,6 +836,29 @@ function renderGuides3D(guides) {
             console.warn('renderGuides3D error:', e);
         }
     });
+}
+
+function setLockedFace(face) {
+    window.lockedFace = face;
+    if (!threeControls) return;
+
+    if (face === 'front') {
+        threeControls.minAzimuthAngle = -Math.PI / 2 + 0.05;
+        threeControls.maxAzimuthAngle = Math.PI / 2 - 0.05;
+        threeControls.minPolarAngle = 0.15;
+        threeControls.maxPolarAngle = Math.PI - 0.15;
+    } else if (face === 'back') {
+        threeControls.minAzimuthAngle = Math.PI / 2 + 0.05;
+        threeControls.maxAzimuthAngle = 1.5 * Math.PI - 0.05;
+        threeControls.minPolarAngle = 0.15;
+        threeControls.maxPolarAngle = Math.PI - 0.15;
+    } else {
+        threeControls.minAzimuthAngle = -Infinity;
+        threeControls.maxAzimuthAngle = Infinity;
+        threeControls.minPolarAngle = 0;
+        threeControls.maxPolarAngle = Math.PI;
+    }
+    threeControls.update();
 }
 
 // 3D otomatik başlatma

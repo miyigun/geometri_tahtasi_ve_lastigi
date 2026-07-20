@@ -96,12 +96,28 @@ function loadTab(name) {
         const isMobile = window.innerWidth <= 640;
         if (name === 'app2') {
             threeCamera.position.set(0, 0, isMobile ? -13 : -9);
+            if (typeof setLockedFace === 'function') setLockedFace('back');
+            else window.lockedFace = 'back';
+        } else if (name === 'free') {
+            threeCamera.position.set(0, 0, isMobile ? 13 : 9);
+            if (typeof setLockedFace === 'function') setLockedFace(null);
+            else window.lockedFace = null;
         } else {
             threeCamera.position.set(0, 0, isMobile ? 13 : 9);
+            if (typeof setLockedFace === 'function') setLockedFace('front');
+            else window.lockedFace = 'front';
         }
         threeCamera.lookAt(0, 0, 0);
         threeControls.target.set(0, 0, 0);
         threeControls.update();
+    } else {
+        if (name === 'app2') {
+            window.lockedFace = 'back';
+        } else if (name === 'free') {
+            window.lockedFace = null;
+        } else {
+            window.lockedFace = 'front';
+        }
     }
 
     if (name === 'intro') loadIntro();
